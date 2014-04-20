@@ -6,12 +6,12 @@ import traceback
 from targets.fuzzy_target import FuzzyTarget
 from proxy_rotator.proxy_rotate import get_random_proxy
 
-def pnk_request_raw(url_or_target, req_timeout = 5, proxy_rotate = False):
+def pnk_request_raw(url_or_target, req_timeout = 5, proxy_rotate = False, proxy_list = [{}]):
     
 #    sys.stderr.write("Requesting: %s\n" % str(url_or_target))
 
     if proxy_rotate:
-        proxy = get_random_proxy()
+        proxy = get_random_proxy(proxy_list)
     else:
         proxy = {}
 
