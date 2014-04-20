@@ -17,11 +17,13 @@ from payloads.payload import Payload
 
 class MassRequest(object):
 
-    def __init__(self, num_threads = 10, time_per_url = 10, request_timeout = 10):
+    def __init__(self, num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_rotate = False, proxy_list = [{}]):
 
         self.num_threads = num_threads
         self.time_per_url = time_per_url
         self.request_timeout = request_timeout
+        self.proxy_rotate = proxy_rotate
+        self.proxy_list = proxy_list
 
         self.results = []
         self.urls_finished = []
@@ -49,7 +51,7 @@ class MassRequest(object):
 
         for url in urls:
             self.urls_attempted.append(url)
-            proc_result = pool.apply_async(func = pnk_request_raw, args = (url,self.request_timeout), callback = self.add_to_finished)
+            proc_result = pool.apply_async(func = pnk_request_raw, args = (url, self.request_timeout, self.proxy_rotate, self.proxy_list), callback = self.add_to_finished)
             proc_results.append(proc_result)
 
         for pr in proc_results:
@@ -77,7 +79,7 @@ class MassRequest(object):
 
         for target in targets:
             self.targets_attempted.append(target)
-            proc_result = pool.apply_async(func = pnk_request_raw, args = (target, self.request_timeout), callback = self.add_to_finished_targets)
+            proc_result = pool.apply_async(func = pnk_request_raw, args = (target, self.request_timeout, self.proxy_rotate, self.proxy_list), callback = self.add_to_finished_targets)
             proc_results.append(proc_result)
 
         for pr in proc_results:
