@@ -1,0 +1,9 @@
+{
+  "get_fuzz_strings" : 
+    {
+      "mxi_sqli_xpathi_trav_osci" : "../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!",
+      "xss" : "\"><ScRipT>alert(33)</ScRipT>" 
+    },
+   "proxies" : [{"http" : "127.0.0.1"}, {"http" : "127.0.0.2"}],
+   "performance" : {"threads" : 8, "time_per_url" : 2, "request_timeout" : 10}
+}
