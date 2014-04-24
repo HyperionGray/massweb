@@ -1,21 +1,21 @@
 import sys
-from targets.target import Target
-from targets.fuzzy_target import FuzzyTarget
-from fuzzers.ifuzzer import iFuzzer
-from fuzz_generators.url_generator import generate_fuzzy_urls
-from mass_requests.mass_request import MassRequest
-from payloads.payload import Payload
+from massweb.targets.target import Target
+from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.fuzzers.ifuzzer import iFuzzer
+from massweb.fuzz_generators.url_generator import generate_fuzzy_urls
+from massweb.mass_requests.mass_request import MassRequest
+from massweb.payloads.payload import Payload
 from urlparse import parse_qs
 from urlparse import urlparse
 from urlparse import urlunparse
 from urllib import urlencode
-from vuln_checks.mxi import MXICheck
-from vuln_checks.osci import OSCICheck
-from vuln_checks.sqli import SQLICheck
-from vuln_checks.trav import TravCheck
-from vuln_checks.xpathi import XPathICheck
-from vuln_checks.xss import XSSCheck
-from results.result import Result
+from massweb.vuln_checks.mxi import MXICheck
+from massweb.vuln_checks.osci import OSCICheck
+from massweb.vuln_checks.sqli import SQLICheck
+from massweb.vuln_checks.trav import TravCheck
+from massweb.vuln_checks.xpathi import XPathICheck
+from massweb.vuln_checks.xss import XSSCheck
+from massweb.results.result import Result
 
 class GetFuzzer(iFuzzer):
 

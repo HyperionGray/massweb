@@ -1,5 +1,5 @@
-from vuln_checks.match import parse_match
-from vuln_checks.check import Check
+from massweb.vuln_checks.match import parse_match
+from massweb.vuln_checks.check import Check
 
 class XSSCheck(Check):
 

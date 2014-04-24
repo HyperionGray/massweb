@@ -1,5 +1,5 @@
-from vuln_checks.match import match_strings
-from vuln_checks.check import Check
+from massweb.vuln_checks.match import match_strings
+from massweb.vuln_checks.check import Check
 
 class MXICheck(Check):
 

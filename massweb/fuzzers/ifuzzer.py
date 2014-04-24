@@ -1,5 +1,5 @@
-from payloads.payload import Payload
-from targets.target import Target
+from massweb.payloads.payload import Payload
+from massweb.targets.target import Target
 
 class iFuzzer(object):
 

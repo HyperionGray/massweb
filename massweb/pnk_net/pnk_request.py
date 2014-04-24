@@ -3,8 +3,8 @@ import time
 import json
 import requests
 import traceback
-from targets.fuzzy_target import FuzzyTarget
-from proxy_rotator.proxy_rotate import get_random_proxy
+from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.proxy_rotator.proxy_rotate import get_random_proxy
 
 def pnk_request_raw(url_or_target, req_timeout = 5, proxy_rotate = False, proxy_list = [{}]):
     

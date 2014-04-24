@@ -11,9 +11,9 @@ from multiprocessing.pool import ThreadPool
 from multiprocessing import TimeoutError
 import traceback
 from sets import Set
-from pnk_net.pnk_request import pnk_request_raw
-from targets.fuzzy_target import FuzzyTarget
-from payloads.payload import Payload
+from massweb.pnk_net.pnk_request import pnk_request_raw
+from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.payloads.payload import Payload
 
 class MassRequest(object):
 

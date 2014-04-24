@@ -1,4 +1,4 @@
-from payloads.payload import Payload
+from massweb.payloads.payload import Payload
 
 class FuzzyTarget(object):
 
