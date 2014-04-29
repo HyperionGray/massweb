@@ -1,6 +1,7 @@
 import json
 import sys
 import urlparse
+import traceback
 
 previous_domain  = None
 previous_result_dic = None
@@ -30,6 +31,7 @@ for line in sys.stdin:
         previous_result_dic = result_dic_in
 
     except:
+        traceback.print_exc()
         sys.stderr.write("Line failed to process!")
 
 try:

@@ -1,2 +1,2 @@
 include *.txt
-include hadoop-utils/*
+include massweb/hadoop-utils/*

@@ -13,6 +13,7 @@ setup(
     author_email = 'contact@hyperiongray.com',
     packages = find_packages(),
     include_package_data = True,
+    install_requires = ['requests', 'beautifulsoup4'],
     classifiers = [ "Development Status :: 2 - Pre-Alpha",
                     'Intended Audience :: Developers',
                     'Programming Language :: Python :: 2.7',
