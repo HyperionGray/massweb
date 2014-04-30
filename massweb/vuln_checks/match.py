@@ -19,7 +19,7 @@ def match_strings(_input, match_list):
 
 def parse_match(_input, tag, match):
 
-    for script in BeautifulSoup(_input, 'html.parser', 
+    for script in BeautifulSoup(_input, 'lxml', 
                                 parse_only = SoupStrainer([tag])):
 
         if match in script.get_text():

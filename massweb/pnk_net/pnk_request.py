@@ -8,7 +8,7 @@ from massweb.proxy_rotator.proxy_rotate import get_random_proxy
 
 def pnk_request_raw(url_or_target, req_timeout = 5, proxy_rotate = False, proxy_list = [{}]):
     
-#    sys.stderr.write("Requesting: %s\n" % str(url_or_target))
+    sys.stderr.write("Requesting: %s\n" % str(url_or_target))
 
     if proxy_rotate:
         proxy = get_random_proxy(proxy_list)
@@ -17,10 +17,14 @@ def pnk_request_raw(url_or_target, req_timeout = 5, proxy_rotate = False, proxy_
 
     try:
         if isinstance(url_or_target, str):
+
+            sys.stderr.write("Requesting: %s\n" % str(url_or_target))
             r = requests.get(url_or_target, proxies = proxy, timeout = req_timeout)
             return (url_or_target, r.text)
 
         if isinstance(url_or_target, FuzzyTarget):
+
+            sys.stderr.write("Requesting: %s\n" % str(url_or_target))
             r = requests.get(url_or_target.url, proxies = proxy, timeout = req_timeout)
             return (url_or_target, r.text)
 
