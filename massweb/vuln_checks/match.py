@@ -1,4 +1,5 @@
 import requests
+import traceback
 from bs4 import BeautifulSoup, SoupStrainer
 
 def match_string(_input, match):
@@ -22,8 +23,15 @@ def parse_match(_input, tag, match):
     for script in BeautifulSoup(_input, 'lxml', 
                                 parse_only = SoupStrainer([tag])):
 
-        if match in script.get_text():
-            return True
+        try:
+            script_text = script.get_text()
+            if match in script_text:
+                return True
+
+        except:
+            sys.stderr.write("Handled exception:\n")
+            traceback.print_exc()
+            continue
 
     return False
 
