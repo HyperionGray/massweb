@@ -87,6 +87,7 @@ class MassRequest(object):
                 pr.get(timeout = timeout)
 
             except:
+                sys.stderr.write("Handled exception:")
                 traceback.print_exc()
                 pool.terminate()
                 pool.join()
@@ -134,15 +135,20 @@ class MassRequest(object):
 
 if __name__ == "__main__":
 
-    urls_to_fuzz = ["http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95", "http://www.google.com/", 
-                    "http://www.hyperiongray.com", "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E"]
+#    urls_to_fuzz = ["http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95", "http://www.google.com/", 
+#                    "http://www.hyperiongray.com", "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E"]
 
-    targ1 = FuzzyTarget(url = "http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95", payload = Payload("ddd", ["xss"]))
-    targ2 = FuzzyTarget(url = "http://www.hyperiongray.com", payload = Payload("fff", ["sqli"]))
-    targ3 = FuzzyTarget(url = "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E", payload = Payload("fff", ["sqli"]))
-    targ4 = FuzzyTarget(url = "http://www.google.com/", payload = Payload("fff", ["sqli"]))
+#    targ1 = FuzzyTarget(url = "http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95", payload = Payload("ddd", ["xss"]))
+#    targ2 = FuzzyTarget(url = "http://www.hyperiongray.com", payload = Payload("fff", ["sqli"]))
+#    targ3 = FuzzyTarget(url = "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E", payload = Payload("fff", ["sqli"]))
+#    targ4 = FuzzyTarget(url = "http://www.google.com/", payload = Payload("fff", ["sqli"]))
 
-    targets_to_fuzz = [targ1, targ2, targ3, targ4]
+#    targets_to_fuzz = [targ1, targ2, targ3, targ4]
+    f = open("out_urls_to_fuzz_1mil")
+    targets_to_fuzz = []
+    for line in f:
+        url = line.strip()
+        targets_to_fuzz.append(url)
 
     mr = MassRequest()
     mr.get_fuzzy_targets(targets_to_fuzz)

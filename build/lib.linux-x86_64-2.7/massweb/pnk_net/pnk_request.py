@@ -8,8 +8,6 @@ from massweb.proxy_rotator.proxy_rotate import get_random_proxy
 
 def pnk_request_raw(url_or_target, req_timeout = 5, proxy_list = [{}]):
     
-    sys.stderr.write("Requesting: %s\n" % str(url_or_target))
-
     if proxy_list[0]:
         proxy = get_random_proxy(proxy_list)
     else:

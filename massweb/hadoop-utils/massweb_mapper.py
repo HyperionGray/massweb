@@ -6,12 +6,12 @@ from massweb.fuzzers.get_fuzzer import GetFuzzer
 
 def get_proxy_list():
 
-    proxies_raw = """50.118.140.240:29842:acaceres:xxxxx
-    50.118.141.138:29842:acaceres:xxxxxx
-    50.118.141.82:29842:acaceres:xxxxx
-    8.30.147.110:29842:acaceres:xxxx
-    8.30.147.159:29842:acaceres:xxxxxx
-    8.30.147.35:29842:acaceres:xxxxxx"""
+    proxies_raw = """50.118.140.240:29842:acaceres:DgXQdVjG
+    50.118.141.138:29842:acaceres:DgXQdVjG
+    50.118.141.82:29842:acaceres:DgXQdVjG
+    8.30.147.110:29842:acaceres:DgXQdVjG
+    8.30.147.159:29842:acaceres:DgXQdVjG
+    8.30.147.35:29842:acaceres:DgXQdVjG"""
 
     proxies_list = []
     for x in proxies_raw.split("\n"):
@@ -30,7 +30,7 @@ def get_proxy_list():
 def mapper():
 
     proxy_list = get_proxy_list()
-    gf = GetFuzzer(num_threads = 5, proxy_list = proxy_list)
+    gf = GetFuzzer(num_threads = 300, proxy_list = proxy_list)
     gf.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
     gf.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
 

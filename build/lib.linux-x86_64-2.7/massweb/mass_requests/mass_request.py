@@ -87,6 +87,7 @@ class MassRequest(object):
                 pr.get(timeout = timeout)
 
             except:
+                sys.stderr.write("Handled exception:")
                 traceback.print_exc()
                 pool.terminate()
                 pool.join()

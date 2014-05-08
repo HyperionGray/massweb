@@ -17,6 +17,7 @@ massweb/fuzzers/ifuzzer.py
 massweb/hadoop-utils/massweb_mapper.py
 massweb/hadoop-utils/massweb_reducer.py
 massweb/hadoop-utils/massweb_simple_reducer.py
+massweb/hadoop-utils/out_urls_to_fuzz_1mil
 massweb/hadoop-utils/test_data
 massweb/hadoop-utils/urls_to_fuzz
 massweb/hadoop-utils/urls_to_fuzz_small
