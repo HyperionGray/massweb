@@ -29,12 +29,12 @@ def pnk_request_raw(url_or_target, req_timeout = 5, proxy_list = [{}]):
     except:
         #threads suck at exceptions, use this to mark failure
         traceback.print_exc()
-        sys.stderr.write("A request failed to URL %s\n" % url_or_target)
+        #sys.stderr.write("A request failed to URL %s\n" % url_or_target)
         return (url_or_target, "__PNK_REQ_FAILED")
 
 def pnk_post_raw(url, datum):
 
-    sys.stderr.write("Requesting: %s\n" % url)
+    #sys.stderr.write("Requesting: %s\n" % url)
 
     try:
         r = requests.post(url, data = datum, proxies = {}, timeout = timeout)
