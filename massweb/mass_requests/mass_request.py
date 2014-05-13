@@ -65,9 +65,11 @@ class MassRequest(object):
         pool.terminate()
         pool.join()
         list_diff = Set(self.urls_attempted).difference(Set(self.urls_finished))
+        del self.urls_attempted
+        del self.urls_finished
 
         for url in list_diff:
-            sys.stderr.write("URL %s got timeout" % url)
+            #sys.stderr.write("URL %s got timeout" % url)
             self.results.append((url, "__PNK_GET_THREAD_TIMEOUT"))
 
     def get_fuzzy_targets(self, targets):
@@ -96,9 +98,11 @@ class MassRequest(object):
         pool.join()
 
         list_diff = Set(self.targets_attempted).difference(Set(self.targets_finished))
+        del self.targets_attempted
+        del self.targets_finished
 
         for target in list_diff:
-            sys.stderr.write("URL %s got timeout" % str(target))
+            #sys.stderr.write("URL %s got timeout" % str(target))
             self.targets_results.append((target, "__PNK_GET_THREAD_TIMEOUT"))
 
     def post_urls(self, urls_and_data):

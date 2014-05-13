@@ -21,6 +21,10 @@ def match_strings(_input, match_list):
 
 def parse_match(_input, tag, match):
 
+    if sys.getsizeof(_input) > 4097152:
+        sys.stderr.write("Input is too big to parse, skipping it")
+        return False
+
     for script in BeautifulSoup(_input, 'lxml', 
                                 parse_only = SoupStrainer([tag])):
 
@@ -36,8 +40,7 @@ def parse_match(_input, tag, match):
 
     return False
 
-
 if __name__ == "__main__":
 
-    x = requests.get("http://www.hyperiongray.com").text
-    parse_match(x, "script", "d")
+    x = requests.get("http://www.amazon.com").text
+    print parse_match(x, "script", "t")

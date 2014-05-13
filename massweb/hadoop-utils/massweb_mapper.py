@@ -37,14 +37,19 @@ def fuzz_and_print_results(gf):
         except:
             sys.stderr.write("Failed to fuzz a target!\n")
 
+def create_fuzzer():
+
+    gfc = GetFuzzer(num_threads = 150, proxy_list = proxy_list)
+    gfc.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
+    gfc.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
+    return gfc
+
 def mapper():
 
-    simul_fuzz = 100
+    simul_fuzz = 500
     proxy_list = get_proxy_list()
     c = 0
-    gf = GetFuzzer(num_threads = 40, proxy_list = proxy_list)
-    gf.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
-    gf.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
+    gf = create_fuzzer()
 
     for line in sys.stdin:
 
@@ -59,11 +64,10 @@ def mapper():
 
         if c == simul_fuzz:
             fuzz_and_print_results(gf)
-            gf = GetFuzzer(num_threads = 40, targets = [], payloads = [], proxy_list = proxy_list)
-            gf.targets = []
-            gf.payloads = []
-            gf.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
-            gf.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
+            del gf.targets
+            del gf.payloads
+            del gf
+            gf = create_fuzzer()
             c = 0
 
     if c > 0:
