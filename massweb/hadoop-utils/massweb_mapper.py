@@ -39,7 +39,9 @@ def fuzz_and_print_results(gf):
 
 def create_fuzzer():
 
-    gfc = GetFuzzer(num_threads = 150, proxy_list = proxy_list)
+    sys.stderr.write("Creating new fuzzer")
+    proxy_list = get_proxy_list()
+    gfc = GetFuzzer(num_threads = 10, proxy_list = proxy_list)
     gfc.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
     gfc.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
     return gfc
@@ -47,7 +49,6 @@ def create_fuzzer():
 def mapper():
 
     simul_fuzz = 500
-    proxy_list = get_proxy_list()
     c = 0
     gf = create_fuzzer()
 

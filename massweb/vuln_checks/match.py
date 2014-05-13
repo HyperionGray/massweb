@@ -42,5 +42,5 @@ def parse_match(_input, tag, match):
 
 if __name__ == "__main__":
 
-    x = requests.get("http://www.amazon.com").text
+    x = requests.get("http://www.punkspider.org/lists/whitelist.list").text
     print parse_match(x, "script", "t")
