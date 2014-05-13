@@ -25,7 +25,7 @@ def parse_match(_input, tag, match):
         sys.stderr.write("Input is too big to parse, skipping it")
         return False
 
-    for script in BeautifulSoup(_input, 'lxml', 
+    for script in BeautifulSoup(_input, 'html5lib', 
                                 parse_only = SoupStrainer([tag])):
 
         try:

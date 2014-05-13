@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
 
     name = 'massweb',
-    version = '0.0.11',
+    version = '0.0.12',
     description = 'Fast Web Fuzzing and Scanning',
     long_description = 'Hyperion Gray\'s fast scanning and fuzzing module. Used in PunkSPIDER 3.0.',
     url = 'https://bitbucket.org/acaceres/massweb',
@@ -13,7 +13,7 @@ setup(
     author_email = 'contact@hyperiongray.com',
     packages = find_packages(),
     include_package_data = True,
-    install_requires = ['requests', 'beautifulsoup4', 'lxml'],
+    install_requires = ['requests', 'beautifulsoup4', 'html5lib'],
     classifiers = [ "Development Status :: 2 - Pre-Alpha",
                     'Intended Audience :: Developers',
                     'Programming Language :: Python :: 2.7',
