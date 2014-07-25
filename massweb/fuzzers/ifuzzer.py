@@ -15,9 +15,9 @@ class iFuzzer(object):
         payload = Payload(payload_str, check_type_list)
         self.payloads.append(payload)
 
-    def add_target_from_url(self, url):
+    def add_target_from_url(self, url, data = None):
 
-        target = Target(url)
+        target = Target(url, data = data)
         self.targets.append(target)
 
     def add_target(self, target):

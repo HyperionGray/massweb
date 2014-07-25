@@ -13,6 +13,7 @@ import traceback
 from sets import Set
 from massweb.pnk_net.pnk_request import pnk_request_raw
 from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.targets.target import Target
 from massweb.payloads.payload import Payload
 
 class MassRequest(object):
@@ -28,7 +29,6 @@ class MassRequest(object):
         self.urls_finished = []
         self.urls_attempted = []
 
-        self.targets_results = []
         self.targets_finished = []
         self.targets_attempted = []
 
@@ -40,7 +40,7 @@ class MassRequest(object):
     def add_to_finished_targets(self, x):
 
         self.targets_finished.append(x[0])
-        self.targets_results.append(x)
+        self.results.append(x)
 
     def get_urls(self, urls):
 
@@ -50,7 +50,7 @@ class MassRequest(object):
 
         for url in urls:
             self.urls_attempted.append(url)
-            proc_result = pool.apply_async(func = pnk_request_raw, args = (url, self.request_timeout, self.proxy_list), callback = self.add_to_finished)
+            proc_result = pool.apply_async(func = pnk_request_raw, args = (url, "get", None, self.request_timeout, self.proxy_list), callback = self.add_to_finished)
             proc_results.append(proc_result)
 
         for pr in proc_results:
@@ -72,16 +72,51 @@ class MassRequest(object):
             #sys.stderr.write("URL %s got timeout" % url)
             self.results.append((url, "__PNK_GET_THREAD_TIMEOUT"))
 
-    def get_fuzzy_targets(self, targets):
+    def get_targets(self, targets):
 
         timeout = float(self.time_per_url * len(targets))
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
         for target in targets:
-            self.targets_attempted.append(target)
-            proc_result = pool.apply_async(func = pnk_request_raw, args = (target, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
-            proc_results.append(proc_result)
+            if target.ttype == "get":
+                self.targets_attempted.append(target)
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+                proc_results.append(proc_result)
+
+        for pr in proc_results:
+
+            try:
+                pr.get(timeout = timeout)
+
+            except:
+                sys.stderr.write("Handled exception:")
+                traceback.print_exc()
+                pool.terminate()
+                pool.join()
+
+        pool.terminate()
+        pool.join()
+
+        list_diff = Set(self.targets_attempted).difference(Set(self.targets_finished))
+        del self.targets_attempted
+        del self.targets_finished
+
+        for target in list_diff:
+            #sys.stderr.write("URL %s got timeout" % str(target))
+            self.targets_results.append((target, "__PNK_GET_THREAD_TIMEOUT"))
+
+    def post_targets(self, targets):
+
+        timeout = float(self.time_per_url * len(targets))
+        pool = Pool(processes = self.num_threads)
+        proc_results = []
+
+        for target in targets:
+            if target.ttype == "post":
+                self.targets_attempted.append(target)
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+                proc_results.append(proc_result)
 
         for pr in proc_results:
 
@@ -108,16 +143,16 @@ class MassRequest(object):
     def post_urls(self, urls_and_data):
 
         #totally untested
-        timeout = float(self.time_per_url * len(urls))
+        timeout = float(self.time_per_url * len(urls_and_data))
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
-        for url_and_datum in url_and_data:
+        for url_and_datum in urls_and_data:
             url = url_and_datum[0]
             datum = url_and_datum[1]
 
             self.urls_attempted.append(url)
-            proc_result = pool.apply_async(func = pnk_post_raw, args = (url, datum), callback = self.add_to_finished)
+            proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
             proc_results.append(proc_result)
 
         for pr in proc_results:
@@ -137,6 +172,45 @@ class MassRequest(object):
         for url in list_diff:
             self.results.append((url, "__PNK_POST_THREAD_TIMEOUT"))
 
+    def request_targets(self, targets):
+
+        timeout = float(self.time_per_url * len(targets))
+        pool = Pool(processes = self.num_threads)
+        proc_results = []
+
+        for target in targets:
+            if target.ttype == "post":
+                self.targets_attempted.append(target)
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+                proc_results.append(proc_result)
+
+            if target.ttype == "get":
+                self.targets_attempted.append(target)
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+                proc_results.append(proc_result)
+
+        for pr in proc_results:
+
+            try:
+                pr.get(timeout = timeout)
+
+            except:
+                sys.stderr.write("Handled exception:")
+                traceback.print_exc()
+                pool.terminate()
+                pool.join()
+
+        pool.terminate()
+        pool.join()
+
+        list_diff = Set(self.targets_attempted).difference(Set(self.targets_finished))
+        del self.targets_attempted
+        del self.targets_finished
+
+        for target in list_diff:
+            #sys.stderr.write("URL %s got timeout" % str(target))
+            self.targets_results.append((target, "__PNK_GET_THREAD_TIMEOUT"))
+
 if __name__ == "__main__":
 
 #    urls_to_fuzz = ["http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95", "http://www.google.com/", 
@@ -148,19 +222,26 @@ if __name__ == "__main__":
 #    targ4 = FuzzyTarget(url = "http://www.google.com/", payload = Payload("fff", ["sqli"]))
 
 #    targets_to_fuzz = [targ1, targ2, targ3, targ4]
-    f = open("out_urls_to_fuzz_1mil")
-    targets_to_fuzz = []
-    for line in f:
-        url = line.strip()
-        targets_to_fuzz.append(url)
+#    f = open("out_urls_to_fuzz_1mil")
+#    targets_to_fuzz = []
+#    for line in f:
+#        url = line.strip()
+#        targets_to_fuzz.append(url)
+#
 
+    targ1 = FuzzyTarget(url = "http://course.hyperiongray.com/vuln1/formhandler.php", data = {"password" : "%27"}, ttype = "post", payload = Payload("%27", ["sqli"]))
+    targ2 = FuzzyTarget(url = "http://www.hyperiongray.com", payload = Payload("fff", ["sqli"]))
+
+    targets = [targ1, targ2]
     mr = MassRequest()
-    mr.get_fuzzy_targets(targets_to_fuzz)
+    mr.request_targets(targets)
+    print mr.results
 
-    for r in mr.targets_results:
-        target = r[0]
-        print target, r[1][0:100]
-        print "============================================================================"
+#
+#    for r in mr.results:
+#        target = r[0]
+#        print target, r[1][0:100]
+#        print "============================================================================"
 #        print target.payload
 #        print target.payload.check_type_list
 #        print target.payload.payload_str
@@ -168,8 +249,7 @@ if __name__ == "__main__":
 
 
 #    mr.get_urls(urls_to_fuzz)
-#    print "attemped"
-#    print mr.urls_attempted 
+#    print mr.results
 #
 #    print "finished"
 #    print mr.urls_finished 

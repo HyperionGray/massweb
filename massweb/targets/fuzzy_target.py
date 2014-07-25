@@ -11,7 +11,7 @@ class FuzzyTarget(object):
     def __str__(self):
         return self.url
 
-    def __init__(self, url, ttype = "get", payload = None):
+    def __init__(self, url, ttype = "get", data = None, payload = None):
 
         if type(payload) != Payload:
             raise Exception("payload must be of type Payload")
@@ -19,7 +19,7 @@ class FuzzyTarget(object):
         self.url = url
         self.ttype = ttype
         self.payload = payload
-        self.data = {}
+        self.data = data
 
     """
     def replace_param_value(url, param, replacement_string):
