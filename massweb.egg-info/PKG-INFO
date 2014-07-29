@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: massweb
-Version: 0.0.11
+Version: 0.1.0-beta
 Summary: Fast Web Fuzzing and Scanning
 Home-page: https://bitbucket.org/acaceres/massweb
 Author: Alejandro Caceres

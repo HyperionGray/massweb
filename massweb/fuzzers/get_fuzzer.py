@@ -88,7 +88,6 @@ class GetFuzzer(iFuzzer):
         self.mreq.get_targets(fuzzy_targets)
         results = []
         for r in self.mreq.results:
-            sys.stderr.write("Parsing doc")
             ftarget = r[0]
             #print ftarget, r[1][0:100], ftarget.payload.check_type_list
             #!not yet multithreaded, should it be?

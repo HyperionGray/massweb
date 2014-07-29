@@ -21,7 +21,11 @@ def match_strings(_input, match_list):
 
 def parse_match(_input, tag, match):
 
-    for script in BeautifulSoup(_input, 'lxml', 
+    if sys.getsizeof(_input) > 4097152:
+        sys.stderr.write("Input is too big to parse, skipping it")
+        return False
+
+    for script in BeautifulSoup(_input, 'html5lib', 
                                 parse_only = SoupStrainer([tag])):
 
         try:
@@ -30,14 +34,11 @@ def parse_match(_input, tag, match):
                 return True
 
         except:
-            sys.stderr.write("Handled exception:\n")
-            traceback.print_exc()
             continue
 
     return False
 
-
 if __name__ == "__main__":
 
-    x = requests.get("http://www.hyperiongray.com").text
-    parse_match(x, "script", "d")
+    x = requests.get("http://www.punkspider.org/lists/whitelist.list").text
+    print parse_match(x, "script", "t")

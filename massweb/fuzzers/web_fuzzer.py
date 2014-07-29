@@ -24,7 +24,6 @@ class WebFuzzer(iFuzzer):
         self.mreq = MassRequest(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list)
         self.targets = targets
         self.payloads = payloads
-
         self.mxi_check = MXICheck()
         self.osci_check = OSCICheck()
         self.sqli_check = SQLICheck()
@@ -84,6 +83,18 @@ class WebFuzzer(iFuzzer):
                 fuzzy_targets.append(fuzzy_target)
 
         return fuzzy_targets
+    
+    def determine_posts_from_targets(self, dedupe = True):
+
+        #!how to deal with dupes?
+        self.mreq.get_post_requests_from_targets(self.targets)
+        identified_posts = self.mreq.identified_post_requests
+        #dedupe posts if relevant
+        identified_posts = list(set(identified_posts))
+
+        for ip in identified_posts:
+            if ip not in self.targets:
+                self.targets.append(ip)
 
     def generate_fuzzy_targets(self):
 
@@ -108,9 +119,7 @@ class WebFuzzer(iFuzzer):
         self.mreq.request_targets(self.fuzzy_targets)
         results = []
         for r in self.mreq.results:
-            sys.stderr.write("Parsing doc")
             ftarget = r[0]
-            #print ftarget, r[1][0:100], ftarget.payload.check_type_list
             #!not yet multithreaded, should it be?
             result = self.analyze_response(ftarget, r[1])
             results.append(result)
@@ -145,7 +154,6 @@ class WebFuzzer(iFuzzer):
             xss_result = self.xss_check.check(response)
             result_dic["xss"] = xss_result
 
-        print response
         return Result(ftarget, result_dic)
 
 if __name__ == "__main__":
@@ -154,17 +162,43 @@ if __name__ == "__main__":
 
     wf = WebFuzzer()
     wf.add_payload(xss_payload)
-#    t1 = Target("http://www.hyperiongray.com", data = {"p1" : "v1", "p2" : "v2"}, ttype = "post")
-    t2 = Target(url = "http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandler.php", data = {"how" : "%27"}, ttype = "post")
-#    wf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=%27%29")
-#    wf.add_target_from_url("http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd")
-#    wf.add_target(t1)
-    wf.add_target(t2)
-    for target in wf.generate_fuzzy_targets():
-        print target.url, str(target.data)
+    wf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=ddd")
+    wf.add_target_from_url("http://www.dobrevsource.org/index.php?id=nothingfunnyhere")
+    wf.add_target_from_url("http://course.hyperiongray.com/vuln1")
+    wf.add_target_from_url("http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/")
 
+    print "TARGETS PRE POST:"
+    for target in wf.targets:
+        print target
+
+    print "TARGETS POST POST:"
+    wf.determine_posts_from_targets()
+    for target in wf.targets:
+        print target.url, target.data
+
+    print "FUZZY TARGETS:"
+    print wf.generate_fuzzy_targets()
+    for ft in wf.fuzzy_targets:
+        print ft, ft.ttype, ft.data
+
+    print "FUZZ RESULTS:"
     for r in wf.fuzz():
         print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
+
+#    print "targs"
+#    for target in wf.targets:
+#        print target
+
+#    print "--------fuzzy"
+#    for target in ft:
+#        print target
+
+
+#    for target in wf.generate_fuzzy_targets():
+#        print target.url, str(target.data)
+
+#    for r in wf.fuzz():
+#        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
 
 #    gf = GetFuzzer(proxy_list = [{}])
 #    mx_sqli_xmli_trav_osci_payload = Payload("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\"

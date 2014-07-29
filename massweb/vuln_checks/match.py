@@ -34,8 +34,6 @@ def parse_match(_input, tag, match):
                 return True
 
         except:
-            sys.stderr.write("Handled exception:\n")
-            traceback.print_exc()
             continue
 
     return False

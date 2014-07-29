@@ -6,12 +6,9 @@ from massweb.fuzzers.get_fuzzer import GetFuzzer
 
 def get_proxy_list():
 
-    proxies_raw = """50.118.140.240:29842:acaceres:DgXQdVjG
-    50.118.141.138:29842:acaceres:DgXQdVjG
-    50.118.141.82:29842:acaceres:DgXQdVjG
-    8.30.147.110:29842:acaceres:DgXQdVjG
-    8.30.147.159:29842:acaceres:DgXQdVjG
-    8.30.147.35:29842:acaceres:DgXQdVjG"""
+    proxies_raw = """
+    ip:username:password
+"""
 
     proxies_list = []
     for x in proxies_raw.split("\n"):

