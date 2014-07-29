@@ -18,22 +18,22 @@ def pnk_request_raw(url_or_target, request_type = "get", data = None, req_timeou
         if isinstance(url_or_target, str) and request_type == "get":
 
             r = requests.get(url_or_target, proxies = proxy, timeout = req_timeout)
-            return (url_or_target, r.text)
+            return (url_or_target, r)
 
         if isinstance(url_or_target, str) and request_type == "post":
 
             r = requests.post(url_or_target, data = data, proxies = proxy, timeout = req_timeout)
-            return (url_or_target, r.text)
+            return (url_or_target, r)
 
         if (isinstance(url_or_target, FuzzyTarget) or isinstance(url_or_target, Target)) and request_type == "get":
 
             r = requests.get(url_or_target.url, proxies = proxy, timeout = req_timeout)
-            return (url_or_target, r.text)
+            return (url_or_target, r)
 
         if (isinstance(url_or_target, FuzzyTarget) or isinstance(url_or_target, Target)) and request_type == "post":
 
             r = requests.post(url_or_target.url, data = data, proxies = proxy, timeout = req_timeout)
-            return (url_or_target, r.text)
+            return (url_or_target, r)
 
     except:
         #threads suck at exceptions (or I do?), use this to mark failure

@@ -254,18 +254,12 @@ if __name__ == "__main__":
 #    targ4 = FuzzyTarget(url = "http://www.google.com/", payload = Payload("fff", ["sqli"]))
 
     targ1 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ2 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ3 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ4 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ5 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ6 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ7 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ8 = Target(url = "http://course.hyperiongray.com/vuln1")
-    targ9 = Target(url = "http://course.hyperiongray.com/vuln1")
 
-    targets = [targ1, targ2, targ3, targ4, targ5]
+    targets = [targ1]
     mr = MassRequest()
     mr.get_post_requests_from_targets(targets)
+
+
     for t in mr.identified_post_requests:
         print t
 

@@ -121,7 +121,13 @@ class WebFuzzer(iFuzzer):
         for r in self.mreq.results:
             ftarget = r[0]
             #!not yet multithreaded, should it be?
-            result = self.analyze_response(ftarget, r[1])
+            try:
+                result = self.analyze_response(ftarget, r[1].text)
+            except:
+                #if request failed and str is returned instead of Response obj
+                #could save some cycles here not analyzing response
+                result = self.analyze_response(ftarget, r[1])
+
             results.append(result)
 
         return results

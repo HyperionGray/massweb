@@ -30,7 +30,7 @@ def normalize_link(url_to_normalize, current_page_url):
 def find_post_requests(url, response_text = None, strict_scope = True):
 
     if not response_text:
-        response_text = pnk_request_raw(url)[1]
+        response_text = pnk_request_raw(url)[1].text
 
     if strict_scope:
         url_host = urlparse(url).netloc
