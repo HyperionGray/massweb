@@ -58,7 +58,16 @@ class MassRequest(object):
 
     def get_urls(self, urls):
 
-        timeout = float(self.time_per_url * len(urls))
+        try:
+            timeout = float(self.time_per_url * len(urls))
+        except:
+            url_num = 0
+            for url in urls:
+                url_num += 1
+
+            timeout = float(self.time_per_url * url_num)
+            urls.seek(0)
+
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
@@ -84,11 +93,19 @@ class MassRequest(object):
 
         for url in list_diff:
             #sys.stderr.write("URL %s got timeout" % url)
-            self.results.append((url, "__PNK_GET_THREAD_TIMEOUT"))
+            self.results.append((url, "__PNK_THREAD_TIMEOUT"))
 
     def get_targets(self, targets):
 
-        timeout = float(self.time_per_url * len(targets))
+        try:
+            timeout = float(self.time_per_url * len(targets))
+        except:
+            url_num = 0
+            for url in targets:
+                url_num += 1
+            targets.seek(0)
+
+
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
@@ -116,11 +133,18 @@ class MassRequest(object):
 
         for target in list_diff:
             #sys.stderr.write("URL %s got timeout" % str(target))
-            self.targets_results.append((target, "__PNK_GET_THREAD_TIMEOUT"))
+            self.targets_results.append((target, "__PNK_THREAD_TIMEOUT"))
 
     def post_targets(self, targets):
 
-        timeout = float(self.time_per_url * len(targets))
+        try:
+            timeout = float(self.time_per_url * len(targets))
+        except:
+            url_num = 0
+            for url in targets:
+                url_num += 1
+            targets.seek(0)
+
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
@@ -148,12 +172,19 @@ class MassRequest(object):
 
         for target in list_diff:
             #sys.stderr.write("URL %s got timeout" % str(target))
-            self.targets_results.append((target, "__PNK_GET_THREAD_TIMEOUT"))
+            self.targets_results.append((target, "__PNK_THREAD_TIMEOUT"))
 
     def post_urls(self, urls_and_data):
 
-        #totally untested
-        timeout = float(self.time_per_url * len(urls_and_data))
+        try:
+            timeout = float(self.time_per_url * len(urls_and_data))
+        except:
+            url_num = 0
+            for url in urls_and_data:
+                url_num += 1
+
+            urls_and_data.seek(0)
+
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
@@ -179,11 +210,19 @@ class MassRequest(object):
         list_diff = Set(self.urls_attempted).difference(Set(self.urls_finished))
 
         for url in list_diff:
-            self.results.append((url, "__PNK_POST_THREAD_TIMEOUT"))
+            self.results.append((url, "__PNK_THREAD_TIMEOUT"))
 
     def get_post_requests_from_targets(self, targets):
 
-        timeout = float(self.time_per_url * len(targets))
+        try:
+            timeout = float(self.time_per_url * len(targets))
+        except:
+            url_num = 0
+            for url in targets:
+                url_num += 1
+
+            targets.seek(0)
+
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
@@ -208,7 +247,15 @@ class MassRequest(object):
 
     def request_targets(self, targets):
 
-        timeout = float(self.time_per_url * len(targets))
+        try:
+            timeout = float(self.time_per_url * len(targets))
+        except:
+            url_num = 0
+            for url in targets:
+                url_num += 1
+
+            targets.seek(0)
+
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
@@ -241,9 +288,15 @@ class MassRequest(object):
 
         for target in list_diff:
             #sys.stderr.write("URL %s got timeout" % str(target))
-            self.targets_results.append((target, "__PNK_GET_THREAD_TIMEOUT"))
+            self.targets_results.append((target, "__PNK_THREAD_TIMEOUT"))
 
 if __name__ == "__main__":
+
+    f = open("urlssmall.txt")
+    mr = MassRequest(num_threads = 20, time_per_url = 2)
+    
+    mr.get_urls(f.readlines())
+    print mr.results
 
 #    urls_to_fuzz = ["http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95", "http://www.google.com/", 
 #                    "http://www.hyperiongray.com", "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E"]
@@ -253,15 +306,14 @@ if __name__ == "__main__":
 #    targ3 = FuzzyTarget(url = "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E", payload = Payload("fff", ["sqli"]))
 #    targ4 = FuzzyTarget(url = "http://www.google.com/", payload = Payload("fff", ["sqli"]))
 
-    targ1 = Target(url = "http://course.hyperiongray.com/vuln1")
+#    targ1 = Target(url = "http://course.hyperiongray.com/vuln1")
 
-    targets = [targ1]
-    mr = MassRequest()
-    mr.get_post_requests_from_targets(targets)
+#    targets = [targ1]
+#    mr = MassRequest()
+#    mr.get_post_requests_from_targets(targets)
 
-
-    for t in mr.identified_post_requests:
-        print t
+#    for t in mr.identified_post_requests:
+#        print t
 
 #    targets_to_fuzz = [targ3, targ4]
 #    f = open("out_urls_to_fuzz_1mil")
@@ -301,4 +353,3 @@ if __name__ == "__main__":
 #
 #    for x in get_urls(urls_to_fuzz):
 #        print x[0], x[1][0:10]
-#!/usr/bin/python

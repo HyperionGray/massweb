@@ -17,11 +17,13 @@ def pnk_request_raw(url_or_target, request_type = "get", data = None, req_timeou
     try:
         if isinstance(url_or_target, str) and request_type == "get":
 
+            url_or_target = url_or_target.strip()
             r = requests.get(url_or_target, proxies = proxy, timeout = req_timeout)
             return (url_or_target, r)
 
         if isinstance(url_or_target, str) and request_type == "post":
 
+            url_or_target = url_or_target.strip()
             r = requests.post(url_or_target, data = data, proxies = proxy, timeout = req_timeout)
             return (url_or_target, r)
 
