@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 from massweb.targets.target import Target
 from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.fuzzers.ifuzzer import iFuzzer
@@ -79,14 +80,13 @@ class WebFuzzer(iFuzzer):
 
             for payload in self.payloads:
                 data_copy[key] = str(payload)
-                fuzzy_target = FuzzyTarget(url, "post", data = data_copy, payload = payload)
+                fuzzy_target = FuzzyTarget(url, "post", data = data_copy.copy(), payload = payload)
                 fuzzy_targets.append(fuzzy_target)
 
         return fuzzy_targets
     
     def determine_posts_from_targets(self, dedupe = True):
 
-        #!how to deal with dupes?
         self.mreq.get_post_requests_from_targets(self.targets)
         identified_posts = self.mreq.identified_post_requests
         #dedupe posts if relevant
@@ -172,6 +172,7 @@ if __name__ == "__main__":
     wf.add_payload(xss_payload)
     wf.add_payload(trav_payload)
     wf.add_payload(sqli_xpathi_payload)
+
     wf.add_target_from_url("http://course.hyperiongray.com/vuln1")
     wf.add_target_from_url("http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/")
     wf.add_target_from_url("http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
@@ -189,7 +190,7 @@ if __name__ == "__main__":
         print target.url, target.data
 
     print "FuzzyTargets list:"
-    print wf.generate_fuzzy_targets()
+    wf.generate_fuzzy_targets()
     for ft in wf.fuzzy_targets:
         print ft, ft.ttype, ft.data
 
