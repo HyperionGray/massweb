@@ -89,6 +89,7 @@ class WebFuzzer(iFuzzer):
 
         self.mreq.get_post_requests_from_targets(self.targets)
         identified_posts = self.mreq.identified_post_requests
+
         #dedupe posts if relevant
         identified_posts = list(set(identified_posts))
 

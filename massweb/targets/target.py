@@ -6,11 +6,17 @@ class Target(object):
     def __hash__(self):
         return hash((self.url, self.ttype))
 
-    def __str__(self):
-
+    def __unicode__(self):
         return self.url
 
+    def __str__(self):
+        return unicode(self).encode('utf-8', 'replace')
+
     def __init__(self, url, data = None, ttype = "get"):
+
+        if not isinstance(url, unicode):
+            print "exception"
+            raise Exception("URL input must be unicode, not string")
 
         self.url = url
         self.ttype = ttype
@@ -36,3 +42,8 @@ class Target(object):
 
         return url_reassembled
     """
+
+if __name__ == "__main__":
+
+    t = Target("http://www.hyperiongray.com/")
+    print unicode(t)

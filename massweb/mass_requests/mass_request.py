@@ -228,11 +228,12 @@ class MassRequest(object):
 
         for target in targets:
             url = target.url
+            
             if target.ttype == "get":
                 self.targets_attempted.append(target)
-                proc_result = pool.apply_async(func = find_post_requests, args = (url,), callback = self.add_to_identified_post)
+                proc_result = pool.apply_async(func = find_post_requests, args = (url, None, True), callback = self.add_to_identified_post)
                 proc_results.append(proc_result)
-
+        
         for pr in proc_results:
 
             try:
