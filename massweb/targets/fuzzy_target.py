@@ -9,13 +9,14 @@ class FuzzyTarget(Target):
     def __hash__(self):
         return hash((self.url, self.payload, self.ttype))
 
-    def __init__(self, url, ttype = "get", data = None, payload = None):
+    def __init__(self, url, fuzzy_param, ttype = "get", data = None, payload = None):
 
         if type(payload) != Payload:
             raise Exception("payload must be of type Payload")
 
         super(FuzzyTarget, self).__init__(url, data = data, ttype = ttype)
         self.payload = payload
+        self.fuzzy_param = fuzzy_param
 
 if __name__ == "__main__":
 

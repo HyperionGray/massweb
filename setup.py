@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'massweb',
-    version = '0.1.7-beta',
+    version = '0.1.14',
     description = 'Fast Web Fuzzing and Scanning',
     long_description = 'Hyperion Gray\'s fast scanning and fuzzing module. Used in PunkSPIDER 3.0.',
     url = 'https://bitbucket.org/acaceres/massweb',

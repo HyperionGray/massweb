@@ -7,10 +7,10 @@ class Result(object):
 
         url_parsed = urlparse(str(self.fuzzy_target))
         if self.fuzzy_target.ttype == "get":
-            to_ret = json.dumps({"url" : unicode(self.fuzzy_target), "results" : self.result_dic, "request_type" : "get"})
+            to_ret = json.dumps({"url" : unicode(self.fuzzy_target), "results" : self.result_dic, "request_type" : "get", "fuzzy_param" : self.fuzzy_target.fuzzy_param})
 
         if self.fuzzy_target.ttype == "post":
-            to_ret = json.dumps({"url" : unicode(self.fuzzy_target), "data" : self.fuzzy_target.data, "results" : self.result_dic, "request_type" : "post"})
+            to_ret = json.dumps({"url" : unicode(self.fuzzy_target), "data" : self.fuzzy_target.data, "results" : self.result_dic, "request_type" : "post", "fuzzy_param" : self.fuzzy_target.fuzzy_param})
 
         return to_ret        
 

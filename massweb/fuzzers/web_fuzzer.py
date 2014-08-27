@@ -41,7 +41,12 @@ class WebFuzzer(iFuzzer):
         query_dic[param] = replacement_string
 
         #this incidentally will also automatically url-encode the payload (thanks urlencode!)
-        query_reassembled = urlencode(query_dic, doseq = True)
+        #!might cause some incorrect queries with utf-8, needs more testing
+        str_query_dic = {}
+        for k, v in query_dic.iteritems():
+            str_query_dic[k] = unicode(v).encode('utf-8', 'replace')
+
+        query_reassembled = urlencode(str_query_dic, doseq = True)
 
         #3rd element is always the query, replace query with our own
         url_list_parsed = list(url_parsed)
@@ -64,7 +69,7 @@ class WebFuzzer(iFuzzer):
             for payload in self.payloads:
 
                 fuzzy_url = (self.__replace_param_value(url, query_param, str(payload)))
-                fuzzy_target = FuzzyTarget(fuzzy_url, "get", payload = payload)
+                fuzzy_target = FuzzyTarget(fuzzy_url, query_param, "get", payload = payload)
                 fuzzy_targets.append(fuzzy_target)
 
         return fuzzy_targets
@@ -80,7 +85,7 @@ class WebFuzzer(iFuzzer):
 
             for payload in self.payloads:
                 data_copy[key] = str(payload)
-                fuzzy_target = FuzzyTarget(url, "post", data = data_copy.copy(), payload = payload)
+                fuzzy_target = FuzzyTarget(url, key, "post", data = data_copy.copy(), payload = payload)
                 fuzzy_targets.append(fuzzy_target)
 
         return fuzzy_targets
@@ -161,6 +166,7 @@ class WebFuzzer(iFuzzer):
             xss_result = self.xss_check.check(response)
             result_dic["xss"] = xss_result
 
+        
         return Result(ftarget, result_dic)
 
 if __name__ == "__main__":
@@ -174,12 +180,12 @@ if __name__ == "__main__":
     wf.add_payload(trav_payload)
     wf.add_payload(sqli_xpathi_payload)
 
-    wf.add_target_from_url("http://course.hyperiongray.com/vuln1")
-    wf.add_target_from_url("http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/")
-    wf.add_target_from_url("http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
-    wf.add_target_from_url("http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1")
-    wf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
-    wf.add_target_from_url("http://www.dobrevsource.org/index.php?id=1")
+#    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln1")
+#    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/")
+    wf.add_target_from_url(u"http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
+    wf.add_target_from_url(u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1")
+#    wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
+    wf.add_target_from_url(u"http://www.dobrevsource.org/index.php?id=1")
 
     print "Targets list pre post detrmination:"
     for target in wf.targets:

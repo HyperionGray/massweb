@@ -7,7 +7,6 @@ from bs4 import BeautifulSoup, SoupStrainer
 from massweb.mass_requests.mass_request import MassRequest
 from massweb.pnk_net.find_post import normalize_link
 from massweb.targets.crawl_target import CrawlTarget
-from kitchen.text.converters import getwriter
 from massweb.pnk_net.find_post import find_post_requests
 import codecs
 import logging
