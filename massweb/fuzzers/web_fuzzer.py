@@ -1,3 +1,5 @@
+# coding=utf-8
+import traceback
 import sys
 from copy import deepcopy
 from massweb.targets.target import Target
@@ -41,10 +43,10 @@ class WebFuzzer(iFuzzer):
         query_dic[param] = replacement_string
 
         #this incidentally will also automatically url-encode the payload (thanks urlencode!)
-        #!might cause some incorrect queries with utf-8, needs more testing
+        #!might cause some incorrect query params and keys with utf-8, needs more testing
         str_query_dic = {}
         for k, v in query_dic.iteritems():
-            str_query_dic[k] = unicode(v).encode('utf-8', 'replace')
+            str_query_dic[unicode(k).encode('utf-8', 'replace')] = unicode(v).encode('utf-8', 'replace')
 
         query_reassembled = urlencode(str_query_dic, doseq = True)
 
@@ -129,10 +131,12 @@ class WebFuzzer(iFuzzer):
             #!not yet multithreaded, should it be?
             try:
                 result = self.analyze_response(ftarget, r[1].text)
+
             except:
+
                 #if request failed and str is returned instead of Response obj
                 #could save some cycles here not analyzing response
-                result = self.analyze_response(ftarget, r[1])
+                result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
 
             results.append(result)
 
@@ -165,7 +169,6 @@ class WebFuzzer(iFuzzer):
         if "xss" in check_type_list:
             xss_result = self.xss_check.check(response)
             result_dic["xss"] = xss_result
-
         
         return Result(ftarget, result_dic)
 
@@ -175,7 +178,7 @@ if __name__ == "__main__":
     trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
     sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
 
-    wf = WebFuzzer()
+    wf = WebFuzzer(time_per_url = 0.4)
     wf.add_payload(xss_payload)
     wf.add_payload(trav_payload)
     wf.add_payload(sqli_xpathi_payload)
@@ -185,25 +188,25 @@ if __name__ == "__main__":
     wf.add_target_from_url(u"http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
     wf.add_target_from_url(u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1")
 #    wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
-    wf.add_target_from_url(u"http://www.dobrevsource.org/index.php?id=1")
+    wf.add_target_from_url(u"http://www.dobrevȤȤȤȤȤȤsource.org/index.php?idȤȤȤȤȤȤ=1ȤȤȤȤ")
 
-    print "Targets list pre post detrmination:"
-    for target in wf.targets:
-        print target
+#    print "Targets list pre post detrmination:"
+#    for target in wf.targets:
+#        print target
 
     print "Targets list after additional injection points have been found:"
-    wf.determine_posts_from_targets()
-    for target in wf.targets:
-        print target.url, target.data
+##    wf.determine_posts_from_targets()
+#    for target in wf.targets:
+#        print target.url, target.data
 
     print "FuzzyTargets list:"
     wf.generate_fuzzy_targets()
     for ft in wf.fuzzy_targets:
         print ft, ft.ttype, ft.data
 
-    print "Results of our fuzzing:"
-    for r in wf.fuzz():
-        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
+#    print "Results of our fuzzing:"
+#    for r in wf.fuzz():
+#        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
 
 #    print "targs"
 #    for target in wf.targets:
