@@ -8,10 +8,11 @@ from massweb.mass_requests.mass_request import MassRequest
 from massweb.pnk_net.find_post import normalize_link
 from massweb.targets.crawl_target import CrawlTarget
 from massweb.pnk_net.find_post import find_post_requests
+from massweb.mass_requests.response_analysis import parse_worthy
 import codecs
 import logging
 from logging import StreamHandler
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 mc_logger = logging.getLogger('MassCrawlLogger')
 mc_logger.setLevel(logging.INFO)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
@@ -119,10 +120,25 @@ class MassCrawl(object):
 
                     continue
 
+    def filter_targets_by_scope(self):
+
+        #!in large-scale crawls, there's some out of scope posts,
+        #!this is a hack to stop that, real issue should be found 
+        #and resoolved
+        mc_logger.info(u"Filtering targets by scope")
+        filtered_targets = []
+        for target in self.targets:
+            if self.in_scope(target.url):
+                filtered_targets.append(target)
+            else:
+                mc_logger.warn(u"Target filtered out that was not in scope: " % target.url)
+
+        self.targets = filtered_targets
+
     def fetch(self, num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}]):
         """Fetch URLs and append them to the seed list"""
         
-        self.mreq = MassRequest(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list)
+        self.mreq = MassRequest(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list, hadoop_reporting = True)
         unfetched_targets = [unfetched_target for unfetched_target in self.targets if unfetched_target.status == "unfetched"]
 
         for ut in unfetched_targets:
@@ -135,7 +151,7 @@ class MassCrawl(object):
         for target in self.targets:
             target.status = "fetched"
 
-    def parse(self, stay_in_scope = True, max_links = 10, max_parse_size = 5000000):
+    def parse(self, stay_in_scope = True, max_links = 10):
 
         for result in self.results:
 
@@ -148,28 +164,26 @@ class MassCrawl(object):
                 
                 url_path = urlparse(unicode(result[0])).path
 
-                if not "content-type" in response.headers:
-                    mc_logger.info(u"No Content Type header, not parsing " + unicode(result[0]))
+                try:
+
+                    if parse_worthy(response, content_type_match = "text/html", hadoop_reporting = True):
+                        mc_logger.info(u"pase_worthy function tells us to parse")
+                        pass
+                    else:
+                        mc_logger.info(u"pase_worthy function tells us not to try parsing")
+                        continue
+
+                except:
+
+                    mc_logger.warn(u"The response threw an exception trying to find parse worthiness, it was most likely a failed response. Handled exception: ")
+                    traceback.print_exc()
                     continue
+                
+                mc_logger.info(u"Finding post requests on page %s" % unicode(response.url))
 
-                else:
-                    mc_logger.info(u"Content type is of type " + unicode(response.headers["content-type"]) + u": " + unicode(result[0]))
-                    if not "text/html" in response.headers["content-type"]:
-                        mc_logger.info(u"Content type is of type " + unicode(response.headers["content-type"]) + u" NOT parsing: " + unicode(result[0]))
-                        continue
-
-                if "content-length" in response.headers:
-                    mc_logger.info(u"Content length is " + unicode(response.headers["content-length"]) + u": " + unicode(result[0]))
-                    if int(response.headers["content-length"]) > max_parse_size:
-                        mc_logger.info(u"Content length is " + unicode(response.headers["content-length"]) + u" NOT parsing: " + unicode(result[0]))
-                        continue
-
-                else:
-                    if sys.getsizeof(response.text) > max_parse_size:
-                        mc_logger.info(u"URL returned response that was deemed too big to parse, skipping: " + unicode(result[0]))
-                        continue
-
+                #!this doesn't stay in scope?
                 post_request_targets = find_post_requests(response.url, response.text)
+
                 for target_post in post_request_targets:
 
                     ct_post = CrawlTarget(target_post.url)
@@ -191,6 +205,10 @@ class MassCrawl(object):
                 except:
                     mc_logger.warn("Couldn't print exception in MassCrawl.parse")
 
+
+            if stay_in_scope:
+                self.filter_targets_by_scope()
+
             mc_logger.info(u"Finished attempted parsing for " + unicode(result[0]))
 
     def crawl(self, 
@@ -200,21 +218,24 @@ class MassCrawl(object):
               request_timeout = 10, 
               proxy_list = [{}], 
               stay_in_scope = True, 
-              max_links = 10, 
-              max_parse_size = 5000000):
+              max_links = 10):
 
         for _ in range(depth):
 
             mc_logger.info("Entering the fetch phase at depth %s" % str(depth))
             self.fetch(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list)
             mc_logger.info("Entering the parse phase at depth %s" % str(depth))
-            self.parse(max_links = max_links, stay_in_scope = stay_in_scope, max_parse_size = max_parse_size)
+            self.parse(max_links = max_links, stay_in_scope = stay_in_scope)
+
+            if stay_in_scope:                
+                self.filter_targets_by_scope()
+
 
 if __name__ == "__main__":
 
     seeds = ["http://www.hyperiongray.com", "http://course.hyperiongray.com/vuln1", "http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/",
-#             "http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E", "http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1",
-#             "http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1", "http://www.dobrevsource.org/index.php?id=1",
+             "http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E", "http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1",
+             "http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1", "http://www.dobrevsource.org/index.php?id=1",
              u"http://JP納豆.例.jp/", u"http://prisons.ir/", u"http://www.qeng.ir/", u"http://www.girlsworker.jp/shiryo.zip"]
 
     seeds_uni = [unicode(seed) for seed in seeds]

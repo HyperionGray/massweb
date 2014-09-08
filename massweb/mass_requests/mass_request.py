@@ -21,10 +21,18 @@ from massweb.pnk_net.find_post import find_post_requests
 from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.targets.target import Target
 from massweb.payloads.payload import Payload
+import codecs
+import logging
+from logging import StreamHandler
+logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logger = logging.getLogger('MassRequest')
+logger.setLevel(logging.INFO)
+sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 class MassRequest(object):
 
-    def __init__(self, num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}]):
+    def __init__(self, num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False):
 
         self.num_threads = num_threads
         self.time_per_url = time_per_url
@@ -40,6 +48,10 @@ class MassRequest(object):
         self.targets_finished = []
         self.targets_attempted = []
         self.identified_post_requests = []
+        
+        self.hadoop_reporting = hadoop_reporting
+        if self.hadoop_reporting:
+            logger.info(u"Instantiated MassRequest object with %s threads and %s time per url" % (unicode(num_threads), unicode(time_per_url)))
 
     def add_to_identified_post(self, x):
 
@@ -73,15 +85,27 @@ class MassRequest(object):
 
         for url in urls:
             self.urls_attempted.append(url)
-            proc_result = pool.apply_async(func = pnk_request_raw, args = (url, "get", None, self.request_timeout, self.proxy_list), callback = self.add_to_finished)
+
+            if self.hadoop_reporting:
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (url, "get", None, self.request_timeout, self.proxy_list, True), callback = self.add_to_finished)
+            else:                
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (url, "get", None, self.request_timeout, self.proxy_list), callback = self.add_to_finished)
             proc_results.append(proc_result)
+
+        if self.hadoop_reporting:
+            logger.info(u"Giving each URL %s seconds to respond" % unicode(self.time_per_url))
 
         for pr in proc_results:
 
             try:
-                pr.get(timeout = timeout)
+                pr.get(timeout = self.time_per_url)
 
             except:
+
+                if self.hadoop_reporting:
+                    traceback.print_exc()
+                    logger.info(u"Thread timed out or threw exception, killing it and replacing it")
+
                 pool.terminate()
                 pool.join()
 
@@ -97,6 +121,9 @@ class MassRequest(object):
 
     def get_targets(self, targets):
 
+        if self.hadoop_reporting:
+            logger.info("Getting %s targets" % unicode(len(targets)))
+
         try:
             timeout = float(self.time_per_url * len(targets))
         except:
@@ -105,22 +132,33 @@ class MassRequest(object):
                 url_num += 1
             targets.seek(0)
 
-
         pool = Pool(processes = self.num_threads)
         proc_results = []
 
         for target in targets:
             if target.ttype == "get":
                 self.targets_attempted.append(target)
-                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+                if self.hadoop_reporting:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list, True), callback = self.add_to_finished_targets)
+                else:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
                 proc_results.append(proc_result)
+
+
+        if self.hadoop_reporting:
+            logger.info("Giving each URL %s seconds to respond" % unicode(self.time_per_url))
 
         for pr in proc_results:
 
             try:
-                pr.get(timeout = timeout)
+                pr.get(timeout = self.time_per_url)
 
             except:
+
+                if self.hadoop_reporting:
+                    traceback.print_exc()
+                    logger.info(u"Thread timed out or threw exception, killing it and replacing it")
+
                 pool.terminate()
                 pool.join()
 
@@ -137,6 +175,9 @@ class MassRequest(object):
 
     def post_targets(self, targets):
 
+        if self.hadoop_reporting:
+            logger.info(u"Posting %s targets" % unicode(len(targets)))
+
         try:
             timeout = float(self.time_per_url * len(targets))
         except:
@@ -151,15 +192,27 @@ class MassRequest(object):
         for target in targets:
             if target.ttype == "post":
                 self.targets_attempted.append(target)
-                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+                if self.hadoop_reporting:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list, True), callback = self.add_to_finished_targets)
+                else:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
                 proc_results.append(proc_result)
+
+
+        if self.hadoop_reporting:
+            logger.info(u"Giving each URL %s seconds to respond" % unicode(self.time_per_url))
 
         for pr in proc_results:
 
             try:
-                pr.get(timeout = timeout)
+                pr.get(timeout = self.time_per_url)
 
             except:
+
+                if self.hadoop_reporting:
+                    traceback.print_exc()
+                    logger.info("Thraed timed out or threw exception, killing it and replacing it")
+
                 pool.terminate()
                 pool.join()
 
@@ -193,15 +246,27 @@ class MassRequest(object):
             datum = url_and_datum[1]
 
             self.urls_attempted.append(url)
-            proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+            if self.hadoop_reporting:
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list, True), callback = self.add_to_finished_targets)
+            else:
+                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
             proc_results.append(proc_result)
+
+
+        if self.hadoop_reporting:
+            logger.info(u"Giving each URL %s seconds to respond" % unicode(self.time_per_url))
 
         for pr in proc_results:
 
             try:
-                pr.get(timeout = timeout)
+                pr.get(timeout = self.time_per_url)
 
             except:
+
+                if self.hadoop_reporting:
+                    traceback.print_exc()
+                    logger.info("Thraed timed out or threw exception, killing it and replacing it")
+
                 pool.terminate()
                 pool.join()
 
@@ -213,6 +278,9 @@ class MassRequest(object):
             self.results.append((url, "__PNK_THREAD_TIMEOUT"))
 
     def get_post_requests_from_targets(self, targets):
+
+        if self.hadoop_reporting:
+            logger.info(u"Identifying post requests from %s targets" % unicode(len(targets)))
 
         try:
             timeout = float(self.time_per_url * len(targets))
@@ -231,15 +299,28 @@ class MassRequest(object):
             
             if target.ttype == "get":
                 self.targets_attempted.append(target)
-                proc_result = pool.apply_async(func = find_post_requests, args = (url, None, True), callback = self.add_to_identified_post)
+                if self.hadoop_reporting:
+                    proc_result = pool.apply_async(func = find_post_requests, args = (url, None, True, True), callback = self.add_to_identified_post)
+                    
+                else:
+                    proc_result = pool.apply_async(func = find_post_requests, args = (url, None, True), callback = self.add_to_identified_post)
+
                 proc_results.append(proc_result)
         
+        if self.hadoop_reporting:
+            logger.info(u"Giving each URL %s seconds to respond" % unicode(self.time_per_url))
+
         for pr in proc_results:
 
             try:
-                pr.get(timeout = timeout)
+                pr.get(timeout = self.time_per_url)
 
             except:
+
+                if self.hadoop_reporting:
+                    traceback.print_exc()
+                    logger.info(u"Thread timed out or threw exception, killing it and replacing it")
+
                 pool.terminate()
                 pool.join()
 
@@ -247,6 +328,9 @@ class MassRequest(object):
         pool.join()
 
     def request_targets(self, targets):
+
+        if self.hadoop_reporting:
+            logger.info(u"Requesting %s targets" % unicode(len(targets)))
 
         try:
             timeout = float(self.time_per_url * len(targets))
@@ -263,20 +347,38 @@ class MassRequest(object):
         for target in targets:
             if target.ttype == "post":
                 self.targets_attempted.append(target)
-                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+                if self.hadoop_reporting:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list, True), callback = self.add_to_finished_targets)
+
+                else:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "post", target.data, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+
                 proc_results.append(proc_result)
 
             if target.ttype == "get":
                 self.targets_attempted.append(target)
-                proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
+
+                if self.hadoop_reporting:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list, True), callback = self.add_to_finished_targets)
+
+                else:
+                    proc_result = pool.apply_async(func = pnk_request_raw, args = (target, "get", None, self.request_timeout,  self.proxy_list), callback = self.add_to_finished_targets)
                 proc_results.append(proc_result)
+
+        if self.hadoop_reporting:
+            logger.info(u"Giving each URL %s seconds to respond" % unicode(self.time_per_url))
 
         for pr in proc_results:
 
             try:
-                pr.get(timeout = timeout)
+                pr.get(timeout = self.time_per_url)
 
             except:
+
+                if self.hadoop_reporting:
+                    traceback.print_exc()
+                    logger.info(u"Thread timed out or threw exception, killing it and replacing it")
+
                 pool.terminate()
                 pool.join()
 
@@ -287,59 +389,35 @@ class MassRequest(object):
         del self.targets_attempted
         del self.targets_finished
 
+        if self.hadoop_reporting:
+            logger.info(u"Determining timed out targets")
+
         for target in list_diff:
             #sys.stderr.write("URL %s got timeout" % str(target))
             self.targets_results.append((target, "__PNK_THREAD_TIMEOUT"))
 
+        if self.hadoop_reporting:
+            logger.info(u"Finished determining timed out targets")
+
 if __name__ == "__main__":
 
-    f = open("urlssmall.txt")
-    mr = MassRequest(num_threads = 20, time_per_url = 2)
-    
-    mr.get_urls(f.readlines())
-    print mr.results
+    targ1 = FuzzyTarget(u"http://course.hyperiongray.com/vuln1/formhandler.php", "password", data = {"password" : "%27"}, ttype = "post", payload = Payload("%27", ["sqli"]))
+    targ2 = FuzzyTarget(u"http://www.hyperiongray.com/?dd=eee", "dd", payload = Payload("fff", ["sqli"]))
 
-#    urls_to_fuzz = ["http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95", "http://www.google.com/", 
-#                    "http://www.hyperiongray.com", "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E"]
-
-#    targ1 = Target(url = "http://www.pastease.com.au/cart.add?product=33&code=2601BL&price=24.95")
-#    targ2 = Target(url = "http://www.hyperiongray.com", payload = Payload("fff", ["sqli"]))
-#    targ3 = FuzzyTarget(url = "http://www.sfgcd.com/ProductsBuy.asp?ProNo=2013-5-3&ProName=%22%3E%3CSCrIpT%3Ealert%287106%29%3C%2FScRiPt%3E", payload = Payload("fff", ["sqli"]))
-#    targ4 = FuzzyTarget(url = "http://www.google.com/", payload = Payload("fff", ["sqli"]))
-
-#    targ1 = Target(url = "http://course.hyperiongray.com/vuln1")
-
-#    targets = [targ1]
-#    mr = MassRequest()
-#    mr.get_post_requests_from_targets(targets)
-
-#    for t in mr.identified_post_requests:
-#        print t
-
-#    targets_to_fuzz = [targ3, targ4]
-#    f = open("out_urls_to_fuzz_1mil")
-#    targets_to_fuzz = []
-#    for line in f:
-#        url = line.strip()
-#        targets_to_fuzz.append(url)\
-
-#    targ1 = FuzzyTarget(url = "http://course.hyperiongray.com/vuln1eeeeeeeee/formhandler.php", data = {"password" : "%27"}, ttype = "post", payload = Payload("%27", ["sqli"]))
-#    targ2 = FuzzyTarget(url = "http://www.hyperiongray.com", payload = Payload("fff", ["sqli"]))
-
-#    targets = [targ1, targ2]
-#    mr = MassRequest()
-#    mr.request_targets(targets)
-#    print mr.results
+    targets = [targ1, targ2]
+    mr = MassRequest(hadoop_reporting = True)
+    mr.get_post_requests_from_targets(targets)
+    mr.request_targets(targets)
 #
-#
-#    for r in mr.results:
-#        target = r[0]
-#        print target, r[1][0:100]
-#        print "============================================================================"
-#        print target.payload
-#        print target.payload.check_type_list
-#        print target.payload.payload_str
-#        print r[1][0:10]
+
+    for r in mr.results:
+        target = r[0]
+        print target, r[1][0:100]
+        print "============================================================================"
+        print target.payload
+        print target.payload.check_type_list
+        print target.payload.payload_str
+        print r[1][0:10]
 
 
 #    mr.get_urls(urls_to_fuzz)

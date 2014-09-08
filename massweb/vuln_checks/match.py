@@ -21,10 +21,6 @@ def match_strings(_input, match_list):
 
 def parse_match(_input, tag, match):
 
-    if sys.getsizeof(_input) > 4097152:
-        sys.stderr.write("Input is too big to parse, skipping it")
-        return False
-
     for script in BeautifulSoup(_input, 'html5lib', 
                                 parse_only = SoupStrainer([tag])):
 

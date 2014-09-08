@@ -2,6 +2,7 @@
 import traceback
 import sys
 from copy import deepcopy
+import codecs
 from massweb.targets.target import Target
 from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.fuzzers.ifuzzer import iFuzzer
@@ -18,13 +19,21 @@ from massweb.vuln_checks.sqli import SQLICheck
 from massweb.vuln_checks.trav import TravCheck
 from massweb.vuln_checks.xpathi import XPathICheck
 from massweb.vuln_checks.xss import XSSCheck
-from massweb.results.result import Result
+from massweb.results.result import Result 
+from massweb.mass_requests.response_analysis import parse_worthy
+import logging
+from logging import StreamHandler
+logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logger = logging.getLogger('WebFuzzer')
+logger.setLevel(logging.INFO)
+sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 class WebFuzzer(iFuzzer):
 
-    def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}]):
+    def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False):
 
-        self.mreq = MassRequest(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list)
+        self.mreq = MassRequest(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list, hadoop_reporting = hadoop_reporting)
         self.targets = targets
         self.payloads = payloads
         self.mxi_check = MXICheck()
@@ -33,6 +42,10 @@ class WebFuzzer(iFuzzer):
         self.trav_check = TravCheck()
         self.xpathi_check = XPathICheck()
         self.xss_check = XSSCheck()
+
+        self.hadoop_reporting = hadoop_reporting
+        if self.hadoop_reporting:
+            logger.info("Hadoop reporting set in fuzzer")
 
     def __replace_param_value(self, url, param, replacement_string):
         '''Replace a parameter in a url with another string. Returns
@@ -94,6 +107,9 @@ class WebFuzzer(iFuzzer):
     
     def determine_posts_from_targets(self, dedupe = True):
 
+        if self.hadoop_reporting:
+            logger.info("Determining additional post requests from page")
+
         self.mreq.get_post_requests_from_targets(self.targets)
         identified_posts = self.mreq.identified_post_requests
 
@@ -105,6 +121,9 @@ class WebFuzzer(iFuzzer):
                 self.targets.append(ip)
 
     def generate_fuzzy_targets(self):
+
+        if self.hadoop_reporting:
+            logger.info("Generating fuzzy targets")
 
         if len(self.targets) == 0:
             raise Exception("Targets list must not be empty!")
@@ -130,7 +149,7 @@ class WebFuzzer(iFuzzer):
             ftarget = r[0]
             #!not yet multithreaded, should it be?
             try:
-                result = self.analyze_response(ftarget, r[1].text)
+                result = self.analyze_response(ftarget, r[1])
 
             except:
 
@@ -144,30 +163,65 @@ class WebFuzzer(iFuzzer):
 
     def analyze_response(self, ftarget, response):
 
+        #!function is a mess, response is of type text or non-text, trying to read blah blah
         result_dic = {}
         check_type_list = ftarget.payload.check_type_list
+
+        if self.hadoop_reporting:
+            logger.info(u"Response is of type %s for target %s" % (str(type(response)),unicode(ftarget)))
+
+        try:
+            if parse_worthy(response, hadoop_reporting = self.hadoop_reporting):
+                logger.info(u"Target %s looks worth checking for vulnerabilities, doing so" % unicode(ftarget))
+
+            else:
+
+                logger.info(u"Response deemed non-parse-worthy, returning false check dic for %s" % unicode(ftarget))
+                result_dic = {}
+                for check_type in check_type_list:
+                    result_dic[check_type] = False
+
+                return Result(ftarget, result_dic)
+
+        except:
+
+            logger.info(u"Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: " % unicode(ftarget))
+            traceback.print_exc()
+
+            result_dic = {}
+            for check_type in check_type_list:
+                result_dic[check_type] = False
+
+            return Result(ftarget, result_dic)
+        
         if "mxi" in check_type_list:
-            mxi_result = self.mxi_check.check(response)
+
+            mxi_result = self.mxi_check.check(response.text)
             result_dic["mxi"] = mxi_result
 
         if "sqli" in check_type_list:
-            sqli_result = self.sqli_check.check(response)
+
+            sqli_result = self.sqli_check.check(response.text)
             result_dic["sqli"] = sqli_result
 
         if "xpathi" in check_type_list:
-            xpathi_result = self.xpathi_check.check(response)
+
+            xpathi_result = self.xpathi_check.check(response.text)
             result_dic["xpathi"] = xpathi_result
 
         if "trav" in check_type_list:
-            trav_result = self.trav_check.check(response)
+
+            trav_result = self.trav_check.check(response.text)
             result_dic["trav"] = trav_result
 
         if "osci" in check_type_list:
-            osci_result = self.osci_check.check(response)
+
+            osci_result = self.osci_check.check(response.text)
             result_dic["osci"] = osci_result
 
         if "xss" in check_type_list:
-            xss_result = self.xss_check.check(response)
+
+            xss_result = self.xss_check.check(response.text)
             result_dic["xss"] = xss_result
         
         return Result(ftarget, result_dic)
@@ -178,16 +232,16 @@ if __name__ == "__main__":
     trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
     sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
 
-    wf = WebFuzzer(time_per_url = 0.4)
+    wf = WebFuzzer(time_per_url = 5, hadoop_reporting = True)
     wf.add_payload(xss_payload)
     wf.add_payload(trav_payload)
     wf.add_payload(sqli_xpathi_payload)
 
-#    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln1")
-#    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/")
+    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln1")
+    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/")
     wf.add_target_from_url(u"http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
     wf.add_target_from_url(u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1")
-#    wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
+    wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
     wf.add_target_from_url(u"http://www.dobrevȤȤȤȤȤȤsource.org/index.php?idȤȤȤȤȤȤ=1ȤȤȤȤ")
 
 #    print "Targets list pre post detrmination:"
@@ -205,8 +259,8 @@ if __name__ == "__main__":
         print ft, ft.ttype, ft.data
 
 #    print "Results of our fuzzing:"
-#    for r in wf.fuzz():
-#        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
+    for r in wf.fuzz():
+        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
 
 #    print "targs"
 #    for target in wf.targets:

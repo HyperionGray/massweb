@@ -20,8 +20,8 @@ class FuzzyTarget(Target):
 
 if __name__ == "__main__":
 
-    ft1 = FuzzyTarget("ddd", payload = Payload("ddd", check_type_list = ["ddd"]))
-    ft2 = FuzzyTarget("ddd", payload = Payload("ddd", check_type_list = ["ddd"]))
+    ft1 = FuzzyTarget(u"ddd", "dd", payload = Payload("ddd", check_type_list = ["ddd"]))
+    ft2 = FuzzyTarget(u"ddd", "dd", payload = Payload("ddd", check_type_list = ["ddd"]))
 
     if ft1 == ft2:
         print "equal"

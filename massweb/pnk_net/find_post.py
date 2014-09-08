@@ -10,6 +10,15 @@ from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.targets.target import Target
 from massweb.pnk_net.pnk_request import pnk_request_raw
 from urlparse import urljoin
+import codecs
+import logging
+from logging import StreamHandler
+from bs4.element import Tag
+logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logger = logging.getLogger('find_post')
+logger.setLevel(logging.INFO)
+sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 def normalize_link(url_to_normalize, current_page_url):
 
@@ -27,7 +36,10 @@ def normalize_link(url_to_normalize, current_page_url):
 
     return {"norm_url" : full_url, "netloc" : netloc}
 
-def find_post_requests(url, response_text = None, strict_scope = True):
+def find_post_requests(url, response_text = None, strict_scope = True, hadoop_reporting = False):
+
+    if hadoop_reporting:
+        logger.info(u"Finding additional post requests in %s" % unicode(url))
 
     if not response_text:
         response_text = pnk_request_raw(url)[1].text
@@ -36,6 +48,7 @@ def find_post_requests(url, response_text = None, strict_scope = True):
         url_host = urlparse(url).netloc
 
     post_requests = []
+
     for form in BeautifulSoup(response_text, 'html.parser', parse_only=SoupStrainer('form')):
 
         norm_link_dic = normalize_link(form["action"], url)
@@ -46,7 +59,7 @@ def find_post_requests(url, response_text = None, strict_scope = True):
 
             #if form explicitly specifies host that doesn't match current host
             #if doesn't specify host, gets normalized to host so assumed to match
-            if form_host and url_host != form_host:
+            if form_host and (url_host != form_host):
                 #print "no host match"
                 continue
 
@@ -55,10 +68,19 @@ def find_post_requests(url, response_text = None, strict_scope = True):
 
         post_data = {}
         for elem in _input:
-            input_name = elem["name"]
+
+            try:
+                input_name = elem["name"]
+            except:
+                continue
+
             try:
                 value = urllib.quote_plus(elem["value"])
+
             except:
+                if hadoop_reporting:
+                    logger.warn("Handled exception: ")
+                    traceback.print_exc()
                 value = ""
 
             post_data[input_name] = value
@@ -66,17 +88,20 @@ def find_post_requests(url, response_text = None, strict_scope = True):
         target_post = Target(norm_url, data = post_data, ttype = "post")
         post_requests.append(target_post)
 
+    if hadoop_reporting:
+        logger.info(u"Found %s post requests on page %s" % (unicode(len(post_requests)), unicode(url)))
+
     return post_requests
 
 if __name__ == "__main__":
 
 #    find_post_requests("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=ddd")
 
-#    for p in find_post_requests("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=ddd", strict_scope = True):
+#    for p in find_post_requests("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=ddd", strict_scope = False, hadoop_reporting = True):
 #        print p
 
-    for p in find_post_requests("http://course.hyperiongray.com/vuln1"):
-        print p, p.data
+#    for p in find_post_requests("http://www.amazon.com/", hadoop_reporting = True, strict_scope = False):
+#        print p, p.data
 
-    for p in find_post_requests("http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/"):
+    for p in find_post_requests("http://course.hyperiongray.com/test1/", hadoop_reporting = True, strict_scope = False):
         print p, p.data
