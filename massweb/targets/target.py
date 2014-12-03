@@ -1,10 +1,10 @@
 class Target(object):
 
     def __eq__(self, other):
-        return self.url == other.url and self.ttype == other.ttype
+        return self.url == other.url and self.ttype == other.ttype and self.data == other.data
 
     def __hash__(self):
-        return hash((self.url, self.ttype))
+        return hash((self.url, self.ttype, str(self.data)))
 
     def __unicode__(self):
         return self.url
@@ -45,5 +45,9 @@ class Target(object):
 
 if __name__ == "__main__":
 
-    t = Target("http://www.hyperiongray.com/")
-    print unicode(t)
+    t = Target(u"http://www.hyperiongray.com/", ttype = "post", data = {"k1" : "v1"})
+    t2 = Target(u"http://www.hyperiongray.com/", ttype = "post", data = {"k1" : "v2"}) 
+    l = [t]
+
+    if t2 in l:
+        print True

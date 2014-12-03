@@ -103,5 +103,5 @@ if __name__ == "__main__":
 #    for p in find_post_requests("http://www.amazon.com/", hadoop_reporting = True, strict_scope = False):
 #        print p, p.data
 
-    for p in find_post_requests("http://course.hyperiongray.com/test1/", hadoop_reporting = True, strict_scope = False):
+    for p in find_post_requests("http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/", hadoop_reporting = True, strict_scope = False):
         print p, p.data

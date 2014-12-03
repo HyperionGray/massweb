@@ -328,7 +328,6 @@ class MassRequest(object):
         pool.join()
 
     def request_targets(self, targets):
-
         if self.hadoop_reporting:
             logger.info(u"Requesting %s targets" % unicode(len(targets)))
 
@@ -401,23 +400,22 @@ class MassRequest(object):
 
 if __name__ == "__main__":
 
-    targ1 = FuzzyTarget(u"http://course.hyperiongray.com/vuln1/formhandler.php", "password", data = {"password" : "%27"}, ttype = "post", payload = Payload("%27", ["sqli"]))
-    targ2 = FuzzyTarget(u"http://www.hyperiongray.com/?dd=eee", "dd", payload = Payload("fff", ["sqli"]))
+#    targ1 = FuzzyTarget(u"http://course.hyperiongray.com/vuln1/formhandler.php", "password", data = {"password" : "%27"}, ttype = "post", payload = Payload("%27", ["sqli"]))
+    targ2 = Target(u"http://www.hyperiongray.com/?dd=eee", "dd")
 
-    targets = [targ1, targ2]
+    targets = [targ2]
     mr = MassRequest(hadoop_reporting = True)
     mr.get_post_requests_from_targets(targets)
     mr.request_targets(targets)
-#
 
     for r in mr.results:
         target = r[0]
-        print target, r[1][0:100]
+        print target, r[1]
         print "============================================================================"
-        print target.payload
-        print target.payload.check_type_list
-        print target.payload.payload_str
-        print r[1][0:10]
+#        print target.payload
+#        print target.payload.check_type_list
+#        print target.payload.payload_str
+        print r[1]
 
 
 #    mr.get_urls(urls_to_fuzz)

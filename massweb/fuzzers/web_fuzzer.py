@@ -31,11 +31,14 @@ sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 class WebFuzzer(iFuzzer):
 
-    def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False):
+    def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False, payload_groups = []):
 
-        self.mreq = MassRequest(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list, hadoop_reporting = hadoop_reporting)
+        #do this because we may need to create more MassRequest objects in checks (like bsqli), needs to be configured the same
+        self.mreq_config_dict = {"num_threads" : num_threads, "time_per_url" : time_per_url, "request_timeout" : request_timeout, "proxy_list" : proxy_list, "hadoop_reporting" : hadoop_reporting}
+        self.mreq = MassRequest(**self.mreq_config_dict)
+        
         self.targets = targets
-        self.payloads = payloads
+        self.payloads = payloads        
         self.mxi_check = MXICheck()
         self.osci_check = OSCICheck()
         self.sqli_check = SQLICheck()
@@ -46,30 +49,6 @@ class WebFuzzer(iFuzzer):
         self.hadoop_reporting = hadoop_reporting
         if self.hadoop_reporting:
             logger.info("Hadoop reporting set in fuzzer")
-
-    def __replace_param_value(self, url, param, replacement_string):
-        '''Replace a parameter in a url with another string. Returns
-        a fully reassembled url as a string.'''
-
-        url_parsed = urlparse(url)
-        query_dic = parse_qs(url_parsed.query)
-        query_dic[param] = replacement_string
-
-        #this incidentally will also automatically url-encode the payload (thanks urlencode!)
-        #!might cause some incorrect query params and keys with utf-8, needs more testing
-        str_query_dic = {}
-        for k, v in query_dic.iteritems():
-            str_query_dic[unicode(k).encode('utf-8', 'replace')] = unicode(v).encode('utf-8', 'replace')
-
-        query_reassembled = urlencode(str_query_dic, doseq = True)
-
-        #3rd element is always the query, replace query with our own
-        url_list_parsed = list(url_parsed)
-        url_list_parsed[4] = query_reassembled
-        url_parsed_q_replaced = tuple(url_list_parsed)
-        url_reassembled = urlunparse(url_parsed_q_replaced)
-
-        return url_reassembled
 
     def __generate_fuzzy_target_get(self, target):
 
@@ -83,8 +62,8 @@ class WebFuzzer(iFuzzer):
 
             for payload in self.payloads:
 
-                fuzzy_url = (self.__replace_param_value(url, query_param, str(payload)))
-                fuzzy_target = FuzzyTarget(fuzzy_url, query_param, "get", payload = payload)
+                fuzzy_url = (self.replace_param_value(url, query_param, str(payload)))
+                fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get", payload = payload)
                 fuzzy_targets.append(fuzzy_target)
 
         return fuzzy_targets
@@ -100,25 +79,10 @@ class WebFuzzer(iFuzzer):
 
             for payload in self.payloads:
                 data_copy[key] = str(payload)
-                fuzzy_target = FuzzyTarget(url, key, "post", data = data_copy.copy(), payload = payload)
+                fuzzy_target = FuzzyTarget(url, url, key, "post", data = data_copy.copy(), payload = payload, unfuzzed_data = target.data)
                 fuzzy_targets.append(fuzzy_target)
 
         return fuzzy_targets
-    
-    def determine_posts_from_targets(self, dedupe = True):
-
-        if self.hadoop_reporting:
-            logger.info("Determining additional post requests from page")
-
-        self.mreq.get_post_requests_from_targets(self.targets)
-        identified_posts = self.mreq.identified_post_requests
-
-        #dedupe posts if relevant
-        identified_posts = list(set(identified_posts))
-
-        for ip in identified_posts:
-            if ip not in self.targets:
-                self.targets.append(ip)
 
     def generate_fuzzy_targets(self):
 
@@ -155,6 +119,10 @@ class WebFuzzer(iFuzzer):
 
                 #if request failed and str is returned instead of Response obj
                 #could save some cycles here not analyzing response
+                if self.hadoop_reporting:
+                    logger.info("Marking target as failed due to exception: ")
+                    traceback.print_exc()
+                    
                 result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
 
             results.append(result)
@@ -223,44 +191,46 @@ class WebFuzzer(iFuzzer):
 
             xss_result = self.xss_check.check(response.text)
             result_dic["xss"] = xss_result
-        
+
         return Result(ftarget, result_dic)
 
 if __name__ == "__main__":
 
     xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
-    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
-    sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
+#    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
+#    sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
+    bsqli_payload = Payload('bsqlipayload', check_type_list = ["bsqli"])
 
-    wf = WebFuzzer(time_per_url = 5, hadoop_reporting = True)
-    wf.add_payload(xss_payload)
-    wf.add_payload(trav_payload)
-    wf.add_payload(sqli_xpathi_payload)
+    wf = WebFuzzer(time_per_url = 10, hadoop_reporting = True)
+#    wf.add_payload(xss_payload)
+##    wf.add_payload(trav_payload)
+#    wf.add_payload(sqli_xpathi_payload)
+    wf.add_payload(bsqli_payload)
 
-    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln1")
-    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/")
-    wf.add_target_from_url(u"http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
-    wf.add_target_from_url(u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1")
-    wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
-    wf.add_target_from_url(u"http://www.dobrevȤȤȤȤȤȤsource.org/index.php?idȤȤȤȤȤȤ=1ȤȤȤȤ")
+#    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln1")
+    wf.add_target_from_url(u"http://www.hyperiongray.com/?q=whatever")
+#    wf.add_target_from_url(u"http://www.wpsurfing.co.za/?feed=11")
+#    wf.add_target_from_url(u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1")
+#    wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
+#    wf.add_target_from_url(u"http://www.dobrevȤȤȤȤȤȤsource.org/index.php?idȤȤȤȤȤȤ=1ȤȤȤȤ")
 
-#    print "Targets list pre post detrmination:"
-#    for target in wf.targets:
-#        print target
+    print "Targets list pre post detrmination:"
+    for target in wf.targets:
+        print target
 
     print "Targets list after additional injection points have been found:"
-##    wf.determine_posts_from_targets()
-#    for target in wf.targets:
-#        print target.url, target.data
+    wf.determine_posts_from_targets()
+    for target in wf.targets:
+        print target.url, target.data
 
     print "FuzzyTargets list:"
     wf.generate_fuzzy_targets()
     for ft in wf.fuzzy_targets:
-        print ft, ft.ttype, ft.data
+        print ft, ft.ttype, ft.data, ft.unfuzzed_url, ft.unfuzzed_data
 
-#    print "Results of our fuzzing:"
+    print "Results of our fuzzing:"
     for r in wf.fuzz():
-        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
+        print r
 
 #    print "targs"
 #    for target in wf.targets:

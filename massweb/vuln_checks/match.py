@@ -21,8 +21,7 @@ def match_strings(_input, match_list):
 
 def parse_match(_input, tag, match):
 
-    for script in BeautifulSoup(_input, 'html5lib', 
-                                parse_only = SoupStrainer([tag])):
+    for script in BeautifulSoup(_input, 'html5lib').findAll('script'):
 
         try:
             script_text = script.get_text()
@@ -30,11 +29,13 @@ def parse_match(_input, tag, match):
                 return True
 
         except:
+            traceback.print_exc()
             continue
 
     return False
 
 if __name__ == "__main__":
 
-    x = requests.get("http://www.punkspider.org/lists/whitelist.list").text
+    x = requests.get("http://www.punkspider.org/").text    
+#    x = open("oaktree.file.out").read()
     print parse_match(x, "script", "t")

@@ -128,10 +128,11 @@ class MassCrawl(object):
         mc_logger.info(u"Filtering targets by scope")
         filtered_targets = []
         for target in self.targets:
+
             if self.in_scope(target.url):
                 filtered_targets.append(target)
             else:
-                mc_logger.warn(u"Target filtered out that was not in scope: " % target.url)
+                mc_logger.warn(u"Target filtered out that was not in scope: %s" % target.url)
 
         self.targets = filtered_targets
 

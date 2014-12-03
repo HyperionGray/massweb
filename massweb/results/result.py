@@ -12,7 +12,7 @@ class Result(object):
         if self.fuzzy_target.ttype == "post":
             to_ret = json.dumps({"url" : unicode(self.fuzzy_target), "data" : self.fuzzy_target.data, "results" : self.result_dic, "request_type" : "post", "fuzzy_param" : self.fuzzy_target.fuzzy_param})
 
-        return to_ret        
+        return to_ret
 
     def __str__(self):
 

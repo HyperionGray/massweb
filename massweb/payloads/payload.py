@@ -9,10 +9,11 @@ class Payload(object):
     def __str__(self):
         return self.payload_str
 
-    def __init__(self, payload_str, check_type_list = []):
+    def __init__(self, payload_str, check_type_list = [], payload_attributes = {}):
 
         self.check_type_list = check_type_list
         self.payload_str = payload_str
+        self.payload_attributes = payload_attributes
 
 if __name__ == "__main__":
 
