@@ -30,22 +30,34 @@ from massweb.vuln_checks.trav import TravCheck
 from massweb.vuln_checks.xpathi import XPathICheck
 from massweb.vuln_checks.xss import XSSCheck
 
-
+# setup logger object
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('WebFuzzer')
 logger.setLevel(logging.INFO)
 
+# force stdin and stderr to use utf-8
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 class WebFuzzer(iFuzzer):
+    """ FIXME: Describe this module in 3 sentences or less """
 
     def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False, payload_groups = []):
-
-        #do this because we may need to create more MassRequest objects in checks (like bsqli), needs to be configured the same
+        """ FIXME: Fill in this docstring 
+	targets list of Target objects. Default [].
+	payloads list of Payload objects. Default [].
+	num_threads Number of threads to launch as an int. Default 10.
+	time_per_url time to ___ each url. Default 10.
+	request_timeout ___ timeout in ___unit time___. Default 10.
+	proxy_list list of dict containg ___. Default [{}].
+	hadoop_reporting bool where ___ if True and ___ if False. Default False.
+	payload_groups list of ___. Default [].
+    
+	"""
+        # do this because we may need to create more MassRequest objects in 
+	#  checks (like bsqli), needs to be configured the same
         self.mreq_config_dict = {"num_threads" : num_threads, "time_per_url" : time_per_url, "request_timeout" : request_timeout, "proxy_list" : proxy_list, "hadoop_reporting" : hadoop_reporting}
         self.mreq = MassRequest(**self.mreq_config_dict)
-        
         self.targets = targets
         self.payloads = payloads        
         self.mxi_check = MXICheck()
@@ -54,157 +66,122 @@ class WebFuzzer(iFuzzer):
         self.trav_check = TravCheck()
         self.xpathi_check = XPathICheck()
         self.xss_check = XSSCheck()
-
         self.hadoop_reporting = hadoop_reporting
         if self.hadoop_reporting:
             logger.info("Hadoop reporting set in fuzzer")
 
     def __generate_fuzzy_target_get(self, target):
-
+        """ FIXME: Fill in this docstring 
+        target ___
+        """
         url = target.url
         parsed_url = urlparse(url)
         parsed_url_query = parsed_url.query
         url_q_dic = parse_qs(parsed_url_query)
-
         fuzzy_targets = []
         for query_param, query_val in url_q_dic.iteritems():
-
             for payload in self.payloads:
-
                 fuzzy_url = (self.replace_param_value(url, query_param, str(payload)))
                 fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get", payload = payload)
                 fuzzy_targets.append(fuzzy_target)
-
         return fuzzy_targets
 
     def __generate_fuzzy_target_post(self, target):
-
+        """ FIXME: Fill in this docstring
+        target ___
+        """
         url = target.url
         fuzzy_targets = []
         post_keys = target.data.keys()
-
         for key in post_keys:
             data_copy = target.data.copy()
-
             for payload in self.payloads:
                 data_copy[key] = str(payload)
                 fuzzy_target = FuzzyTarget(url, url, key, "post", data = data_copy.copy(), payload = payload, unfuzzed_data = target.data)
                 fuzzy_targets.append(fuzzy_target)
-
         return fuzzy_targets
 
     def generate_fuzzy_targets(self):
-
+	""" FIXME: Add docstring """
         if self.hadoop_reporting:
             logger.info("Generating fuzzy targets")
-
+	# If no targets then raise an exception
         if len(self.targets) == 0:
             raise Exception("Targets list must not be empty!")
-
         self.fuzzy_targets = []
         for target in self.targets:
-
             if target.ttype == "get":
                 fuzzy_target_list = self.__generate_fuzzy_target_get(target)
                 self.fuzzy_targets += fuzzy_target_list
-
             if target.ttype == "post":
                 fuzzy_target_list = self.__generate_fuzzy_target_post(target)
                 self.fuzzy_targets += fuzzy_target_list
-            
         return self.fuzzy_targets
 
     def fuzz(self):
-
+	""" FIXME: Add docstring """
         self.mreq.request_targets(self.fuzzy_targets)
         results = []
         for r in self.mreq.results:
             ftarget = r[0]
-            #!not yet multithreaded, should it be?
+            #FIXME: Clarify with alex: !not yet multithreaded, should it be?
             try:
                 result = self.analyze_response(ftarget, r[1])
-
             except:
-
-                #if request failed and str is returned instead of Response obj
-                #could save some cycles here not analyzing response
+                # If request failed and str is returned instead of Response obj
+                #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
                     logger.info("Marking target as failed due to exception: ")
                     traceback.print_exc()
-                    
                 result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
-
             results.append(result)
-
         return results
 
     def analyze_response(self, ftarget, response):
-
-        #!function is a mess, response is of type text or non-text, trying to read blah blah
+        #FIXME: Clarify with alex: !function is a mess, response is of type text or non-text, trying to read blah blah
         result_dic = {}
         check_type_list = ftarget.payload.check_type_list
 
         if self.hadoop_reporting:
             logger.info(u"Response is of type %s for target %s" % (str(type(response)),unicode(ftarget)))
-
         try:
             if parse_worthy(response, hadoop_reporting = self.hadoop_reporting):
                 logger.info(u"Target %s looks worth checking for vulnerabilities, doing so" % unicode(ftarget))
-
             else:
-
                 logger.info(u"Response deemed non-parse-worthy, returning false check dic for %s" % unicode(ftarget))
                 result_dic = {}
                 for check_type in check_type_list:
                     result_dic[check_type] = False
-
                 return Result(ftarget, result_dic)
-
         except:
-
             logger.info(u"Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: " % unicode(ftarget))
             traceback.print_exc()
-
             result_dic = {}
             for check_type in check_type_list:
                 result_dic[check_type] = False
-
             return Result(ftarget, result_dic)
-        
         if "mxi" in check_type_list:
-
             mxi_result = self.mxi_check.check(response.text)
             result_dic["mxi"] = mxi_result
-
         if "sqli" in check_type_list:
-
             sqli_result = self.sqli_check.check(response.text)
             result_dic["sqli"] = sqli_result
-
         if "xpathi" in check_type_list:
-
             xpathi_result = self.xpathi_check.check(response.text)
             result_dic["xpathi"] = xpathi_result
-
         if "trav" in check_type_list:
-
             trav_result = self.trav_check.check(response.text)
             result_dic["trav"] = trav_result
-
         if "osci" in check_type_list:
-
             osci_result = self.osci_check.check(response.text)
             result_dic["osci"] = osci_result
-
         if "xss" in check_type_list:
-
             xss_result = self.xss_check.check(response.text)
             result_dic["xss"] = xss_result
-
         return Result(ftarget, result_dic)
 
 if __name__ == "__main__":
-
+    # FIXME: Clean up this comment spray
     xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
 #    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
 #    sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
