@@ -1,31 +1,40 @@
 # coding=utf-8
-import traceback
-import sys
-from copy import deepcopy
+
+""" FIXME: Add docstring """
 import codecs
-from massweb.targets.target import Target
-from massweb.targets.fuzzy_target import FuzzyTarget
+import logging
+import sys
+import traceback
+from logging import StreamHandler
+from copy import deepcopy
+from urlparse import parse_qs, urlparse, urlunparse
+from urllib import urlencode
+
 from massweb.fuzzers.ifuzzer import iFuzzer
 from massweb.fuzz_generators.url_generator import generate_fuzzy_urls
+
 from massweb.mass_requests.mass_request import MassRequest
+from massweb.mass_requests.response_analysis import parse_worthy
+
 from massweb.payloads.payload import Payload
-from urlparse import parse_qs
-from urlparse import urlparse
-from urlparse import urlunparse
-from urllib import urlencode
+
+from massweb.results.result import Result
+
+from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.targets.target import Target
+
 from massweb.vuln_checks.mxi import MXICheck
 from massweb.vuln_checks.osci import OSCICheck
 from massweb.vuln_checks.sqli import SQLICheck
 from massweb.vuln_checks.trav import TravCheck
 from massweb.vuln_checks.xpathi import XPathICheck
 from massweb.vuln_checks.xss import XSSCheck
-from massweb.results.result import Result 
-from massweb.mass_requests.response_analysis import parse_worthy
-import logging
-from logging import StreamHandler
+
+
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('WebFuzzer')
 logger.setLevel(logging.INFO)
+
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
