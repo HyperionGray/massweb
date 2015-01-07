@@ -5,13 +5,9 @@ import codecs
 import logging
 import sys
 import traceback
-from logging import StreamHandler
-from copy import deepcopy
-from urlparse import parse_qs, urlparse, urlunparse
-from urllib import urlencode
+from urlparse import parse_qs, urlparse
 
 from massweb.fuzzers.ifuzzer import iFuzzer
-from massweb.fuzz_generators.url_generator import generate_fuzzy_urls
 
 from massweb.mass_requests.mass_request import MassRequest
 from massweb.mass_requests.response_analysis import parse_worthy
@@ -21,7 +17,6 @@ from massweb.payloads.payload import Payload
 from massweb.results.result import Result
 
 from massweb.targets.fuzzy_target import FuzzyTarget
-from massweb.targets.target import Target
 
 from massweb.vuln_checks.mxi import MXICheck
 from massweb.vuln_checks.osci import OSCICheck
@@ -43,7 +38,7 @@ class WebFuzzer(iFuzzer):
     """ FIXME: Describe this module in 3 sentences or less """
 
     def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False, payload_groups = []):
-        """ FIXME: Fill in this docstring 
+        """ FIXME: Fill in this docstring
 	targets list of Target objects. Default [].
 	payloads list of Payload objects. Default [].
 	num_threads Number of threads to launch as an int. Default 10.
@@ -54,7 +49,7 @@ class WebFuzzer(iFuzzer):
 	payload_groups list of ___. Default [].
     
 	"""
-        # do this because we may need to create more MassRequest objects in 
+        # do this because we may need to create more MassRequest objects in
 	#  checks (like bsqli), needs to be configured the same
         self.mreq_config_dict = {"num_threads" : num_threads, "time_per_url" : time_per_url, "request_timeout" : request_timeout, "proxy_list" : proxy_list, "hadoop_reporting" : hadoop_reporting}
         self.mreq = MassRequest(**self.mreq_config_dict)
@@ -71,7 +66,7 @@ class WebFuzzer(iFuzzer):
             logger.info("Hadoop reporting set in fuzzer")
 
     def __generate_fuzzy_target_get(self, target):
-        """ FIXME: Fill in this docstring 
+        """ FIXME: Fill in this docstring
         target ___
         """
         url = target.url
@@ -82,7 +77,7 @@ class WebFuzzer(iFuzzer):
         for query_param, query_val in url_q_dic.iteritems():
             for payload in self.payloads:
                 fuzzy_url = (self.replace_param_value(url, query_param, str(payload)))
-                fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get", payload = payload)
+                fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get", payload=payload)
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
@@ -118,8 +113,8 @@ class WebFuzzer(iFuzzer):
                 self.fuzzy_targets += fuzzy_target_list
         return self.fuzzy_targets
 
-    def fuzz(self):
-	""" FIXME: Add docstring """
+    def fuzz_hook(self):
+        """ FIXME: Add docstring """
         self.mreq.request_targets(self.fuzzy_targets)
         results = []
         for r in self.mreq.results:
@@ -127,7 +122,7 @@ class WebFuzzer(iFuzzer):
             #FIXME: Clarify with alex: !not yet multithreaded, should it be?
             try:
                 result = self.analyze_response(ftarget, r[1])
-            except:
+            except: #FIXME Specify exception types?
                 # If request failed and str is returned instead of Response obj
                 #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
@@ -138,6 +133,11 @@ class WebFuzzer(iFuzzer):
         return results
 
     def analyze_response(self, ftarget, response):
+        """
+        ftargeet ___
+        response ___
+        returns ___
+        """
         #FIXME: Clarify with alex: !function is a mess, response is of type text or non-text, trying to read blah blah
         result_dic = {}
         check_type_list = ftarget.payload.check_type_list
@@ -153,7 +153,7 @@ class WebFuzzer(iFuzzer):
                 for check_type in check_type_list:
                     result_dic[check_type] = False
                 return Result(ftarget, result_dic)
-        except:
+        except:  #FIXME Specify exception types?
             logger.info(u"Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: " % unicode(ftarget))
             traceback.print_exc()
             result_dic = {}
@@ -179,7 +179,7 @@ class WebFuzzer(iFuzzer):
             xss_result = self.xss_check.check(response.text)
             result_dic["xss"] = xss_result
         return Result(ftarget, result_dic)
-
+'''
 if __name__ == "__main__":
     # FIXME: Clean up this comment spray
     xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
@@ -254,3 +254,4 @@ if __name__ == "__main__":
 #
 #    for res in gf.fuzz():
 #        print res
+'''
