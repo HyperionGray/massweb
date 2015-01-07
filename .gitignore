@@ -2,3 +2,4 @@ build/
 massweb.egg-info/
 dist/
 *.pyc
+env
