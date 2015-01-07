@@ -47,7 +47,6 @@ class WebFuzzer(iFuzzer):
 	proxy_list list of dict containg ___. Default [{}].
 	hadoop_reporting bool where ___ if True and ___ if False. Default False.
 	payload_groups list of ___. Default [].
-    
 	"""
         # do this because we may need to create more MassRequest objects in
 	#  checks (like bsqli), needs to be configured the same
@@ -64,6 +63,7 @@ class WebFuzzer(iFuzzer):
         self.hadoop_reporting = hadoop_reporting
         if self.hadoop_reporting:
             logger.info("Hadoop reporting set in fuzzer")
+        self.fuzzy_targets = []
 
     def __generate_fuzzy_target_get(self, target):
         """ FIXME: Fill in this docstring
@@ -102,7 +102,7 @@ class WebFuzzer(iFuzzer):
             logger.info("Generating fuzzy targets")
 	# If no targets then raise an exception
         if len(self.targets) == 0:
-            raise Exception("Targets list must not be empty!")
+            raise ValueError("Targets list must not be empty!")
         self.fuzzy_targets = []
         for target in self.targets:
             if target.ttype == "get":
@@ -111,9 +111,11 @@ class WebFuzzer(iFuzzer):
             if target.ttype == "post":
                 fuzzy_target_list = self.__generate_fuzzy_target_post(target)
                 self.fuzzy_targets += fuzzy_target_list
+        if not self.fuzzy_targets:
+            raise ValueError("fuzzy_targets is empty. No targets generated from: %s", ','.join([str(x) for x in self.targets]))
         return self.fuzzy_targets
 
-    def fuzz_hook(self):
+    def fuzz(self):
         """ FIXME: Add docstring """
         self.mreq.request_targets(self.fuzzy_targets)
         results = []

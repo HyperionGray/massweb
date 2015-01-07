@@ -1,8 +1,6 @@
 """ """
 
-from urlparse import parse_qs
-from urlparse import urlparse
-from urlparse import urlunparse
+from urlparse import parse_qs, urlparse, urlunparse
 from urllib import urlencode
 
 from massweb.payloads.payload import Payload
@@ -10,10 +8,13 @@ from massweb.targets.target import Target
 
 
 class iFuzzer(object):
-    """ """
-    #FIXME: pylint says no self.target, self.mreq, or self.payloads
-
-    fuzzy_targets = []
+    """ 
+    The following must be implemented in __init__() 
+    self.fuzzy_targets = []
+    self.targets = []
+    self.payloads = []
+    self.mreq = MassRequest()
+    """
 
     def add_payload(self, payload):
         """ """
@@ -37,6 +38,7 @@ class iFuzzer(object):
             raise Exception("target must be of type Target")
         self.targets.append(target)
 
+    #FIXME: maybe remove this to make bsqli and web fuzzers have a more uniform interface
     def generate_fuzzy_targets(self):
         """ """
         pass
@@ -114,14 +116,6 @@ class iFuzzer(object):
 
     def fuzz(self):
         """ FIXME: Doc comment """
-        if not self.fuzzy_targets:
-            raise ValueError("fuzzy_targets is empty. run generate_fuzzy_targets() to populate it.")
-        return self.fuzz_hook()
-
-    def fuzz_hook(self):
-        """ Implement this method in child classes to have it run when fuzz()
-        is called. The return value of this method will be returned by fuzz()
-        """
         raise NotImplementedError("fuzz_hook() needs to be implemented in each child class.")
 
 if __name__ == "__main__":

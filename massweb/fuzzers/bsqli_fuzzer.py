@@ -1,3 +1,5 @@
+"""  """
+
 from __future__ import division
 import sys
 import codecs
@@ -63,6 +65,7 @@ class BSQLiFuzzer(iFuzzer):
         if self.hadoop_reporting:
             logger.info("Hadoop reporting set in fuzzer")
         self.bsqli_payload_groups = bsqli_payload_groups
+        self.fuzzy_target_groups = []
         for target in targets:
             try:
                 max_content_length_variance = self.__check_url_stability(target)
@@ -162,16 +165,23 @@ class BSQLiFuzzer(iFuzzer):
 
     def __build_fuzzy_target_groups(self):
         """ FIXME: Docstring """
-        #FIXME: should this be defined here? (see pylint)
+        #clear out the target groups to avoid overlap
         self.fuzzy_target_groups = []
+        if not self.bsqli_payload_groups:
+            raise ValueError("bsqli_payload_groups is empty")
         for bsqli_payload_group in self.bsqli_payload_groups:
+            if not self.targets:
+                raise ValueError("targets is empty.")
             for target in self.targets:
+                #FIXME: no need to hold these in local variables. they can be appended to self.fuzzy_target_groups directly
                 if target.ttype == "get":
                     ftgs = self.__build_get_fuzzy_target_group_from_payload_group(target, bsqli_payload_group)
                 elif target.ttype == "post":
                     ftgs = self.__build_post_fuzzy_target_group_from_payload_group(target, bsqli_payload_group)
                 for ftg in ftgs:
                     self.fuzzy_target_groups.append(ftg)
+        if not self.fuzzy_target_groups:
+            raise ValueError("No fuzzy_target_groups created from: %s", ','.join([str(x) for x in self.targets]))
         #FIXME: does this need to return since it's referencing a property?
         return self.fuzzy_target_groups
 
@@ -198,7 +208,7 @@ class BSQLiFuzzer(iFuzzer):
             elif fuzzy_target.payload.payload_attributes["truth"] == False:
                 false_target, false_response = fuzzy_target, response
             else:
-                raise Exception("BSQLI target doesn't have truth attribute")
+                raise AttributeError("BSQLI target doesn't have truth attribute")
         try:
             true_content_length = len(true_response.content)
             false_content_length = len(false_response.content)
@@ -214,12 +224,11 @@ class BSQLiFuzzer(iFuzzer):
                 logger.info("No Blind SQL with true response content of %s and false of %s", true_content_length, false_content_length)
             return False
 
-    def fuzz_hook(self):
+    def fuzz(self):
         """ FIXME: Docstring """
         self.__build_fuzzy_target_groups()
-        fuzzy_target_groups = self.__build_fuzzy_target_groups()
         results = []
-        for ftg in fuzzy_target_groups:
+        for ftg in self.fuzzy_target_groups:
             result_dic = {}
             '''for fuzzy_target in ftg.fuzzy_targets:
                 random_debug = """================================================
@@ -231,7 +240,7 @@ print fuzzy_target.unfuzzed_data
 print fuzzy_target.unfuzzed_url
 print fuzzy_target.payload.payload_attributes
 ================================================"""
-                pring(random_debug)'''
+                print(random_debug)'''
             try:
                 if ftg.fuzzy_targets[0].unfuzzed_target in self.unstable_targets:
                     logger.info(u"Target %s is unstable so marking bsqli result as false", unicode(ftg.fuzzy_targets[0].unfuzzed_target))
@@ -248,6 +257,7 @@ print fuzzy_target.payload.payload_attributes
         return results
 
 
+'''
 if __name__ == "__main__":
     #FIXME: Comments
     target = Target(u"http://www.hyperiongray.com/?q=333&q2=v2")
@@ -268,3 +278,4 @@ if __name__ == "__main__":
     bf = BSQLiFuzzer([target, target2, target3, target4], bsqli_payload_groups = payload_groups, hadoop_reporting=True, num_threads = 5)
     for result in bf.fuzz():
         print result
+'''
