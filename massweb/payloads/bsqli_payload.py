@@ -1,4 +1,5 @@
-""" """
+""" Blind SQL Injection (BSQLI) Payload type """
+
 from massweb.payloads.payload import Payload
 
 class BSQLIPayload(Payload):
@@ -15,8 +16,10 @@ class BSQLIPayload(Payload):
                                            check_type_list=check_type_list,
                                            payload_attributes=payload_attributes
                                           )
+        # a 'truth' key is required for BSQLI subpayloads
         if "truth" not in payload_attributes:
             raise KeyError("A BSQLIPayload must have a truth attribute assigned to it, indicating the truth value of the payload for a SQL db")
+        # The value of the 'truth' key must be a bool
         if (payload_attributes["truth"] != True and
             payload_attributes["truth"] != False):
             raise TypeError("The truth attribute assigned to the BSQLIPayload class must be True or False ")
