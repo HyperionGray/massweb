@@ -105,8 +105,7 @@ class MassRequest(object):
 
         if self.hadoop_reporting:
             logger.info("Getting %d targets", len(targets))
-
-       timeout = self.get_timeout(self.time_per_url, targets)
+        timeout = self.get_timeout(self.time_per_url, targets)
 
         pool = Pool(processes=self.num_threads)
         proc_results = []
