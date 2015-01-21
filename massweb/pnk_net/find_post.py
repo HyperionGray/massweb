@@ -21,76 +21,55 @@ sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 def normalize_link(url_to_normalize, current_page_url):
-
-    #not quite, doesn't include path in normalization, gets paths wrong
-
+    #FIXME: not quite, doesn't include path in normalization, gets paths wrong
     cp_scheme, cp_netloc, cp_path, cp_params, cp_query, cp_fragment = urlparse(current_page_url)
-
     parsed_url_to_normalize = urlparse(url_to_normalize)
     scheme, netloc, path, params, query, fragment = urlparse(url_to_normalize)
-
     if not parsed_url_to_normalize.scheme or not parsed_url_to_normalize.netloc:
         full_url = urljoin(current_page_url, url_to_normalize)
     else:
         full_url = url_to_normalize
-
     return {"norm_url" : full_url, "netloc" : netloc}
 
-def find_post_requests(url, response_text = None, strict_scope = True, hadoop_reporting = False):
+def find_post_requests(url, response_text=None, strict_scope=True, hadoop_reporting=False):
 
     if hadoop_reporting:
-        logger.info(u"Finding additional post requests in %s" % unicode(url))
-
+        logger.info("Finding additional post requests in %s", url)
     if not response_text:
         response_text = pnk_request_raw(url)[1].text
-
     if strict_scope:
         url_host = urlparse(url).netloc
-
     post_requests = []
-
     for form in BeautifulSoup(response_text, 'html.parser', parse_only=SoupStrainer('form')):
-
         norm_link_dic = normalize_link(form["action"], url)
         norm_url = norm_link_dic["norm_url"]
         form_host = norm_link_dic["netloc"]
-
         if strict_scope:
-
             #if form explicitly specifies host that doesn't match current host
             #if doesn't specify host, gets normalized to host so assumed to match
             if form_host and (url_host != form_host):
                 #print "no host match"
                 continue
-
         listform = ["text", "radio", "checkbox", "password", "file", "image", "hidden"]
         _input = form.findAll('input', {'type' : listform})
-
         post_data = {}
         for elem in _input:
-
             try:
                 input_name = elem["name"]
             except:
                 continue
-
             try:
                 value = urllib.quote_plus(elem["value"])
-
             except:
                 if hadoop_reporting:
                     logger.warn("Handled exception: ")
                     traceback.print_exc()
                 value = ""
-
             post_data[input_name] = value
-
         target_post = Target(norm_url, data = post_data, ttype = "post")
         post_requests.append(target_post)
-
     if hadoop_reporting:
-        logger.info(u"Found %s post requests on page %s" % (unicode(len(post_requests)), unicode(url)))
-
+        logger.info(u"Found %s post requests on page %s", len(post_requests), url)
     return post_requests
 
 if __name__ == "__main__":
