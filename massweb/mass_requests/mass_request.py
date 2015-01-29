@@ -58,7 +58,7 @@ class MassRequest(object):
 
         # get timeout for process
         # UNUSED
-        timeout = self.get_timeout(self.time_per_url, urls)
+        timeout = self.determine_timeout(self.time_per_url, urls)
         # Load up the process pool
         pool = Pool(processes=self.num_threads)
         proc_results = []
@@ -105,7 +105,7 @@ class MassRequest(object):
 
         if self.hadoop_reporting:
             logger.info("Getting %d targets", len(targets))
-        timeout = self.get_timeout(self.time_per_url, targets)
+        timeout = self.determine_timeout(self.time_per_url, targets)
 
         pool = Pool(processes=self.num_threads)
         proc_results = []
@@ -153,7 +153,7 @@ class MassRequest(object):
         if self.hadoop_reporting:
             logger.info(u"Posting %s targets" % unicode(len(targets)))
 
-        timeout = self.get_timeout(self.time_per_url, targets)
+        timeout = self.determine_timeout(self.time_per_url, targets)
 
         pool = Pool(processes=self.num_threads)
         proc_results = []
