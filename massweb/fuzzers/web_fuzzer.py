@@ -1,18 +1,14 @@
-# coding=utf-8
+""" Web Fuzzer Class. """
 
-""" FIXME: Add docstring """
 import codecs
 import logging
 import sys
-import traceback
 from urlparse import parse_qs, urlparse
 
 from massweb.fuzzers.ifuzzer import iFuzzer
 
 from massweb.mass_requests.mass_request import MassRequest
 from massweb.mass_requests.response_analysis import parse_worthy
-
-from massweb.payloads.payload import Payload
 
 from massweb.results.result import Result
 
@@ -35,25 +31,26 @@ sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 class WebFuzzer(iFuzzer):
-    """ FIXME: Describe this module in 3 sentences or less """
+    """ Generates lists of targets with associated payloads and runs them against the target systems. """
 
     def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False, payload_groups = []):
-        """ FIXME: Fill in this docstring
-	targets list of Target objects. Default [].
-	payloads list of Payload objects. Default [].
-	num_threads Number of threads to launch as an int. Default 10.
-	time_per_url time to ___ each url. Default 10.
-	request_timeout ___ timeout in ___unit time___. Default 10.
-	proxy_list list of dict containg ___. Default [{}].
-	hadoop_reporting bool where ___ if True and ___ if False. Default False.
-	payload_groups list of ___. Default [].
-	"""
+        """ Initialize this WebFuzzer object.
+
+        targets             list of Target objects. Default [].
+        payloads            list of Payload objects. Default [].
+        num_threads         Number of threads/processes to launch as an int. Default 10.
+        time_per_url        Time in seconds to spend on each Target. Default 10.
+        request_timeout     Time in seconds to wait for a connection before giving up. Default 10.
+        proxy_list          list of proxies specified as dicts. Default empty.
+        hadoop_reporting    Output info for hadoop if True. Default False.
+        payload_groups      list of groups of Payload objects. Default [].
+        """
         # do this because we may need to create more MassRequest objects in
-	#  checks (like bsqli), needs to be configured the same
-        self.mreq_config_dict = {"num_threads" : num_threads, "time_per_url" : time_per_url, "request_timeout" : request_timeout, "proxy_list" : proxy_list, "hadoop_reporting" : hadoop_reporting}
+        #  checks (like bsqli), needs to be configured the same
+        self.mreq_config_dict = {"num_threads": num_threads, "time_per_url": time_per_url, "request_timeout": request_timeout, "proxy_list": proxy_list, "hadoop_reporting": hadoop_reporting}
         self.mreq = MassRequest(**self.mreq_config_dict)
         self.targets = targets
-        self.payloads = payloads        
+        self.payloads = payloads
         self.mxi_check = MXICheck()
         self.osci_check = OSCICheck()
         self.sqli_check = SQLICheck()
@@ -66,15 +63,17 @@ class WebFuzzer(iFuzzer):
         self.fuzzy_targets = []
 
     def __generate_fuzzy_target_get(self, target):
-        """ FIXME: Fill in this docstring
-        target ___
+        """ Associate fuzzing data for GET requests with the target.
+
+        target  Target object.
+        returns list of Targets with fuzzing data.
         """
         url = target.url
         parsed_url = urlparse(url)
         parsed_url_query = parsed_url.query
         url_q_dic = parse_qs(parsed_url_query)
         fuzzy_targets = []
-        for query_param, query_val in url_q_dic.iteritems():
+        for query_param, _ in url_q_dic.iteritems():
             for payload in self.payloads:
                 fuzzy_url = (self.replace_param_value(url, query_param, str(payload)))
                 fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get", payload=payload)
@@ -82,8 +81,10 @@ class WebFuzzer(iFuzzer):
         return fuzzy_targets
 
     def __generate_fuzzy_target_post(self, target):
-        """ FIXME: Fill in this docstring
-        target ___
+        """ Associate fuzzing data for POST requests with the target.
+
+        target  Target object.
+        returns list of Targets with fuzzing data.
         """
         url = target.url
         fuzzy_targets = []
@@ -92,15 +93,15 @@ class WebFuzzer(iFuzzer):
             data_copy = target.data.copy()
             for payload in self.payloads:
                 data_copy[key] = str(payload)
-                fuzzy_target = FuzzyTarget(url, url, key, "post", data = data_copy.copy(), payload = payload, unfuzzed_data = target.data)
+                fuzzy_target = FuzzyTarget(url, url, key, "post", data=data_copy.copy(), payload=payload, unfuzzed_data=target.data)
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
     def generate_fuzzy_targets(self):
-	""" FIXME: Add docstring """
+        """ Associate fuzzing data with the targets. """
         if self.hadoop_reporting:
             logger.info("Generating fuzzy targets")
-	# If no targets then raise an exception
+        # If no targets then raise an exception
         if len(self.targets) == 0:
             raise ValueError("Targets list must not be empty!")
         self.fuzzy_targets = []
@@ -116,7 +117,10 @@ class WebFuzzer(iFuzzer):
         return self.fuzzy_targets
 
     def fuzz(self):
-        """ FIXME: Add docstring """
+        """ Fuzz all the targets and return the results.
+        
+        returns     list of Result objects.
+        """
         self.mreq.request_targets(self.fuzzy_targets)
         results = []
         for r in self.mreq.results:
@@ -128,36 +132,34 @@ class WebFuzzer(iFuzzer):
                 # If request failed and str is returned instead of Response obj
                 #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
-                    logger.info("Marking target as failed due to exception: ")
-                    traceback.print_exc()
+                    logger.info("Marking target as failed due to exception: ", exec_info=True)
                 result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
             results.append(result)
         return results
 
     def analyze_response(self, ftarget, response):
-        """
-        ftargeet ___
-        response ___
-        returns ___
+        """ Analyze the results of the request and return the info gathered.
+
+        ftargeet    Target object.
+        response    requests.Respnse object.
+        returns     Result object.
         """
         #FIXME: Clarify with alex: !function is a mess, response is of type text or non-text, trying to read blah blah
         result_dic = {}
         check_type_list = ftarget.payload.check_type_list
-
         if self.hadoop_reporting:
-            logger.info(u"Response is of type %s for target %s" % (str(type(response)),unicode(ftarget)))
+            logger.info(u"Response is of type %s for target %s", response.__class__.__name__, ftarget)
         try:
-            if parse_worthy(response, hadoop_reporting = self.hadoop_reporting):
-                logger.info(u"Target %s looks worth checking for vulnerabilities, doing so" % unicode(ftarget))
+            if parse_worthy(response, hadoop_reporting=self.hadoop_reporting):
+                logger.info("Target %s looks worth checking for vulnerabilities, doing so", ftarget)
             else:
-                logger.info(u"Response deemed non-parse-worthy, returning false check dic for %s" % unicode(ftarget))
+                logger.info("Response deemed non-parse-worthy, returning false check dic for %s", ftarget)
                 result_dic = {}
                 for check_type in check_type_list:
                     result_dic[check_type] = False
                 return Result(ftarget, result_dic)
         except:  #FIXME Specify exception types?
-            logger.info(u"Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: " % unicode(ftarget))
-            traceback.print_exc()
+            logger.info("Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: ", ftarget, exec_info=True)
             result_dic = {}
             for check_type in check_type_list:
                 result_dic[check_type] = False
