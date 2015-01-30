@@ -36,7 +36,7 @@ class Target(object):
             url     unicode object containing the location of the target.
             data    POST request payload as a dict.
             ttype   HTTP request type (get,post). Default "get". """
-        #FIXME: why so picky about unicode?
+        # urlparse needs unicode. see PNKTHR-50
         if not isinstance(url, unicode):
             raise TypeError("URL input must be unicode, not string")
         self.url = url
@@ -59,15 +59,4 @@ class Target(object):
 
     def _parse(self):
         return urlparse(unicode(self))
-
-
-
-#FIXME: put in unittest
-"""
-def test__eq__(self):
-    t1 = Target(u"http://www.hyperiongray.com/", ttype = "post", data = {"k1" : "v1"})
-    t2 = Target(u"http://www.hyperiongray.com/", ttype = "post", data = {"k1" : "v2"}) 
-    l = [t1]
-    self.assertEqual(t1, t2)
-"""
 

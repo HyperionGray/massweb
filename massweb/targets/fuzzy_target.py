@@ -44,18 +44,3 @@ class FuzzyTarget(Target):
         self.unfuzzed_url = unfuzzed_url
         self.unfuzzed_data = unfuzzed_data
         self.unfuzzed_target = Target(unfuzzed_url, unfuzzed_data, ttype=ttype)
-
-#FIXME: Add to unittest
-'''
-if __name__ == "__main__":
-
-    ft1 = FuzzyTarget(u"ddd", "dd", "dd", payload = Payload("ddd", check_type_list = ["ddd"]))
-    ft2 = FuzzyTarget(u"ddd", "dd", payload = Payload("ddd", check_type_list = ["ddd"]))
-
-    if ft1 == ft2:
-        print "equal"
-
-    print ft1.payload
-    print ft1.url
-    print ft1
-'''
