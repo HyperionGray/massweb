@@ -3,13 +3,14 @@
 from massweb.payloads.payload import Payload
 
 class BSQLIPayload(Payload):
-    """ Blind SQL Injection Payload module """
+    """ Blind SQL Injection Payload class """
 
     def __init__(self, payload_str, payload_attributes,
                  check_type_list=["bsqli"]):
-        """
+        """ Initialize this BSQLIPayload.
+
         payload_str str containing the payload.
-        payload_attributes ?dict? of attributes of ___. Requires key 'truth' of type bool.
+        payload_attributes dict of attributes of this object. Requires key 'truth' of type bool.
         check_type_list list of ways this should be checked. Default ["bsqli"].
         """
         super(BSQLIPayload, self).__init__(payload_str,
