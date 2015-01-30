@@ -272,27 +272,3 @@ class BSQLiFuzzer(iFuzzer):
                     result_dic["bsqli"] = False
             results.append(Result(ftg.fuzzy_targets[0], result_dic))
         return results
-
-
-'''
-if __name__ == "__main__":
-    #FIXME: Comments
-    target = Target(u"http://www.hyperiongray.com/?q=333&q2=v2")
-    target2 = Target(u"http://prisons.ir/index.php?Module=SMMNewsAgency&SMMOp=View&SMM_CMD=&PageId=6935", ttype = "get")
-    target3 = Target(u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/?dd=%3Cscript%3Ealert%2833%29%3C/script%3E")
-    target4 = Target(u"http://course.hyperiongray.com/bsqli-example/?q=44", ttype = "get")
-
-    generic_true_payload =  BSQLIPayload(" AND 1=1", {"truth" : True})
-    generic_false_payload =  BSQLIPayload(" AND 1=2", {"truth" : False})
-    generic_payload_group = BSQLIPayloadGroup(generic_true_payload, generic_false_payload)
-
-    dump_true_payload =  BSQLIPayload(" OR 1=1", {"truth" : True})
-    dump_false_payload =  BSQLIPayload(" OR 1=2", {"truth" : False})
-    dump_payload_group = BSQLIPayloadGroup(dump_true_payload, dump_false_payload)
-
-    payload_groups = [generic_payload_group, dump_payload_group]
-
-    bf = BSQLiFuzzer([target, target2, target3, target4], bsqli_payload_groups = payload_groups, hadoop_reporting=True, num_threads = 5)
-    for result in bf.fuzz():
-        print result
-'''
