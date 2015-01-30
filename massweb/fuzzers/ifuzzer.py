@@ -3,6 +3,7 @@
 from urlparse import parse_qs, urlparse, urlunparse
 from urllib import urlencode
 
+from massweb.fuzz_generators.url_generator import append_to_param, replace_param_value
 from massweb.payloads.payload import Payload
 from massweb.targets.target import Target
 
@@ -58,26 +59,6 @@ class iFuzzer(object):
         """ Prototype for the method that generates a list of targets with the fuzzing data added. """
         pass
 
-    def replace_param_value(self, url, param, replacement_string):
-        """ Replace a parameter in a url with another string. Returns
-        a fully reassembled url as a string.
-
-        url     URL as string.
-        param   URL parameter name.
-        replacement_string URL parameter replacement value.
-        """
-        amended_url = self._update_query(url, param, replacement_string)
-        return amended_url
-
-    def append_to_param(self, url, param, append_string):
-        """ Append a value to a parameter
-
-        url             URL as a string.
-        param           Parameter name.
-        append_string   Value to append to the value of the parameter.
-        """
-        return self._update_query(url, param, append_string, append=True)
-
     def determine_posts_from_targets(self, dedupe=True):
         """ Add targets with POST requests to this Fuzzer's list of targets.
         dedupe Unused. Deduplicate targets if True. Default True.
@@ -90,47 +71,32 @@ class iFuzzer(object):
             if ip not in self.targets:
                 self.targets.append(ip)
 
+    def append_to_param(self, url, param, append_string):
+        """ Replace a parameter in a url with another string.
+        Return a fully reassembled url as a string.
+
+        url                 URL to mangle as string.
+        param               Parameter in url to replace the value of.
+        append_string  String to append to the value of param in url with.
+        """
+        # for the purposes of maintaining consistent interfaces
+        return append_to_param(url, param, append_string)
+  
+    def replace_param_value(self, url, param, replacement_string):
+        """ Replace a parameter in a url with another string.
+        Return a fully reassembled url as a string.
+
+        url                 URL to mangle as string.
+        param               Parameter in url to replace the value of.
+        replacement_string  String to replace the value of param in url with.
+        """
+        # for the purposes of maintaining consistent interfaces
+        return replace_param_value(url, param, replacement_string)
+
+
     def fuzz(self):
         """ Prototype for the primary entry point of Fuzzers. """
         raise NotImplementedError("fuzz() needs to be implemented in each child class.")
-
-    def _update_query(self, url, param, value, append=False):
-        """ Insert the provided query int the provided URL.
-        url
-        param
-        value
-        append
-
-        This incidentally will also automatically url-encode the payload
-          (thanks urlencode!)
-        """
-        #FIXME: PNKTHR-42 might cause some incorrect query params and keys with utf-8, needs more testing
-        url_parsed = urlparse(url)
-        query_dic = parse_qs(url_parsed.query)
-        if append:
-            query_dic[param] = [x + value for x in query_dic[param]]
-        else:
-            query_dic[param] = [value for x in query_dic[param]]
-        query_dic = self._convert_query_to_utf8(query_dic)
-        amended_url = self._reassemble_url(query_dic, url_parsed)
-        return amended_url
-
-    def _convert_query_to_utf8(self, query_dic):
-        # convert to utf-8 encoded str
-        utf8_query_dic = {}
-        for k, v in query_dic.iteritems():
-            utf8_query_dic[unicode(k).encode('utf-8', 'replace')] = [x.encode('utf-8', 'replace') for x in v]
-        return utf8_query_dic
-
-    def _reassemble_url(self, query_dic, url_parsed):
-        # Reassemble the query
-        query_reassembled = urlencode(query_dic, doseq=True)
-        # Reform the list(urlparse) for urlunparse() tuple(scheme, netloc, path, params, query, fragment)
-        url_tup = (url_parsed.scheme, url_parsed.netloc, url_parsed.path, url_parsed.params,
-                   query_reassembled, url_parsed.fragment)
-        # Reassemble the URL
-        url_reassembled = urlunparse(url_tup)
-        return url_reassembled
 
 
 if __name__ == "__main__":
