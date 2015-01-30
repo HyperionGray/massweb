@@ -8,6 +8,8 @@ import logging
 
 from bs4 import BeautifulSoup, SoupStrainer
 
+from requests.exceptions import HTTPError
+
 from massweb.targets.crawl_target import CrawlTarget
 from massweb.mass_requests.mass_request import MassRequest
 from massweb.mass_requests.response_analysis import parse_worthy
@@ -96,7 +98,7 @@ class MassCrawl(object):
 
     def filter_targets_by_scope(self):
         #FIXME: !in large-scale crawls, there's some out of scope posts,
-        #   !this is a hack to stop that, real issue should be found
+        #   this is a hack to stop that, real issue should be found
         #   and resolved
         logger.info("Filtering targets by scope")
         filtered_targets = []
@@ -133,7 +135,8 @@ class MassCrawl(object):
             logger.info("Attempting to parse %s", target)
             try:
                 response.raise_for_status()
-            except: #FIXME: Pick what exceptions we need.
+            except (HTTPError, AttributeError) as exc:   # only exception type we care about from requests.Response
+                logger.debug("Failed request.", exc_info=True)
                 continue
             if parse_worthy(response, content_type_match="text/html",
                             hadoop_reporting=True):
@@ -177,35 +180,3 @@ class MassCrawl(object):
             if stay_in_scope:
                 self.filter_targets_by_scope()
 
-
-if __name__ == "__main__":
-
-    SEEDS = ["http://www.hyperiongray.com",
-             "http://course.hyperiongray.com/vuln1",
-             "http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079"
-             "ba3fd1/",
-             "http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337"
-             "%29%3C%2FScrIpT%3E",
-             "http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1",
-             "http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;"
-             "typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1",
-             "http://www.dobrevsource.org/index.php?id=1",
-             u"http://JP納豆.例.jp/", "http://prisons.ir/",
-             "http://www.qeng.ir/", "http://www.girlsworker.jp/shiryo.zip"]
-
-    SEEDS_UNI = [unicode(seed) for seed in SEEDS]
-
-    MC = MassCrawl(seeds=SEEDS_UNI)
-    MC.crawl(num_threads=30, time_per_url=5, request_timeout=3,
-             proxy_list=[{}])
-
-#    f = open("out", "a")
-#    for t in mc.targets:
-#        f.write(t.url)
-
-#    for t in mc.targets:
-#        with codecs.open("test_output", "a", "utf-8") as temp:
-#            temp.write(t.url)
-#            temp.write("\n")
-#            
-#    print len(mc.targets)
