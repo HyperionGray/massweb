@@ -43,7 +43,7 @@ class MassRequest(object):
         self.request_timeout = request_timeout
         self.proxy_list = proxy_list or [{}]
         self.results = []
-        #FIXME: empty fixme #!
+        #FIXME: empty fixme #! PNKTHR-54
         self.finished = []
         self.attempted = []
         self.identified_post_requests = []
