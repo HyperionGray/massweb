@@ -110,14 +110,13 @@ class BSQLiFuzzer(iFuzzer):
             logger.info(u"Determining stability for %s", unicode(target))
         mreq = MassRequest(**self.mreq_config_dict)
         targets = [target]
-        #FIXME: Investigate why this is looping against a list
-        for i in range(0, set_size):
+        for _ in range(0, set_size):
             targets.append(target)
         mreq.request_targets(targets)
         baseline_element_used, baseline_response = self.__get_first_successful_response(mreq.results)
         if not baseline_response:
             raise ValueError("Didn't get a successful response from the URL, can't determine stability")
-        #remove baseline element
+        # remove baseline element
         del mreq.results[baseline_element_used]
         content_length_variance = []
         for r in mreq.results:
