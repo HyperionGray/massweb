@@ -1,8 +1,5 @@
 """ Fuzzer Prototype. """
 
-from urlparse import parse_qs, urlparse, urlunparse
-from urllib import urlencode
-
 from massweb.fuzz_generators.url_generator import append_to_param, replace_param_value
 from massweb.payloads.payload import Payload
 from massweb.targets.target import Target
