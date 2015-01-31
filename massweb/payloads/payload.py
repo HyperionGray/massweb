@@ -14,7 +14,7 @@ class Payload(object):
         """
         #FIXME: add typeerror exception here. this shouldn't be comparing if the type is wrong
         return (self.payload_str == other.payload_str and
-                other.check_type_list == other.check_type_list)
+                self.check_type_list == other.check_type_list)
 
     def __hash__(self):
         """ Provides a hash of the payload and check types """
@@ -34,10 +34,3 @@ class Payload(object):
         self.check_type_list = check_type_list
         self.payload_str = payload_str
         self.payload_attributes = payload_attributes
-
-#FIXME: Move to a unittest
-"""
-def test__eq__(self):
-    self.assertIsEqual(Payload("ddd", ["dddd"]), Payload("ddd", ["dddd"]))
-
-"""
