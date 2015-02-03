@@ -216,19 +216,6 @@ class MassRequest(object):
         """
         self.attempted = self.finished = self.identified_post_requests = []
 
-    def determine_timeout(self, time_per_item=None, items=None):
-        """ FIXME: UNUSED: Determine the timeout for a process based on the
-            number of Target objectsit has.
-        """
-        time_per_item = time_per_item or self.time_per_url
-        try:
-            timeout = float(time_per_item * len(items))
-        except: #FIXME: Pick exception types to catch
-            item_num = 0
-            for item in items:
-                item_num += 1
-            items.seek(0)
-
     def to_target(self, item, request_type):
         """ Convert item into a Target object.
 
