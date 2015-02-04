@@ -48,7 +48,7 @@ def parse_match(str_in, tag, match):
     returns True if a match is found and False if no match is found.
     """
     #FIXME: tag is unused should it be used in place of 'script'? PNKTHR-52
-    for script in BeautifulSoup(str_in, 'html5lib').findAll('script'):
+    for script in BeautifulSoup(str_in, 'html5lib').findAll(tag):
         try:
             script_text = script.get_text()
             if match_string(script_text, match):
