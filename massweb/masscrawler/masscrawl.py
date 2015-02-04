@@ -219,7 +219,7 @@ class MassCrawl(object):
               request_timeout = 10, 
               proxy_list = [{}], 
               stay_in_scope = True, 
-              max_links = 10):
+              max_links = 20):
 
         for _ in range(depth):
 
