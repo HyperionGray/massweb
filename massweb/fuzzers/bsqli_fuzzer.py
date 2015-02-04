@@ -321,7 +321,7 @@ class BSQLiFuzzer(iFuzzer):
                     logger.info("Caught exception trying to perform BSQLi"
                                 " check on %s :",
                                 ftg.fuzzy_targets[0].unfuzzed_target,
-                                exec_info=True)
+                                exc_info=True)
                     result_dic["bsqli"] = False
             results.append(Result(ftg.fuzzy_targets[0], result_dic))
         return results
