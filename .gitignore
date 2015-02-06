@@ -3,3 +3,6 @@ massweb.egg-info/
 dist/
 *.pyc
 env
+*.log
+*.log.*
+*.diff
