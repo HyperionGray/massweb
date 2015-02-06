@@ -6,4 +6,5 @@ set -e
 
 
 virtualenv --clear env/
+pip install Sphinx
 ./env/bin/python setup.py install
