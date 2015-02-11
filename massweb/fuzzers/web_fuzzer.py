@@ -154,9 +154,8 @@ class WebFuzzer(iFuzzer):
                 # If request failed and str is returned instead of Response obj
                 #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
-                    logger.info("Marking target as failed due to exception: ",
-                                exc_info=True)
-                result = self._make_failed_result(target)
+                    logger.info("Marking target as failed due to exception: ", exc_info=True)
+                result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
             results.append(result)
         return results
 
