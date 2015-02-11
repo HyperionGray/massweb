@@ -259,7 +259,3 @@ class MassRequest(object):
             return ValueError("arguemnt %s is required" % arg_name)
         if not isinstance(arg, item_type):
             return TypeError("%s is required to be of type %s." % (arg_name, type_desc))
-
-
-
-
