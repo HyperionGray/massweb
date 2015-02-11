@@ -132,7 +132,7 @@ class WebFuzzer(iFuzzer):
                 # If request failed and str is returned instead of Response obj
                 #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
-                    logger.info("Marking target as failed due to exception: ", exec_info=True)
+                    logger.info("Marking target as failed due to exception: ", exc_info=True)
                 result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
             results.append(result)
         return results
@@ -159,7 +159,7 @@ class WebFuzzer(iFuzzer):
                     result_dic[check_type] = False
                 return Result(ftarget, result_dic)
         except:  #FIXME Specify exception types?
-            logger.info("Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: ", ftarget, exec_info=True)
+            logger.info("Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: ", ftarget, exc_info=True)
             result_dic = {}
             for check_type in check_type_list:
                 result_dic[check_type] = False

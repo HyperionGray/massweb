@@ -118,7 +118,7 @@ class MassRequest(object):
             action = targets[0].ttype
         # get timeout for process
         # UNUSED
-        timeout = self.determine_timeout(self.time_per_url, urls)
+        timeout = self.determine_timeout(self.time_per_url, targets)
         # Load up the process pool
         self.pool = Pool(processes=self.num_threads)
         self.proc_results = []
@@ -192,7 +192,7 @@ class MassRequest(object):
     def _check_method_input(self, args, sampler, arg_name, arg_type):
         if not args:
             return ValueError("arguemnt %s is required" % arg_name)
-        if not isinstance(sampler(targets), arg_type):
+        if not isinstance(args, arg_type):
             return TypeError("%s of type %s is required." % (arg_name, arg_type.__name__))
 
     def _arg_sample_list(self, item_list):
