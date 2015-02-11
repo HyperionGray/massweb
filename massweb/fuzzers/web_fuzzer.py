@@ -22,7 +22,8 @@ from massweb.vuln_checks.xpathi import XPathICheck
 from massweb.vuln_checks.xss import XSSCheck
 
 # setup logger object
-logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('WebFuzzer')
 logger.setLevel(logging.INFO)
 
@@ -31,26 +32,41 @@ sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 class WebFuzzer(iFuzzer):
-    """ Generates lists of targets with associated payloads and runs them against the target systems. """
+    """ Fuzzy a generated list of Targets.
 
-    def __init__(self, targets = [], payloads = [], num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}], hadoop_reporting = False, payload_groups = []):
+    Generates lists of targets with associated payloads and runs them against
+    the target systems.
+    """
+
+    def __init__(self, targets=None, payloads=None, num_threads=10,
+                 time_per_url=10, request_timeout=10, proxy_list=None,
+                 hadoop_reporting=False, depreciated=None):
         """ Initialize this WebFuzzer object.
 
         targets             list of Target objects. Default [].
         payloads            list of Payload objects. Default [].
-        num_threads         Number of threads/processes to launch as an int. Default 10.
-        time_per_url        Time in seconds to spend on each Target. Default 10.
-        request_timeout     Time in seconds to wait for a connection before giving up. Default 10.
+        num_threads         Number of threads/processes to launch as an int.
+                                Default 10.
+        time_per_url        Time in seconds to spend on each Target.
+                                Default 10.
+        request_timeout     Time in seconds to wait for a connection before
+                                giving up. Default 10.
         proxy_list          list of proxies specified as dicts. Default empty.
         hadoop_reporting    Output info for hadoop if True. Default False.
-        payload_groups      list of groups of Payload objects. Default [].
+        payload_groups      UNUSED. list of groups of Payload objects.
+                                Default [].
         """
+        super(WebFuzzer, self).__init__()
         # do this because we may need to create more MassRequest objects in
         #  checks (like bsqli), needs to be configured the same
-        self.mreq_config_dict = {"num_threads": num_threads, "time_per_url": time_per_url, "request_timeout": request_timeout, "proxy_list": proxy_list, "hadoop_reporting": hadoop_reporting}
+        self.mreq_config_dict = {"num_threads": num_threads,
+                                 "time_per_url": time_per_url,
+                                 "request_timeout": request_timeout,
+                                 "proxy_list": proxy_list or [{}],
+                                 "hadoop_reporting": hadoop_reporting}
         self.mreq = MassRequest(**self.mreq_config_dict)
-        self.targets = targets
-        self.payloads = payloads
+        self.targets = targets or []
+        self.payloads = payloads or []
         self.mxi_check = MXICheck()
         self.osci_check = OSCICheck()
         self.sqli_check = SQLICheck()
@@ -75,8 +91,10 @@ class WebFuzzer(iFuzzer):
         fuzzy_targets = []
         for query_param, _ in url_q_dic.iteritems():
             for payload in self.payloads:
-                fuzzy_url = (self.replace_param_value(url, query_param, str(payload)))
-                fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get", payload=payload)
+                fuzzy_url = (self.replace_param_value(url, query_param,
+                                                      str(payload)))
+                fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get",
+                                           payload=payload)
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
@@ -93,7 +111,10 @@ class WebFuzzer(iFuzzer):
             data_copy = target.data.copy()
             for payload in self.payloads:
                 data_copy[key] = str(payload)
-                fuzzy_target = FuzzyTarget(url, url, key, "post", data=data_copy.copy(), payload=payload, unfuzzed_data=target.data)
+                fuzzy_target = FuzzyTarget(url, url, key, "post",
+                                           data=data_copy.copy(),
+                                           payload=payload,
+                                           unfuzzed_data=target.data)
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
@@ -113,57 +134,77 @@ class WebFuzzer(iFuzzer):
                 fuzzy_target_list = self.__generate_fuzzy_target_post(target)
                 self.fuzzy_targets += fuzzy_target_list
         if not self.fuzzy_targets:
-            raise ValueError("fuzzy_targets is empty. No targets generated from: %s", ','.join([str(x) for x in self.targets]))
+            raise ValueError("fuzzy_targets is empty. No targets generated"
+                             " from: %s",
+                             ','.join([str(x) for x in self.targets]))
         return self.fuzzy_targets
 
     def fuzz(self):
         """ Fuzz all the targets and return the results.
-        
+
         returns     list of Result objects.
         """
         self.mreq.request_targets(self.fuzzy_targets)
         results = []
-        for r in self.mreq.results:
-            ftarget = r[0]
+        for target, response in self.mreq.results:
             #FIXME: Clarify with alex: !not yet multithreaded, should it be?
             try:
-                result = self.analyze_response(ftarget, r[1])
-            except: #FIXME Specify exception types?
+                result = self.analyze_response(target, response)
+            except (TypeError, AttributeError):
                 # If request failed and str is returned instead of Response obj
                 #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
-                    logger.info("Marking target as failed due to exception: ", exc_info=True)
-                result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
+                    logger.info("Marking target as failed due to exception: ",
+                                exc_info=True)
+                result = self._make_failed_result(target)
             results.append(result)
         return results
+
+    def _make_failed_result(self, target):
+        """ Macro to make a failed Result. """
+        result_dic = {}
+        for check_type in target.payload.check_type_list:
+            result_dic[check_type] = False
+        return Result(target, result_dic)
 
     def analyze_response(self, ftarget, response):
         """ Analyze the results of the request and return the info gathered.
 
         ftargeet    Target object.
         response    requests.Respnse object.
+
         returns     Result object.
+        raises      TypeError or AttributeError when non requests.Response is
+                        given as response.
         """
-        #FIXME: Clarify with alex: !function is a mess, response is of type text or non-text, trying to read blah blah
+        #FIXME: Clarify with alex: !function is a mess, response is of type
+        #    text or non-text, trying to read blah blah
         result_dic = {}
         check_type_list = ftarget.payload.check_type_list
         if self.hadoop_reporting:
-            logger.info(u"Response is of type %s for target %s", response.__class__.__name__, ftarget)
-        try:
-            if parse_worthy(response, hadoop_reporting=self.hadoop_reporting):
-                logger.info("Target %s looks worth checking for vulnerabilities, doing so", ftarget)
-            else:
-                logger.info("Response deemed non-parse-worthy, returning false check dic for %s", ftarget)
-                result_dic = {}
-                for check_type in check_type_list:
-                    result_dic[check_type] = False
-                return Result(ftarget, result_dic)
-        except:  #FIXME Specify exception types?
-            logger.info("Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for %s. Here is the handled exception: ", ftarget, exc_info=True)
-            result_dic = {}
-            for check_type in check_type_list:
-                result_dic[check_type] = False
-            return Result(ftarget, result_dic)
+            logger.info(u"Response is of type %s for target %s",
+                        response.__class__.__name__, ftarget)
+        worthy = parse_worthy(response,
+                              hadoop_reporting=self.hadoop_reporting)
+        if worthy:
+            logger.info("Target %s looks worth checking for vulnerabilities.",
+                        ftarget)
+        else:
+            logger.info("Response deemed non-parse-worthy. Setting all checks "
+                        "in result_dic to False for %s", ftarget)
+            return self._make_failed_result(ftarget)
+        result_dic = self._run_checks(response, result_dic, check_type_list)
+        return Result(ftarget, result_dic)
+
+    def _run_checks(self, response, result_dic, check_type_list):
+        """ Check reponse output with the specified checkers.
+
+        response        requests.Response object.
+        result_dic      dict with checker names as keys.
+        check_type_list list of names of checkers to check with.
+        """
+        #FIXME: Make me work on a dict of checker IDs and methods to call
+        #   instead of an if statement cascade
         if "mxi" in check_type_list:
             mxi_result = self.mxi_check.check(response.text)
             result_dic["mxi"] = mxi_result
@@ -182,80 +223,4 @@ class WebFuzzer(iFuzzer):
         if "xss" in check_type_list:
             xss_result = self.xss_check.check(response.text)
             result_dic["xss"] = xss_result
-        return Result(ftarget, result_dic)
-'''
-if __name__ == "__main__":
-    # FIXME: Clean up this comment spray
-    xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
-#    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
-#    sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
-    bsqli_payload = Payload('bsqlipayload', check_type_list = ["bsqli"])
-
-    wf = WebFuzzer(time_per_url = 10, hadoop_reporting = True)
-#    wf.add_payload(xss_payload)
-##    wf.add_payload(trav_payload)
-#    wf.add_payload(sqli_xpathi_payload)
-    wf.add_payload(bsqli_payload)
-
-#    wf.add_target_from_url(u"http://course.hyperiongray.com/vuln1")
-    wf.add_target_from_url(u"http://www.hyperiongray.com/?q=whatever")
-#    wf.add_target_from_url(u"http://www.wpsurfing.co.za/?feed=11")
-#    wf.add_target_from_url(u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1")
-#    wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1")
-#    wf.add_target_from_url(u"http://www.dobrevȤȤȤȤȤȤsource.org/index.php?idȤȤȤȤȤȤ=1ȤȤȤȤ")
-
-    print "Targets list pre post detrmination:"
-    for target in wf.targets:
-        print target
-
-    print "Targets list after additional injection points have been found:"
-    wf.determine_posts_from_targets()
-    for target in wf.targets:
-        print target.url, target.data
-
-    print "FuzzyTargets list:"
-    wf.generate_fuzzy_targets()
-    for ft in wf.fuzzy_targets:
-        print ft, ft.ttype, ft.data, ft.unfuzzed_url, ft.unfuzzed_data
-
-    print "Results of our fuzzing:"
-    for r in wf.fuzz():
-        print r
-
-#    print "targs"
-#    for target in wf.targets:
-#        print target
-
-#    print "--------fuzzy"
-#    for target in ft:
-#        print target
-
-
-#    for target in wf.generate_fuzzy_targets():
-#        print target.url, str(target.data)
-
-#    for r in wf.fuzz():
-#        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
-
-#    gf = GetFuzzer(proxy_list = [{}])
-#    mx_sqli_xmli_trav_osci_payload = Payload("../../../../../../../../../../../../../../../../../../../../etc/passwd#--'@!\\"
-#                                             , check_type_list = ["mxi", "sqli", "xpathi", "trav", "osci"])
-#
-
-#    gf.add_payload(mx_sqli_xmli_trav_osci_payload)
-#    gf.add_payload(xss_payload)
-
-#    gf.add_target_from_url("http://www.hyperiongray.com/?q=user&t=eke")
-#    gf.add_target_from_url("http://www.sfgcd.com/ProductsBuy.asp?ProNo=%22%3E%3CSCrIpT%3Ealert%2826702%29%3C%2FScRiPt%3E&amp;ProName=%C2%A2%C3%81%C2%A03%083D%09")
-#    gf.add_target_from_url("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=%27%29")
-#    gf.add_target_from_url("http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd")
-#    gf.add_target_from_url("http://www.dobrevsource.org/")
-#    gf.add_target_from_url("http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E")
-#
-#    for t in gf.generate_fuzzy_targets():
-#        print t.url
-#        print t.payload.check_type_list
-#
-#    for res in gf.fuzz():
-#        print res
-'''
+        return result_dic

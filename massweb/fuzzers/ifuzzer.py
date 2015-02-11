@@ -1,22 +1,25 @@
 """ Fuzzer Prototype. """
 
-from urlparse import parse_qs, urlparse, urlunparse
-from urllib import urlencode
+import logging
 
-from massweb.fuzz_generators.url_generator import append_to_param, replace_param_value
+from massweb.fuzz_generators.url_generator import append_to_param
+from massweb.fuzz_generators.url_generator import replace_param_value
 from massweb.payloads.payload import Payload
 from massweb.targets.target import Target
 
 
-class iFuzzer(object):
-    """ Prototype Fuzzer class.
+logger = logging.getLogger("iFuzzer")
 
-    The following must be implemented in __init__()
-    self.fuzzy_targets = []
-    self.targets = []
-    self.payloads = []
-    self.mreq = MassRequest()
-    """
+
+class iFuzzer(object):
+    """ Prototype Fuzzer class. """
+
+    def __init__(self):
+        """ Prototype __init__ method. """
+        self.fuzzy_targets = []
+        self.targets = []
+        self.payloads = []
+        self.mreq = None
 
     def add_payload(self, payload):
         """ Add a Payload object to the list of payloads.
@@ -28,13 +31,17 @@ class iFuzzer(object):
         self.payloads.append(payload)
 
     def add_payload_from_string(self, payload_str, check_type_list):
-        """ Add a Payload object created from the string provided and the types of checks to preform.
-        
+        """ Add a Payload generated from a string.
+
+        Add a Payload object created from the string provided and the types
+        of checks to preform.
+
         payload_str         String representing the payload.
-        check_type_list     list of strings identifying the types of checks to preform.
+        check_type_list     list of strings identifying the types of checks to
+                                preform.
         """
         payload = Payload(payload_str, check_type_list)
-        self.payloads.append(payload)
+        self.add_payload(payload)
 
     def add_target_from_url(self, url, data=None):
         """ Add a target based on the URL and POAST request data.
@@ -43,7 +50,7 @@ class iFuzzer(object):
         data    POST request data as s dict.
         """
         target = Target(url, data=data)
-        self.targets.append(target)
+        self.add_target(target)
 
     def add_target(self, target):
         """ Add Target object to list of targets.
@@ -52,27 +59,40 @@ class iFuzzer(object):
         """
         if not isinstance(target, Target):
             raise TypeError("target must be of type Target")
-        self.targets.append(target)
+        if target not in self.targets:
+            self.targets.append(target)
 
     #FIXME: maybe remove this to make bsqli and web fuzzers have a more uniform interface
     def generate_fuzzy_targets(self):
         """ Prototype for the method that generates a list of targets with the fuzzing data added. """
         pass
 
-    def determine_posts_from_targets(self, dedupe=True):
+    def determine_posts_from_targets(self, depreciated=None):
         """ Add targets with POST requests to this Fuzzer's list of targets.
-        dedupe Unused. Deduplicate targets if True. Default True.
+
+        depreciated     Interface placeholder for dedupe which was unused.
         """
+        if depreciated is False or depreciated:
+            logger.warn("The dedupe argument for determine_posts_from_targets"
+                        " is depreciated.")
+        identified_posts = self.identify_posts()
+        self.append_targets(identified_posts)
+
+    def append_targets(self, targets):
+        """ Append a list of Target objects to self.targets. """
+        for target in targets:
+            self.add_target(target)
+
+    def identify_posts(self):
+        """ Return a list of POST Targets. """
         self.mreq.get_post_requests_from_targets(self.targets)
         identified_posts = self.mreq.identified_post_requests
-        # Dedupe posts if relevant
-        identified_posts = list(set(identified_posts))
-        for ip in identified_posts:
-            if ip not in self.targets:
-                self.targets.append(ip)
+        deduped_posts = list(set(identified_posts))
+        return deduped_posts
 
     def append_to_param(self, url, param, append_string):
         """ Replace a parameter in a url with another string.
+
         Return a fully reassembled url as a string.
 
         url                 URL to mangle as string.
@@ -81,9 +101,10 @@ class iFuzzer(object):
         """
         # for the purposes of maintaining consistent interfaces
         return append_to_param(url, param, append_string)
-  
+
     def replace_param_value(self, url, param, replacement_string):
         """ Replace a parameter in a url with another string.
+
         Return a fully reassembled url as a string.
 
         url                 URL to mangle as string.
@@ -93,25 +114,7 @@ class iFuzzer(object):
         # for the purposes of maintaining consistent interfaces
         return replace_param_value(url, param, replacement_string)
 
-
     def fuzz(self):
         """ Prototype for the primary entry point of Fuzzers. """
-        raise NotImplementedError("fuzz() needs to be implemented in each child class.")
-
-
-if __name__ == "__main__":
-    aurl = "http://www.hyperiongray.com/?q=3234&&q=55555&x=33"
-    aparam = "q"
-    append_string = "added"
-    aifuz = iFuzzer()
-    append_result = aifuz.append_to_param(aurl, aparam, append_string)
-    append_baseline = 'http://www.hyperiongray.com/?q=3234added&q=55555added&x=33'
-    print("'%s' == '%s'" % (append_baseline, append_result), append_baseline == append_result)
-    rurl = "http://www.hyperiongray.com/?q=3234&&q=55555&x=33"
-    rparam = "q"
-    replace_string = "replaced"
-    rifuz = iFuzzer()
-    replace_result = rifuz.replace_param_value(rurl, rparam, replace_string)
-    replace_baseline = "http://www.hyperiongray.com/?q=replaced&q=replaced&x=33"
-    print("'%s' == '%s'" % (replace_baseline, replace_result), replace_baseline == replace_result)
-
+        raise NotImplementedError("fuzz() needs to be implemented in each "
+                                  "child class.")
