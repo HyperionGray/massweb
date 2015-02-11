@@ -264,13 +264,18 @@ class BSQLiFuzzer(iFuzzer):
         request_results = self.request_target_group(fuzzy_target_group)
         for request_result in request_results:
             fuzzy_target, response = request_result
-            if fuzzy_target.payload.payload_attributes["truth"]:
-                _, true_response = fuzzy_target, response
-            elif fuzzy_target.payload.payload_attributes["truth"]:
-                _, false_response = fuzzy_target, response
-            else:
+            if ("truth" not in fuzzy_target.payload.payload_attributes or
+                    fuzzy_target.payload.payload_attributes.get("truth") not in
+                    [True, False]):
                 raise AttributeError("BSQLI target doesn't have truth "
                                      "attribute")
+            if fuzzy_target.payload.payload_attributes.get("truth") is True:
+                _, true_response = fuzzy_target, response
+            elif fuzzy_target.payload.payload_attributes.get("truth") is False:
+                _, false_response = fuzzy_target, response
+            else:
+                raise ValueError("BSQLI target's truth value is not True or"
+                                 "False attribute")
         # Check to see if we got both true and false request back succesfully
         try:
             true_response.raise_for_status()
@@ -315,8 +320,9 @@ class BSQLiFuzzer(iFuzzer):
                     result_dic["bsqli"] = False
                 else:
                     # BSQLI check
+                    logger.debug("fuzzy_target_group: %", ftg)
                     result_dic["bsqli"] = self.check_for_bsqli(ftg)
-            except: #FIXME: Exception type
+            except:  #FIXME: Exception type
                 if self.hadoop_reporting:
                     logger.info("Caught exception trying to perform BSQLi"
                                 " check on %s :",
