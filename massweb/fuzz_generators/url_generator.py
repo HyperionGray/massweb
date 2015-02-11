@@ -3,6 +3,9 @@
 from urlparse import parse_qs, urlparse, urlunparse
 from urllib import urlencode
 
+import logging
+logger = logging.getLogger("url_generator")
+logger.setLevel(logging.DEBUG)
 
 def append_to_param(url, param, value):
     """ Replace a parameter in a url with another string.
@@ -85,8 +88,9 @@ def geneerate_fuzzy_urls(url, payloads):
     fuzzy_urls = []
     for query_param in url_q_dic:
         for payload in payloads:
-            fuzzy_urls.append(replace_param_value(url, query_param,
-                                                  str(payload)))
+            furl = replace_param_value(url, query_param, str(payload))
+            logger.debug("fuzzy URL: %s, URL: %s, param: %s, payload: %s", furl, url, query_param, payload)
+            fuzzy_urls.append(furl)
     return fuzzy_urls
 
 
