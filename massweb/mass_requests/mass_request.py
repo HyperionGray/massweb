@@ -194,9 +194,9 @@ class MassRequest(object):
         """
         function, callback, req_type = self.ttype_func_callback[action]
         proc = self.pool.apply_async(func=function,
-                args=(target, req_type, target.data, self.request_timeout,
-                    self.proxy_list,
-                    self.hadoop_reporting),
+                kwds={"target": target, "request_type": req_type, "data": target.data, "req_timeout": self.request_timeout,
+                    "proxy_list": self.proxy_list,
+                    "hadoop_reporting": self.hadoop_reporting},
                 callback=callback)
         return proc
 

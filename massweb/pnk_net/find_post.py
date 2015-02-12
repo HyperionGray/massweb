@@ -31,8 +31,11 @@ def normalize_link(url_to_normalize, current_page_url):
         full_url = url_to_normalize
     return {"norm_url" : full_url, "netloc" : netloc}
 
-def find_post_requests(url, response_text=None, strict_scope=True, hadoop_reporting=False):
-
+def find_post_requests(**kwargs):
+    url = kwargs.get("target")
+    response_text=kwargs.get("response_text")
+    strict_scope=kwargs.get("strict_scope", True)
+    hadoop_reporting=kwargs.get("hadoop_reporting", False)
     if hadoop_reporting:
         logger.info("Finding additional post requests in %s", url)
     if not response_text:
