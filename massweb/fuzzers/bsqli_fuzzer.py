@@ -324,14 +324,10 @@ class BSQLiFuzzer(iFuzzer):
                     result_dic["bsqli"] = self.check_for_bsqli(ftg)
             except:  #FIXME: Exception type
                 if self.hadoop_reporting:
-<<<<<<< HEAD
                     logger.info("Caught exception trying to perform BSQLi"
                                 " check on %s :",
                                 ftg.fuzzy_targets[0].unfuzzed_target,
                                 exc_info=True)
-=======
-                    logger.info("Caught exception trying to perform BSQLi check on %s :", ftg.fuzzy_targets[0].unfuzzed_target, exc_info=True)
->>>>>>> fixed fatal errors in code to test for web_fuzzer bug
                     result_dic["bsqli"] = False
             results.append(Result(ftg.fuzzy_targets[0], result_dic))
         return results
