@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
-def pnk_request_raw(url_or_target, request_type = "get", data = None, req_timeout = 5, proxy_list = [{}], hadoop_reporting = False, **kwargs):
+def pnk_request_raw(target, request_type="get", data=None, req_timeout=5, proxy_list=[{}], hadoop_reporting=False, **kwargs):
 
     if proxy_list[0]:
         proxy = get_random_proxy(proxy_list)
@@ -24,39 +24,38 @@ def pnk_request_raw(url_or_target, request_type = "get", data = None, req_timeou
 
     try:
 
-        if (isinstance(url_or_target, unicode) or isinstance(url_or_target, str)) and request_type == "get":
+        if isinstance(target, basestring) and request_type == "get":
 
             if hadoop_reporting:
-                logger.info(u"GET requesting %s" % unicode(url_or_target))
+                logger.info("GET requesting %s", target)
 
-            url_or_target = url_or_target.strip()
-            r = requests.get(url_or_target, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
+            target = target.strip()
+            response = requests.get(target, proxies=proxy, timeout=req_timeout, allow_redirects=False, **kwargs)
+            return (target, response)
 
-        if (isinstance(url_or_target, unicode) or isinstance(url_or_target, str)) and request_type == "post":
-
-            if hadoop_reporting:
-                logger.info(u"POST requesting %s" % unicode(url_or_target))
-
-            url_or_target = url_or_target.strip()
-            r = requests.post(url_or_target, data = data, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
-
-        if (isinstance(url_or_target, Target)) and request_type == "get":
-            if hadoop_reporting:
-                logger.info(u"GET requesting %s" % unicode(url_or_target))
-
-            r = requests.get(url_or_target.url, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
-
-        if (isinstance(url_or_target, Target)) and request_type == "post":
+        if isinstance(target, basestring) and request_type == "post":
 
             if hadoop_reporting:
-                logger.info(u"POST requesting %s" % unicode(url_or_target))
+                logger.info("POST requesting %s", target)
 
-            r = requests.post(url_or_target.url, data = data, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
+            target = target.strip()
+            response = requests.post(target, data=data, proxies=proxy, timeout=req_timeout, allow_redirects=False, **kwargs)
+            return (target, response)
+
+        if isinstance(target, Target) and request_type == "get":
+            if hadoop_reporting:
+                logger.info("GET requesting %s", target)
+
+            response = requests.get(target.url, proxies=proxy, timeout=req_timeout, allow_redirects=False, **kwargs)
+            return (target, response)
+
+        if isinstance(target, Target) and request_type == "post":
+
+            if hadoop_reporting:
+                logger.info("POST requesting %s" % target)
+            response = requests.post(target.url, data=data, proxies=proxy, timeout=req_timeout, allow_redirects=False, **kwargs)
+            return (target, response)
 
     except:
         #threads suck at exceptions (or I do?), use this to mark failure
-        return (url_or_target, "__PNK_REQ_FAILED")
+        return (target, "__PNK_REQ_FAILED")

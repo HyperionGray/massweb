@@ -147,8 +147,8 @@ class MassCrawl(object):
                 continue
             logger.info("Finding post requests on page %s", response.url)
             #FIXME: !this doesn't stay in scope?
-            post_request_targets = find_post_requests(response.url,
-                                                      response.text)
+            post_request_targets = find_post_requests(target=response.url,
+                                                      response_text=response.text)
             for target_post in post_request_targets:
                 ct_post = CrawlTarget(target_post.url)
                 ct_post.__dict__ = target_post.__dict__
