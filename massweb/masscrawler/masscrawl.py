@@ -19,7 +19,7 @@ from massweb.pnk_net.find_post import find_post_requests
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassCrawlLogger')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
@@ -96,19 +96,26 @@ class MassCrawl(object):
             else:
                 return link_normed
 
+    def dedupe_targets(self):
+        seen_hashes = []
+        for target in self.targets:
+            target_hash = hash(target)
+            if target_hash in seen_hashes:
+                self.targets.pop(self.targets.index(target))
+                logger.warn("Found duplicate target: %s", target)
+            else:
+                seen_hashes.append(target_hash)
+
     def filter_targets_by_scope(self):
         #FIXME: !in large-scale crawls, there's some out of scope posts,
         #   this is a hack to stop that, real issue should be found
         #   and resolved
         logger.info("Filtering targets by scope")
-        filtered_targets = []
         for target in self.targets:
-            if self.in_scope(target.url):
-                filtered_targets.append(target)
-            else:
+            if not self.in_scope(target.url):
+                self.targets.pop(self.targets.index(target))
                 logger.warn("Target filtered out that was not in scope: %s",
                                target.url)
-        self.targets = filtered_targets
 
     def fetch(self, num_threads=10, time_per_url=10, request_timeout=10,
               proxy_list=[{}]):
@@ -168,15 +175,16 @@ class MassCrawl(object):
               num_threads=10,
               time_per_url=10,
               request_timeout=10,
-              proxy_list=[{}],
+              proxy_list=None,
               stay_in_scope=True,
-              max_links=10):
+              max_links=10, dedupe=True):
         for _ in range(depth):
             logger.info("Entering the fetch phase at depth %d", depth)
             self.fetch(num_threads=num_threads, time_per_url=time_per_url,
-                       request_timeout=request_timeout, proxy_list=proxy_list)
+                       request_timeout=request_timeout, proxy_list=proxy_list or None)
             logger.info("Entering the parse phase at depth %d", depth)
             self.parse(max_links=max_links, stay_in_scope=stay_in_scope)
+            if dedupe:
+                self.dedupe_targets()
             if stay_in_scope:
                 self.filter_targets_by_scope()
-
