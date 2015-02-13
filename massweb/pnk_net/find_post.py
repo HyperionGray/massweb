@@ -22,6 +22,8 @@ sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 def normalize_link(url_to_normalize, current_page_url):
     #FIXME: not quite, doesn't include path in normalization, gets paths wrong
+    if not url_to_normalize or not current_page_url:
+        raise ValueError("url_to_normalize and/or current_page_url is empty or None. It must be a URL string.")
     cp_scheme, cp_netloc, cp_path, cp_params, cp_query, cp_fragment = urlparse(current_page_url)
     parsed_url_to_normalize = urlparse(url_to_normalize)
     scheme, netloc, path, params, query, fragment = urlparse(url_to_normalize)
@@ -41,10 +43,13 @@ def find_post_requests(**kwargs):
     if not response_text:
         response_text = pnk_request_raw(url)[1].text
     if strict_scope:
-        url_host = urlparse(url).netloc
+        url_host = urlparse(unicode(url)).netloc
     post_requests = []
     for form in BeautifulSoup(response_text, 'html.parser', parse_only=SoupStrainer('form')):
-        norm_link_dic = normalize_link(form["action"], url)
+        try:
+            norm_link_dic = normalize_link(form.get("action"), url)
+        except ValueError:
+            continue
         norm_url = norm_link_dic["norm_url"]
         form_host = norm_link_dic["netloc"]
         if strict_scope:
