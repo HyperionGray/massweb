@@ -34,20 +34,20 @@ def normalize_link(url_to_normalize, current_page_url):
     return {"norm_url" : full_url, "netloc" : netloc}
 
 def find_post_requests(**kwargs):
-    url = kwargs.get("target")
+    target = kwargs.get("target")
     response_text=kwargs.get("response_text")
     strict_scope=kwargs.get("strict_scope", True)
     hadoop_reporting=kwargs.get("hadoop_reporting", False)
     if hadoop_reporting:
-        logger.info("Finding additional post requests in %s", url)
+        logger.info("Finding additional post requests in %s", target)
     if not response_text:
-        response_text = pnk_request_raw(url)[1].text
+        response_text = pnk_request_raw(target)[1].text
     if strict_scope:
-        url_host = urlparse(unicode(url)).netloc
+        url_host = urlparse(unicode(target)).netloc
     post_requests = []
     for form in BeautifulSoup(response_text, 'html.parser', parse_only=SoupStrainer('form')):
         try:
-            norm_link_dic = normalize_link(form.get("action"), url)
+            norm_link_dic = normalize_link(form.get("action"), unicode(target))
         except ValueError:
             continue
         norm_url = norm_link_dic["norm_url"]
@@ -77,7 +77,7 @@ def find_post_requests(**kwargs):
         target_post = Target(norm_url, data = post_data, ttype = "post")
         post_requests.append(target_post)
     if hadoop_reporting:
-        logger.info(u"Found %s post requests on page %s", len(post_requests), url)
+        logger.info(u"Found %s post requests on page %s", len(post_requests), target)
     return post_requests
 
 if __name__ == "__main__":
