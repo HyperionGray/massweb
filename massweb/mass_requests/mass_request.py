@@ -95,8 +95,7 @@ class MassRequest(object):
         ret = self._check_method_input(targets, 'targets', Target)
         if ret:
             raise ret
-        self.handle_targets(targets=targets, action=GET)
-        self.handle_targets(targets=targets, action=POST)
+        self.handle_targets(targets=targets)
 
     def get_post_requests_from_targets(self, targets):
         """ Find targets that have post inputs for later use. """
