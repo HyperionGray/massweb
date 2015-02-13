@@ -11,7 +11,7 @@ import logging
 from logging import StreamHandler
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('pnknet')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
@@ -23,7 +23,8 @@ def pnk_request_raw(target, request_type="get", data=None, req_timeout=5, proxy_
         proxy = {}
 
     try:
-
+        if request_type == "post":
+            logger.debug(" POST Data: %s", target.data)
         if isinstance(target, basestring) and request_type == "get":
 
             if hadoop_reporting:
