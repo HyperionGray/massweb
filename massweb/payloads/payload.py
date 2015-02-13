@@ -12,7 +12,8 @@ class Payload(object):
 
         other is the Payload object to be compared to this Payload object.
         """
-        #FIXME: add typeerror exception here. this shouldn't be comparing if the type is wrong
+        #FIXME: add typeerror exception here. this shouldn't be comparing if
+        #  the type is wrong. See PNKTHR-63
         return (self.payload_str == other.payload_str and
                 self.check_type_list == other.check_type_list)
 

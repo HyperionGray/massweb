@@ -62,7 +62,8 @@ class iFuzzer(object):
         if target not in self.targets:
             self.targets.append(target)
 
-    #FIXME: maybe remove this to make bsqli and web fuzzers have a more uniform interface
+    #FIXME: remove this to make bsqli and web fuzzers have a more uniform
+    #   interface. See PNKTHR-61
     def generate_fuzzy_targets(self):
         """ Prototype for the method that generates a list of targets with the fuzzing data added. """
         pass
