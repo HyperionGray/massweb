@@ -82,8 +82,13 @@ class MassRequest(object):
 
     def add_to_identified_post(self, requests):
         """" Add targets that have post inputs to the list of Target objects. """
+        logger.info("IN ADD_TO_IDENTIFIED_POST")
+        logger.info(requests)
         for request in requests:
+            logger.info(request)
             self.identified_post_requests.append(request)
+
+        logger.info(self.identified_post_requests)
 
     def add_to_finished(self, request):
         """ Add finished requests to the list of finished requests """
@@ -204,7 +209,7 @@ class MassRequest(object):
             set their respnse to __PNK_THREAD_TIMEOUT
         """
         list_diff = Set(self.attempted).difference(Set(self.finished))
-        self.clear_lists()
+#        self.clear_lists()
         for url in list_diff:
             logger.debug("URL %s got timeout", url)
             self.results.append((url, "__PNK_THREAD_TIMEOUT"))
