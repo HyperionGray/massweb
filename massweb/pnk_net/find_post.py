@@ -78,17 +78,6 @@ def find_post_requests(**kwargs):
         post_requests.append(target_post)
     if hadoop_reporting:
         logger.info(u"Found %s post requests on page %s", len(post_requests), target)
+        logger.info(post_requests)        
+    
     return post_requests
-
-if __name__ == "__main__":
-
-#    find_post_requests("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=ddd")
-
-#    for p in find_post_requests("http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=ddd", strict_scope = False, hadoop_reporting = True):
-#        print p
-
-#    for p in find_post_requests("http://www.amazon.com/", hadoop_reporting = True, strict_scope = False):
-#        print p, p.data
-
-    for p in find_post_requests("http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/", hadoop_reporting = True, strict_scope = False):
-        print p, p.data

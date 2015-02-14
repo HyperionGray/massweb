@@ -83,9 +83,7 @@ class MassRequest(object):
     def add_to_identified_post(self, requests):
         """" Add targets that have post inputs to the list of Target objects. """
         logger.info("IN ADD_TO_IDENTIFIED_POST")
-        logger.info(requests)
         for request in requests:
-            logger.info(request)
             self.identified_post_requests.append(request)
 
         logger.info(self.identified_post_requests)
@@ -218,7 +216,9 @@ class MassRequest(object):
         """ Set attempted, finished, and identified_post_requests to empty
             lists.
         """
-        self.attempted = self.finished = self.identified_post_requests = []
+        #use del here to give hint to garbage collector (free memory)
+        del self.attempted
+        del self.finished
 
     def to_target(self, item, request_type):
         """ Convert item into a Target object.
