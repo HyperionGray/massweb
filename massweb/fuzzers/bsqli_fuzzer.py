@@ -280,7 +280,7 @@ class BSQLiFuzzer(iFuzzer):
         try:
             true_response.raise_for_status()
             false_response.raise_for_status()
-        except HTTPError as exce:
+        except Exception as exce:
             logger.debug(exce, exc_info=True)
             raise HTTPError("Either the true or the false request failed and "
                             "true_content_length and false_content_length "

@@ -82,8 +82,11 @@ class MassRequest(object):
 
     def add_to_identified_post(self, requests):
         """" Add targets that have post inputs to the list of Target objects. """
+        logger.info("IN ADD_TO_IDENTIFIED_POST")
         for request in requests:
             self.identified_post_requests.append(request)
+
+        logger.info(self.identified_post_requests)
 
     def add_to_finished(self, request):
         """ Add finished requests to the list of finished requests """
@@ -95,8 +98,7 @@ class MassRequest(object):
         ret = self._check_method_input(targets, 'targets', Target)
         if ret:
             raise ret
-        self.handle_targets(targets=targets, action=GET)
-        self.handle_targets(targets=targets, action=POST)
+        self.handle_targets(targets=targets)
 
     def get_post_requests_from_targets(self, targets):
         """ Find targets that have post inputs for later use. """
@@ -205,7 +207,7 @@ class MassRequest(object):
             set their respnse to __PNK_THREAD_TIMEOUT
         """
         list_diff = Set(self.attempted).difference(Set(self.finished))
-        self.clear_lists()
+#        self.clear_lists()
         for url in list_diff:
             logger.debug("URL %s got timeout", url)
             self.results.append((url, "__PNK_THREAD_TIMEOUT"))
@@ -214,7 +216,9 @@ class MassRequest(object):
         """ Set attempted, finished, and identified_post_requests to empty
             lists.
         """
-        self.attempted = self.finished = self.identified_post_requests = []
+        #use del here to give hint to garbage collector (free memory)
+        del self.attempted
+        del self.finished
 
     def to_target(self, item, request_type):
         """ Convert item into a Target object.

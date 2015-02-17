@@ -77,6 +77,7 @@ class iFuzzer(object):
             logger.warn("The dedupe argument for determine_posts_from_targets"
                         " is depreciated.")
         identified_posts = self.identify_posts()
+    
         self.append_targets(identified_posts)
 
     def append_targets(self, targets):
