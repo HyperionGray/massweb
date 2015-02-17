@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>mass_requests &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="index.html" />
+    <link rel="up" title="massweb" href="massweb.html" />
+    <link rel="next" title="masscrawler" href="massweb.masscrawler.html" />
+    <link rel="prev" title="fuzzers" href="massweb.fuzzers.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.masscrawler.html" title="masscrawler"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="massweb.fuzzers.html" title="fuzzers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="massweb.html" accesskey="U">massweb</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mass-requests">
+<h1>mass_requests<a class="headerlink" href="#mass-requests" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-massweb.mass_requests.mass_request">
+<span id="mass-request"></span><h2>mass_request<a class="headerlink" href="#module-massweb.mass_requests.mass_request" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="massweb.mass_requests.mass_request.MassRequest">
+<em class="property">class </em><tt class="descclassname">massweb.mass_requests.mass_request.</tt><tt class="descname">MassRequest</tt><big>(</big><em>num_threads=10</em>, <em>time_per_url=10</em>, <em>request_timeout=10</em>, <em>proxy_list=None</em>, <em>hadoop_reporting=False</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Mass Request class. Applies payloads to targets.</p>
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.add_to_finished">
+<tt class="descname">add_to_finished</tt><big>(</big><em>request</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.add_to_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add finished requests to the list of finished requests</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.add_to_identified_post">
+<tt class="descname">add_to_identified_post</tt><big>(</big><em>requests</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.add_to_identified_post" title="Permalink to this definition">¶</a></dt>
+<dd><p>&#8221; Add targets that have post inputs to the list of Target objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.clear_lists">
+<tt class="descname">clear_lists</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.clear_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set attempted, finished, and identified_post_requests to empty
+lists.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.collect_target_results">
+<tt class="descname">collect_target_results</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.collect_target_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect results from processes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.create_process">
+<tt class="descname">create_process</tt><big>(</big><em>target</em>, <em>action</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.create_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new process to process a Target.</p>
+<p>target      Target object.
+action      See handle_targets for details.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.get_post_requests_from_targets">
+<tt class="descname">get_post_requests_from_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_post_requests_from_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find targets that have post inputs for later use.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.get_targets">
+<tt class="descname">get_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to send get requests to all the listed targets.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.get_urls">
+<tt class="descname">get_urls</tt><big>(</big><em>urls</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to send gett requests to all the listed urls.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.handle_targets">
+<tt class="descname">handle_targets</tt><big>(</big><em>targets=None</em>, <em>action=None</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.handle_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle targets. For internal use.</p>
+<p>targets     list of Target objects.
+action      Indicator for what HTTP request type to use. Options found</p>
+<blockquote>
+<div><p>in self.ttype_func_callback, currently:
+&#8216;get&#8217;           - process Targets with POST requests
+&#8216;post&#8217;          - process Targets with POST requests
+&#8216;identify_post&#8217; - look for potential post request</p>
+<blockquote>
+<div>targets.</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.list_diff">
+<tt class="descname">list_diff</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.list_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the Target objects that were attempted but not finished and
+set their respnse to __PNK_THREAD_TIMEOUT</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.post_targets">
+<tt class="descname">post_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.post_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to send post requests to all the listed targets.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.post_urls">
+<tt class="descname">post_urls</tt><big>(</big><em>urls_and_data</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.post_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to send post requests to all the listed (url, data) tuples.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.request_targets">
+<tt class="descname">request_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.request_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply the payloads of the provided targets.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="massweb.mass_requests.mass_request.MassRequest.targets_attempted">
+<tt class="descname">targets_attempted</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.targets_attempted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of Target objects that this has attempted to
+fuzz.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="massweb.mass_requests.mass_request.MassRequest.targets_finished">
+<tt class="descname">targets_finished</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.targets_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of Target objects that this has finished fuzzing.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.terminate_pool">
+<tt class="descname">terminate_pool</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.terminate_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kill the processes in the pool.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.to_target">
+<tt class="descname">to_target</tt><big>(</big><em>item</em>, <em>request_type</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.to_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert item into a Target object.</p>
+<dl class="docutils">
+<dt>item            URL as a unicode or str, a tuple/list containing a URL</dt>
+<dd>and parameters, or a Target object.</dd>
+</dl>
+<p>request_type    lowercase get or post specifying the HTTP requast type</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="massweb.mass_requests.mass_request.MassRequest.urls_attempted">
+<tt class="descname">urls_attempted</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.urls_attempted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of the URLs attempted.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="massweb.mass_requests.mass_request.MassRequest.urls_finished">
+<tt class="descname">urls_finished</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.urls_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of URLs that have finished being processed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-massweb.mass_requests.response_analysis">
+<span id="response-analysis"></span><h2>response_analysis<a class="headerlink" href="#module-massweb.mass_requests.response_analysis" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="massweb.mass_requests.response_analysis.parse_worthy">
+<tt class="descclassname">massweb.mass_requests.response_analysis.</tt><tt class="descname">parse_worthy</tt><big>(</big><em>response</em>, <em>max_parse_size=5000000</em>, <em>content_type_match='text'</em>, <em>hadoop_reporting=False</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.response_analysis.parse_worthy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine if it&#8217;s worth parsing a Response object.</p>
+<p>response            requests.Response object.
+max_parse_size      Maximum length of content in characters. Default 5000000.
+content_type_match  content-type MIME prefix. Default &#8220;text&#8221; (as in text/html or text/plain).
+hadoop_reporting    Turn on hadoop reporting if True. Default False.</p>
+<p>returns             True if it&#8217;s worth parsing, False if not.
+raises              TypeError if response is not a requests.Response.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MassWeb</a></h1>
+
+
+
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/">
+    <img
+        alt="https://secure.travis-ci.org/.png?branch=master"
+        src="https://secure.travis-ci.org/.png?branch=master"
+    >
+</a>
+</p>
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Current Feature Set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">MassWeb Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="massweb.html">massweb</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzz_generators.html">fuzz_generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html">fuzzers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">mass_requests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.mass_requests.mass_request">mass_request</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.mass_requests.response_analysis">response_analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.masscrawler.html">masscrawler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html">payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.pnk_net.html">pnk_net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.proxy_rotator.html">proxy_rotator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.results.html">results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html">targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html">vuln_checks</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.masscrawler.html" title="masscrawler"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="massweb.fuzzers.html" title="fuzzers"
+             >previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="massweb.html" >massweb</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, myauthor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

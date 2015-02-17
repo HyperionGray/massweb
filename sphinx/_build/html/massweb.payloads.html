@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>payloads &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="index.html" />
+    <link rel="up" title="massweb" href="massweb.html" />
+    <link rel="next" title="pnk_net" href="massweb.pnk_net.html" />
+    <link rel="prev" title="masscrawler" href="massweb.masscrawler.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.pnk_net.html" title="pnk_net"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="massweb.masscrawler.html" title="masscrawler"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="massweb.html" accesskey="U">massweb</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="payloads">
+<h1>payloads<a class="headerlink" href="#payloads" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-massweb.payloads.bsqli_payload">
+<span id="bsqli-payload"></span><h2>bsqli_payload<a class="headerlink" href="#module-massweb.payloads.bsqli_payload" title="Permalink to this headline">¶</a></h2>
+<p>Blind SQL Injection (BSQLI) Payload type</p>
+<dl class="class">
+<dt id="massweb.payloads.bsqli_payload.BSQLIPayload">
+<em class="property">class </em><tt class="descclassname">massweb.payloads.bsqli_payload.</tt><tt class="descname">BSQLIPayload</tt><big>(</big><em>payload_str, payload_attributes, check_type_list=['bsqli']</em><big>)</big><a class="headerlink" href="#massweb.payloads.bsqli_payload.BSQLIPayload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#massweb.payloads.payload.Payload" title="massweb.payloads.payload.Payload"><tt class="xref py py-class docutils literal"><span class="pre">massweb.payloads.payload.Payload</span></tt></a></p>
+<p>Blind SQL Injection Payload class</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-massweb.payloads.bsqli_payload_group">
+<span id="bsqli-payload-group"></span><h2>bsqli_payload_group<a class="headerlink" href="#module-massweb.payloads.bsqli_payload_group" title="Permalink to this headline">¶</a></h2>
+<p>Blind SQL Injection (BSQLI) PayloadGroup type</p>
+<dl class="class">
+<dt id="massweb.payloads.bsqli_payload_group.BSQLIPayloadGroup">
+<em class="property">class </em><tt class="descclassname">massweb.payloads.bsqli_payload_group.</tt><tt class="descname">BSQLIPayloadGroup</tt><big>(</big><em>true_payload</em>, <em>false_payload</em><big>)</big><a class="headerlink" href="#massweb.payloads.bsqli_payload_group.BSQLIPayloadGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#massweb.payloads.payload_group.PayloadGroup" title="massweb.payloads.payload_group.PayloadGroup"><tt class="xref py py-class docutils literal"><span class="pre">massweb.payloads.payload_group.PayloadGroup</span></tt></a></p>
+<p>Blind SQL Injection Payload type:
+contains multiple pairs of BSQLIPayloads</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-massweb.payloads.payload">
+<span id="payload"></span><h2>payload<a class="headerlink" href="#module-massweb.payloads.payload" title="Permalink to this headline">¶</a></h2>
+<p>Payload object type/prototype</p>
+<dl class="class">
+<dt id="massweb.payloads.payload.Payload">
+<em class="property">class </em><tt class="descclassname">massweb.payloads.payload.</tt><tt class="descname">Payload</tt><big>(</big><em>payload_str</em>, <em>check_type_list=[]</em>, <em>payload_attributes={}</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Payload Object Protoype:</p>
+<p>This provides a common interface for various payloads.</p>
+<dl class="method">
+<dt id="massweb.payloads.payload.Payload.__eq__">
+<tt class="descname">__eq__</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if this Payload is equal to another,
+based on the payload string and the type of checks to be run.</p>
+<p>other is the Payload object to be compared to this Payload object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.payloads.payload.Payload.__hash__">
+<tt class="descname">__hash__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload.__hash__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a hash of the payload and check types</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="massweb.payloads.payload.Payload.__str__">
+<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns just the payload string</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-massweb.payloads.payload_group">
+<span id="payload-group"></span><h2>payload_group<a class="headerlink" href="#module-massweb.payloads.payload_group" title="Permalink to this headline">¶</a></h2>
+<p>PayloadGroup type/prototype containing multiple Payload objects</p>
+<dl class="class">
+<dt id="massweb.payloads.payload_group.PayloadGroup">
+<em class="property">class </em><tt class="descclassname">massweb.payloads.payload_group.</tt><tt class="descname">PayloadGroup</tt><big>(</big><em>payloads</em>, <em>check_type_list=[]</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload_group.PayloadGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>PayloadGroup Class: groups of individual Payload objects.</p>
+<dl class="method">
+<dt id="massweb.payloads.payload_group.PayloadGroup.add_payload">
+<tt class="descname">add_payload</tt><big>(</big><em>payload</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload_group.PayloadGroup.add_payload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a Payloadobject to this group.</p>
+<p>payload Payload object</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MassWeb</a></h1>
+
+
+
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/">
+    <img
+        alt="https://secure.travis-ci.org/.png?branch=master"
+        src="https://secure.travis-ci.org/.png?branch=master"
+    >
+</a>
+</p>
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Current Feature Set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">MassWeb Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="massweb.html">massweb</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzz_generators.html">fuzz_generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html">fuzzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.mass_requests.html">mass_requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.masscrawler.html">masscrawler</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">payloads</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.payloads.bsqli_payload">bsqli_payload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.payloads.bsqli_payload_group">bsqli_payload_group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.payloads.payload">payload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.payloads.payload_group">payload_group</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.pnk_net.html">pnk_net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.proxy_rotator.html">proxy_rotator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.results.html">results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html">targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html">vuln_checks</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.pnk_net.html" title="pnk_net"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="massweb.masscrawler.html" title="masscrawler"
+             >previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="massweb.html" >massweb</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, myauthor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

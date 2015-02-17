@@ -1,0 +1,4 @@
+Check the string returned by the fuzzer (content) against the list of strings indicating vulnerability.
+    
+:param str content: Webpage collected by the fuzzer.
+

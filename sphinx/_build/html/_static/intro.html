@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Intro &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="default.css" type="text/css" />
+    <link rel="stylesheet" href="pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="underscore.js"></script>
+    <script type="text/javascript" src="doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="../index.html" />
+    <link rel="next" title="Installation" href="install.html" />
+    <link rel="prev" title="Welcome to MassWeb’s documentation!" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to MassWeb’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="intro">
+<h1>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-problem-it-solves">
+<h2>The Problem it Solves<a class="headerlink" href="#the-problem-it-solves" title="Permalink to this headline">¶</a></h2>
+<p>In PunkSPIDER 3.0 (the release we&#8217;re currently working on) we have to scan several hundred million hosts in a very short amount of time over a Hadoop distributed cluster. There&#8217;s a few big challenges with this:</p>
+<p>#We have to do it super fast, so we can&#8217;t simply do requests &amp;quot;one by one&amp;quot;, we could take care of this with Hadoop job settings but this is highly inefficient - we need the native mapper and reducer to be multi-threaded</p>
+<p>#It&#8217;s highly variable how long a URL takes to get a response - we could be downloading a tiny 1kb page or we could be hitting a 200GB monster (think high-quality video), we need an upper bound to the amount of time that a large set of requests will take</p>
+<p>#We&#8217;re doing lots of requests here, we use about 100-150 high performance proxies when we scan, a proxy rotation system would be nice</p>
+<p>#We need all of this to be simple, we want to be able to do all of this with just a few lines of code</p>
+</div>
+<div class="section" id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Permalink to this headline">¶</a></h2>
+<p>MassWeb is a library meant for lightning-fast web application fuzzing.It attempts to solve all of the major problems of massive Internet-level scans in one convenient library. We use it in PunkSPIDER to scan several hundred million URLs for vulnerabilities over the course of just a few days (3 for our last scan).&nbsp; Use it wisely and please don&#8217;t do anything nasty with this.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">MassWeb</a></h1>
+
+
+
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/">
+    <img
+        alt="https://secure.travis-ci.org/.png?branch=master"
+        src="https://secure.travis-ci.org/.png?branch=master"
+    >
+</a>
+</p>
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Intro</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-problem-it-solves">The Problem it Solves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Current Feature Set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">MassWeb Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../massweb.html">massweb</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Welcome to MassWeb’s documentation!"
+             >previous</a> |</li>
+        <li><a href="../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, myauthor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

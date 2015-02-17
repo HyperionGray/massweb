@@ -6,5 +6,9 @@ set -e
 
 
 virtualenv --clear env/
-pip install Sphinx
+if $REFRESH_SPHINX ;then
+	pip install Sphinx
+	pip install alabaster
+	pip install sphinxcontrib-napoleon
+fi
 ./env/bin/python setup.py install

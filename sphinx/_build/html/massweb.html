@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>massweb &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="index.html" />
+    <link rel="next" title="fuzz_generators" href="massweb.fuzz_generators.html" />
+    <link rel="prev" title="MassWeb Usage" href="_static/usage.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.fuzz_generators.html" title="fuzz_generators"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="_static/usage.html" title="MassWeb Usage"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <p>* <strong>massweb is currently beta-level software, we encourage you to submit bugs by emailing contact&#64;hyperiongray.com</strong></p>
+<div class="section" id="massweb">
+<h1>massweb<a class="headerlink" href="#massweb" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="massweb.fuzz_generators.html">fuzz_generators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzz_generators.html#module-massweb.fuzz_generators.url_generator">url_generator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.fuzzers.html">fuzzers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html#module-massweb.fuzzers.bsqli_fuzzer">bsqli_fuzzer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html#module-massweb.fuzzers.ifuzzer">ifuzzer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html#module-massweb.fuzzers.web_fuzzer">web_fuzzer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.mass_requests.html">mass_requests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.mass_requests.html#module-massweb.mass_requests.mass_request">mass_request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.mass_requests.html#module-massweb.mass_requests.response_analysis">response_analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.masscrawler.html">masscrawler</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.masscrawler.html#module-massweb.masscrawler.masscrawl">masscrawl</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.payloads.html">payloads</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html#module-massweb.payloads.bsqli_payload">bsqli_payload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html#module-massweb.payloads.bsqli_payload_group">bsqli_payload_group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html#module-massweb.payloads.payload">payload</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html#module-massweb.payloads.payload_group">payload_group</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.pnk_net.html">pnk_net</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.pnk_net.html#module-massweb.pnk_net.find_post">find_post</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.pnk_net.html#module-massweb.pnk_net.pnk_request">pnk_request</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.proxy_rotator.html">proxy_rotator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.proxy_rotator.html#module-massweb.proxy_rotator.proxy_rotate">proxy_rotate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.results.html">results</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.results.html#module-massweb.results.result">result</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.targets.html">targets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html#module-massweb.targets.crawl_target">crawl_target</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html#module-massweb.targets.fuzzy_target">fuzzy_target</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html#module-massweb.targets.fuzzy_target_group">fuzzy_target_group</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html#module-massweb.targets.target">target</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="massweb.vuln_checks.html">vuln_checks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.check">check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.match">match</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.mxi">mxi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.osci">osci</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.sqli">sqli</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.trav">trav</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.xpathi">xpathi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html#module-massweb.vuln_checks.xss">xss</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MassWeb</a></h1>
+
+
+
+
+
+
+
+
+    
+
+<p>
+<a href="https://travis-ci.org/">
+    <img
+        alt="https://secure.travis-ci.org/.png?branch=master"
+        src="https://secure.travis-ci.org/.png?branch=master"
+    >
+</a>
+</p>
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Current Feature Set</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">MassWeb Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">massweb</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzz_generators.html">fuzz_generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html">fuzzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.mass_requests.html">mass_requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.masscrawler.html">masscrawler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html">payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.pnk_net.html">pnk_net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.proxy_rotator.html">proxy_rotator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.results.html">results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html">targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html">vuln_checks</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.fuzz_generators.html" title="fuzz_generators"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="_static/usage.html" title="MassWeb Usage"
+             >previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, myauthor.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
