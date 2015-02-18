@@ -141,12 +141,18 @@ class MassRequest(object):
         """ Handle targets. For internal use.
 
         targets     list of Target objects.
-        action      Indicator for what HTTP request type to use. Options found
-                        in self.ttype_func_callback, currently:
-                        'get'           - process Targets with POST requests
-                        'post'          - process Targets with POST requests
-                        'identify_post' - look for potential post request
-                                            targets.
+        action      Indicator for what HTTP request type to use.
+        
+        Note:
+            Options for `action` in self.ttype_func_callback, currently:
+
+            ``"get"``
+                Process Targets with POST requests
+            ``"post"``
+                Process Targets with POST requests
+            ``"identify_post"``
+                Look for potential post request targets.
+
         """
         # If no targets we have nothing to do so return now.
         if not targets:
@@ -223,9 +229,9 @@ class MassRequest(object):
     def to_target(self, item, request_type):
         """ Convert item into a Target object.
 
-        item            URL as a unicode or str, a tuple/list containing a URL
-                            and parameters, or a Target object.
+        item            URL as a unicode or str, a tuple/list containing a URL and parameters, or a Target object.
         request_type    lowercase get or post specifying the HTTP requast type
+
         """
         if isinstance(item, Target):
             return item

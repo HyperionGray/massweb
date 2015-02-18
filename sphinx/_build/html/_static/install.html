@@ -24,7 +24,7 @@
     <script type="text/javascript" src="underscore.js"></script>
     <script type="text/javascript" src="doctools.js"></script>
     <link rel="top" title="MassWeb 0.3.1 documentation" href="../index.html" />
-    <link rel="next" title="Current Feature Set" href="features.html" />
+    <link rel="next" title="Features" href="features.html" />
     <link rel="prev" title="Intro" href="intro.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="features.html" title="Current Feature Set"
+          <a href="features.html" title="Features"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="intro.html" title="Intro"
@@ -54,7 +54,61 @@
             
   <div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>To install MassWeb, simply type <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">massweb</span></tt> and you should get a working install on your system.</p>
+<div class="section" id="pip-recommended">
+<h2>PIP (Recommended)<a class="headerlink" href="#pip-recommended" title="Permalink to this headline">¶</a></h2>
+<p>To install MassWeb with pip, simply type <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">massweb</span></tt> and you should get a working install on your system.</p>
+</div>
+<div class="section" id="manual">
+<h2>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h2>
+<p>To install MassWeb from source:
+#. Install MassWeb&#8217;s dependencies.</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="http://docs.python-requests.org/en/latest/user/install/#install">requests</a></li>
+<li><a class="reference external" href="http://www.crummy.com/software/BeautifulSoup/bs4/doc/index.html?highlight=tag#installing-beautiful-soup">beautifulsoup4</a></li>
+<li><a class="reference external" href="https://github.com/html5lib/html5lib-python">html5lib</a></li>
+</ul>
+</div></blockquote>
+<ol class="arabic">
+<li><p class="first">Download MassWeb <a class="reference external" href="http://fixme">here</a>.</p>
+</li>
+<li><p class="first">Unpack the archive.</p>
+</li>
+<li><p class="first">Install:</p>
+<div class="highlight-python"><div class="highlight"><pre>cd massweb
+python setup.py install
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="development">
+<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<p>For development it is recommended that you use <cite>virtualenv</cite>. Below are the steps to start building and testing.</p>
+<ol class="arabic">
+<li><p class="first">Clone the git <a class="reference external" href="fixme">repo</a>.</p>
+</li>
+<li><p class="first">Add virtualenv directory to your copy of the repo:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ cd massweb
+$ virtualenv env
+</pre></div>
+</div>
+</li>
+<li><p class="first">Activate the virtualenv and run the <tt class="docutils literal"><span class="pre">refresh.sh</span></tt> script:
+* If you are working on the documentation export <tt class="docutils literal"><span class="pre">REFRESH_SPHINX=true</span></tt> before running <tt class="docutils literal"><span class="pre">refresh.sh</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ source env/bin/activate
+$ ./test/refresh.sh
+</pre></div>
+</div>
+</li>
+<li><p class="first">Make changes.</p>
+</li>
+<li><p class="first">Run <tt class="docutils literal"><span class="pre">refresh.sh</span></tt> again to build and install in a clean virtualenv.</p>
+</li>
+<li><p class="first">Test changes.</p>
+</li>
+</ol>
+</div>
 </div>
 
 
@@ -85,10 +139,14 @@
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Intro</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Current Feature Set</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">MassWeb Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pip-recommended">PIP (Recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#manual">Manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development">Development</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../massweb.html">massweb</a></li>
 </ul>
 
@@ -120,7 +178,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="features.html" title="Current Feature Set"
+          <a href="features.html" title="Features"
              >next</a> |</li>
         <li class="right" >
           <a href="intro.html" title="Intro"

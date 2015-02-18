@@ -97,12 +97,9 @@ This methos is called in iFuzzer.determine_posts_from_targets().</p>
 <dl class="method">
 <dt id="massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.request_target_group">
 <tt class="descname">request_target_group</tt><big>(</big><em>fuzzy_target_group</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.request_target_group" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fire off the fuzzies ...</p>
-<dl class="docutils">
-<dt>fuzzy_target_group  Group of Targets with fuzzing data added</dt>
-<dd>(the fuzzies).</dd>
-</dl>
-<p>returns             the resulting MassRequest.results.</p>
+<dd><p>Fire off the fuzzies.</p>
+<p>fuzzy_target_group  Group of Targets with fuzzing data added (the fuzzies).
+returns             the resulting MassRequest.results.</p>
 </dd></dl>
 
 </dd></dl>
@@ -130,9 +127,7 @@ This methos is called in iFuzzer.determine_posts_from_targets().</p>
 <p>Add a Payload object created from the string provided and the types
 of checks to preform.</p>
 <p>payload_str         String representing the payload.
-check_type_list     list of strings identifying the types of checks to</p>
-<blockquote>
-<div>preform.</div></blockquote>
+check_type_list     list of strings identifying the types of checks to preform.</p>
 </dd></dl>
 
 <dl class="method">
@@ -221,9 +216,7 @@ the target systems.</p>
 <p>ftargeet    Target object.
 response    requests.Respnse object.</p>
 <p>returns     Result object.
-raises      TypeError or AttributeError when non requests.Response is</p>
-<blockquote>
-<div>given as response.</div></blockquote>
+raises      TypeError or AttributeError when non requests.Response is given as response.</p>
 </dd></dl>
 
 <dl class="method">
@@ -273,9 +266,8 @@ raises      TypeError or AttributeError when non requests.Response is</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="_static/intro.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Current Feature Set</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">MassWeb Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="massweb.html">massweb</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="massweb.fuzz_generators.html">fuzz_generators</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">fuzzers</a><ul>

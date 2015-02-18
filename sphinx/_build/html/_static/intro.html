@@ -54,17 +54,19 @@
             
   <div class="section" id="intro">
 <h1>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="the-problem-it-solves">
-<h2>The Problem it Solves<a class="headerlink" href="#the-problem-it-solves" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="the-problem">
+<h2>The Problem<a class="headerlink" href="#the-problem" title="Permalink to this headline">¶</a></h2>
 <p>In PunkSPIDER 3.0 (the release we&#8217;re currently working on) we have to scan several hundred million hosts in a very short amount of time over a Hadoop distributed cluster. There&#8217;s a few big challenges with this:</p>
-<p>#We have to do it super fast, so we can&#8217;t simply do requests &amp;quot;one by one&amp;quot;, we could take care of this with Hadoop job settings but this is highly inefficient - we need the native mapper and reducer to be multi-threaded</p>
-<p>#It&#8217;s highly variable how long a URL takes to get a response - we could be downloading a tiny 1kb page or we could be hitting a 200GB monster (think high-quality video), we need an upper bound to the amount of time that a large set of requests will take</p>
-<p>#We&#8217;re doing lots of requests here, we use about 100-150 high performance proxies when we scan, a proxy rotation system would be nice</p>
-<p>#We need all of this to be simple, we want to be able to do all of this with just a few lines of code</p>
+<ol class="arabic simple">
+<li>We have to do it super fast, so we can&#8217;t simply do requests &#8220;one by one&#8221;, we could take care of this with Hadoop job settings but this is highly inefficient - we need the native mapper and reducer to be multi-threaded</li>
+<li>It&#8217;s highly variable how long a URL takes to get a response - we could be downloading a tiny 1kb page or we could be hitting a 200GB monster (think high-quality video), we need an upper bound to the amount of time that a large set of requests will take</li>
+<li>We&#8217;re doing lots of requests here, we use about 100-150 high performance proxies when we scan, a proxy rotation system would be nice</li>
+<li>We need all of this to be simple, we want to be able to do all of this with just a few lines of code</li>
+</ol>
 </div>
-<div class="section" id="purpose">
-<h2>Purpose<a class="headerlink" href="#purpose" title="Permalink to this headline">¶</a></h2>
-<p>MassWeb is a library meant for lightning-fast web application fuzzing.It attempts to solve all of the major problems of massive Internet-level scans in one convenient library. We use it in PunkSPIDER to scan several hundred million URLs for vulnerabilities over the course of just a few days (3 for our last scan).&nbsp; Use it wisely and please don&#8217;t do anything nasty with this.</p>
+<div class="section" id="the-sollution">
+<h2>The Sollution<a class="headerlink" href="#the-sollution" title="Permalink to this headline">¶</a></h2>
+<p>MassWeb is a library meant for lightning-fast web application fuzzing. It attempts to solve all of the major problems of massive Internet-level scans in one convenient library. We use it in PunkSPIDER to scan several hundred million URLs for vulnerabilities over the course of just a few days (3 for our last scan).&nbsp; Use it wisely and please don&#8217;t do anything nasty with this.</p>
 </div>
 </div>
 
@@ -96,14 +98,13 @@
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="">Intro</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#the-problem-it-solves">The Problem it Solves</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-problem">The Problem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-sollution">The Sollution</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="features.html">Current Feature Set</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">MassWeb Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../massweb.html">massweb</a></li>
 </ul>
 

@@ -49,6 +49,7 @@ class BSQLiFuzzer(iFuzzer):
         hadoop_reporting        Turns on output messages for hadoop if True.
                                     Default False.
         payload_groups          Unused.
+
         """
         super(BSQLiFuzzer, self).__init__()
         # do this because we may need to create more MassRequest objects in
@@ -90,6 +91,7 @@ class BSQLiFuzzer(iFuzzer):
         """ Hot, fresh MassRequest everytime!
 
         Workaround for the iFuzzer class using self.mreq.
+
         """
         return MassRequest(**self.mreq_config_dict)
 
@@ -98,6 +100,7 @@ class BSQLiFuzzer(iFuzzer):
 
         Overrides iFuzzer.identify_posts() to avoid the need for self.mreq.
         This methos is called in iFuzzer.determine_posts_from_targets().
+        
         """
         mreq_tmp = self.newmreq()
         mreq_tmp.get_post_requests_from_targets(self.targets)
@@ -164,6 +167,7 @@ class BSQLiFuzzer(iFuzzer):
 
         target                  Target object.
         bsqli_payload_group     BSQLiPayloadGroup object.
+
         """
         url = target.url
         parsed_url = urlparse(url)
@@ -189,6 +193,7 @@ class BSQLiFuzzer(iFuzzer):
 
         target                  Target object.
         bsqli_payload_group     BSQLiPayloadGroup object.
+
         """
         url = target.url
         post_keys = target.data.keys()
@@ -220,6 +225,7 @@ class BSQLiFuzzer(iFuzzer):
         """ Build fuzzy groups of targets.
 
         returns     list of Target objects with fuzzing data.
+
         """
         # Clear out the target groups to avoid overlap
         self.fuzzy_target_groups = []
@@ -242,11 +248,11 @@ class BSQLiFuzzer(iFuzzer):
                              ','.join([str(x) for x in self.targets]))
 
     def request_target_group(self, fuzzy_target_group):
-        """ Fire off the fuzzies ...
+        """ Fire off the fuzzies.
 
-        fuzzy_target_group  Group of Targets with fuzzing data added
-                                (the fuzzies).
+        fuzzy_target_group  Group of Targets with fuzzing data added (the fuzzies).
         returns             the resulting MassRequest.results.
+
         """
         mreq_tmp = self.newmreq()
         mreq_tmp.request_targets(fuzzy_target_group.fuzzy_targets)
@@ -257,6 +263,7 @@ class BSQLiFuzzer(iFuzzer):
 
         fuzzy_target_group  list of Target objects with fuzzing data.
         returns             True if vulnerability is present, False if not.
+
         """
         if self.hadoop_reporting:
             logger.info("Checking for BlindSQL in %s",
@@ -306,6 +313,7 @@ class BSQLiFuzzer(iFuzzer):
         """ Make all our targets fuzzy and deploy their payloads.
 
         returns     list of Result objects.
+
         """
         self.__build_fuzzy_target_groups()
         results = []

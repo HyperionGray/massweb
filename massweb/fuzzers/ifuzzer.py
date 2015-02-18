@@ -25,6 +25,7 @@ class iFuzzer(object):
         """ Add a Payload object to the list of payloads.
 
         payload     Payload object.
+
         """
         if not isinstance(payload, Payload):
             raise TypeError("payload must be of type Payload")
@@ -37,8 +38,8 @@ class iFuzzer(object):
         of checks to preform.
 
         payload_str         String representing the payload.
-        check_type_list     list of strings identifying the types of checks to
-                                preform.
+        check_type_list     list of strings identifying the types of checks to preform.
+
         """
         payload = Payload(payload_str, check_type_list)
         self.add_payload(payload)
@@ -48,6 +49,7 @@ class iFuzzer(object):
 
         url     URL as a string.
         data    POST request data as s dict.
+
         """
         target = Target(url, data=data)
         self.add_target(target)
@@ -56,6 +58,7 @@ class iFuzzer(object):
         """ Add Target object to list of targets.
 
         target  Target object.
+
         """
         if not isinstance(target, Target):
             raise TypeError("target must be of type Target")
@@ -72,6 +75,7 @@ class iFuzzer(object):
         """ Add targets with POST requests to this Fuzzer's list of targets.
 
         depreciated     Interface placeholder for dedupe which was unused.
+
         """
         if depreciated is False or depreciated:
             logger.warn("The dedupe argument for determine_posts_from_targets"
@@ -100,6 +104,7 @@ class iFuzzer(object):
         url                 URL to mangle as string.
         param               Parameter in url to replace the value of.
         append_string  String to append to the value of param in url with.
+
         """
         # for the purposes of maintaining consistent interfaces
         return append_to_param(url, param, append_string)
@@ -112,6 +117,7 @@ class iFuzzer(object):
         url                 URL to mangle as string.
         param               Parameter in url to replace the value of.
         replacement_string  String to replace the value of param in url with.
+
         """
         # for the purposes of maintaining consistent interfaces
         return replace_param_value(url, param, replacement_string)

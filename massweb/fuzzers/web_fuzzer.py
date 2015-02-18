@@ -173,8 +173,8 @@ class WebFuzzer(iFuzzer):
         response    requests.Respnse object.
 
         returns     Result object.
-        raises      TypeError or AttributeError when non requests.Response is
-                        given as response.
+        raises      TypeError or AttributeError when non requests.Response is given as response.
+
         """
         #FIXME: Clarify with alex: !function is a mess, response is of type
         #    text or non-text, trying to read blah blah

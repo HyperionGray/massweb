@@ -119,15 +119,19 @@ action      See handle_targets for details.</p>
 <tt class="descname">handle_targets</tt><big>(</big><em>targets=None</em>, <em>action=None</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.handle_targets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Handle targets. For internal use.</p>
 <p>targets     list of Target objects.
-action      Indicator for what HTTP request type to use. Options found</p>
-<blockquote>
-<div><p>in self.ttype_func_callback, currently:
-&#8216;get&#8217;           - process Targets with POST requests
-&#8216;post&#8217;          - process Targets with POST requests
-&#8216;identify_post&#8217; - look for potential post request</p>
-<blockquote>
-<div>targets.</div></blockquote>
-</div></blockquote>
+action      Indicator for what HTTP request type to use.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Options for <cite>action</cite> in self.ttype_func_callback, currently:</p>
+<dl class="last docutils">
+<dt><tt class="docutils literal"><span class="pre">&quot;get&quot;</span></tt></dt>
+<dd>Process Targets with POST requests</dd>
+<dt><tt class="docutils literal"><span class="pre">&quot;post&quot;</span></tt></dt>
+<dd>Process Targets with POST requests</dd>
+<dt><tt class="docutils literal"><span class="pre">&quot;identify_post&quot;</span></tt></dt>
+<dd>Look for potential post request targets.</dd>
+</dl>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -178,11 +182,8 @@ fuzz.</p>
 <dt id="massweb.mass_requests.mass_request.MassRequest.to_target">
 <tt class="descname">to_target</tt><big>(</big><em>item</em>, <em>request_type</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.to_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert item into a Target object.</p>
-<dl class="docutils">
-<dt>item            URL as a unicode or str, a tuple/list containing a URL</dt>
-<dd>and parameters, or a Target object.</dd>
-</dl>
-<p>request_type    lowercase get or post specifying the HTTP requast type</p>
+<p>item            URL as a unicode or str, a tuple/list containing a URL and parameters, or a Target object.
+request_type    lowercase get or post specifying the HTTP requast type</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -246,9 +247,8 @@ raises              TypeError if response is not a requests.Response.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="_static/intro.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_static/install.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Current Feature Set</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">MassWeb Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_static/usage.html#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="massweb.html">massweb</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="massweb.fuzz_generators.html">fuzz_generators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html">fuzzers</a></li>
