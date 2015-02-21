@@ -109,35 +109,52 @@ class MassRequest(object):
             raise ret
         self.handle_targets(targets=targets, action=IDENTIFY_POSTS)
 
+    def post_urls_from_file(self, filename):
+        """ Try to send POST requests to all the urls listed in a file. """
+        urls = self._urls_from_file(filename)
+        self.post_urls(urls)
+
     def post_urls(self, urls_and_data):
-        """ Try to send post requests to all the listed (url, data) tuples. """
-        ret = self._check_method_input_single(urls_and_data, 'urls_and_data', basestring)
+        """ Try to send POST requests to all the listed (url, data) tuples. """
+        ret = self._check_method_input_single(urls_and_data, 'urls_and_data', unicode)
         if ret:
             raise ret
         targets = [self.to_target(x, "post") for x in urls_and_data]
         self.handle_targets(targets=targets)
 
     def post_targets(self, targets):
-        """ Try to send post requests to all the listed targets. """
+        """ Try to send POST requests to all the listed targets. """
         ret = self._check_method_input(targets, 'targets', Target)
         if ret:
             raise ret
         self.handle_targets(targets=targets)
 
     def get_targets(self, targets):
-        """ Try to send get requests to all the listed targets. """
-        ret = self._check_method_input(targets, 'targets', Target)
+        """ Try to send GET requests to all the listed targets. """
+        ret = self._check_method_input(targets, 'targets', Target, "ist")
         if ret:
             raise ret
         self.handle_targets(targets=targets)
 
+    def get_urls_from_file(self, filename):
+        """ Try to send GET requests to all the urls listed in a file. """
+        urls = self._urls_from_file(filename)
+        self.get_urls(urls)
+
     def get_urls(self, urls):
-        """ Try to send gett requests to all the listed urls. """
-        ret = self._check_method_input_single(urls, 'urls', basestring)
+        """ Try to send GET requests to all the listed urls. """
+        ret = self._check_method_input(urls, "urls", unicode)
         if ret:
             raise ret
         targets = [self.to_target(x, "get") for x in urls]
         self.handle_targets(targets=targets)
+
+    def _urls_from_file(self, filename):
+        """ """
+        url_file = open(filename, "rb")
+        urls = url_file.readlines()
+        url_file.close()
+        return [unicode(x.strip()) for x in urls]
 
     def handle_targets(self, targets=None, action=None):
         """ Handle targets. For internal use.
