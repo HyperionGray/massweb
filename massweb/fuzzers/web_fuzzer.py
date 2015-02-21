@@ -25,7 +25,7 @@ from massweb.vuln_checks.xss import XSSCheck
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('WebFuzzer')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # force stdin and stderr to use utf-8
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
@@ -95,6 +95,7 @@ class WebFuzzer(iFuzzer):
                                                       str(payload)))
                 fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get",
                                            payload=payload)
+                logger.debug("fuzzy_target type: %s", type(fuzzy_target))
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
@@ -115,6 +116,7 @@ class WebFuzzer(iFuzzer):
                                            data=data_copy.copy(),
                                            payload=payload,
                                            unfuzzed_data=target.data)
+                logger.debug("fuzzy_target type: %s", type(fuzzy_target))
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
@@ -127,6 +129,7 @@ class WebFuzzer(iFuzzer):
             raise ValueError("Targets list must not be empty!")
         self.fuzzy_targets = []
         for target in self.targets:
+            logger.debug("input target type: %s", type(target))
             if target.ttype == "get":
                 fuzzy_target_list = self.__generate_fuzzy_target_get(target)
                 self.fuzzy_targets += fuzzy_target_list
@@ -148,6 +151,7 @@ class WebFuzzer(iFuzzer):
         results = []
         for target, response in self.mreq.results:
             #FIXME: Clarify with alex: !not yet multithreaded, should it be?
+            logger.debug("target type: %s", type(target))
             try:
                 result = self.analyze_response(target, response)
             except (TypeError, AttributeError):
@@ -155,15 +159,16 @@ class WebFuzzer(iFuzzer):
                 #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
                     logger.info("Marking target as failed due to exception: ", exc_info=True)
-                result = self.analyze_response(ftarget, "__PNK_FAILED_RESPONSE")
+                result = self._make_failed_result(target, "__PNK_FAILED_RESPONSE")
             results.append(result)
         return results
 
-    def _make_failed_result(self, target):
+    def _make_failed_result(self, target, result_dic=None):
         """ Macro to make a failed Result. """
-        result_dic = {}
-        for check_type in target.payload.check_type_list:
-            result_dic[check_type] = False
+        if not result_dic:
+            result_dic = {}
+            for check_type in target.payload.check_type_list:
+                result_dic[check_type] = False
         return Result(target, result_dic)
 
     def analyze_response(self, ftarget, response):

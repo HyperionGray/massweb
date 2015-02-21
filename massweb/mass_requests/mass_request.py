@@ -13,7 +13,7 @@ from massweb.targets.target import Target
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassRequest')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
@@ -92,12 +92,14 @@ class MassRequest(object):
         """ Add finished requests to the list of finished requests """
         self.finished.append(request[0])
         self.results.append(request)
+        logger.debug("target type added to results: %s", type(request[0]))
 
     def request_targets(self, targets):
         """ Apply the payloads of the provided targets. """
         ret = self._check_method_input(targets, 'targets', Target)
         if ret:
             raise ret
+        logger.debug("request_targets type: %s", [type(x) for x in targets])
         self.handle_targets(targets=targets)
 
     def get_post_requests_from_targets(self, targets):
@@ -202,9 +204,10 @@ class MassRequest(object):
         """
         function, callback, req_type = self.ttype_func_callback[action]
         proc = self.pool.apply_async(func=function,
-                kwds={"target": target, "request_type": req_type, "data": target.data, "req_timeout": self.request_timeout,
-                    "proxy_list": self.proxy_list,
-                    "hadoop_reporting": self.hadoop_reporting},
+                kwds={"target": target, "request_type": req_type,
+                      "data": target.data, "req_timeout": self.request_timeout,
+                      "proxy_list": self.proxy_list,
+                      "hadoop_reporting": self.hadoop_reporting},
                 callback=callback)
         return proc
 
