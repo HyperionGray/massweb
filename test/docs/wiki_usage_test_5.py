@@ -1,3 +1,4 @@
+from massweb.targets.target import Target
 from massweb.fuzzers.web_fuzzer import WebFuzzer
 wf = WebFuzzer()
 target_1 = Target(u"http://www.hyperiongray.com")

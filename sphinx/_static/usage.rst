@@ -143,6 +143,7 @@ Let's run through the above code, first we create a Payload object, where we add
 The first two test for XSS and Path Traversal, while the third one is a valid payload for both SQL Injection and XPath Injection. Then we instantiate the |WebFuzzer| object, passing in some of our favorite parameters 
 :data:`num_threads` and :data`time_per_url`, and then add the |Payloads| to it. Next up, we add our |Targets|, we chose in the above to just add targets via a URL, but this could also be done by adding a Target object and the :method:`.add_target()` method, which would look something like the following::
 
+    from massweb.targets.target import Target
     from massweb.fuzzers.web_fuzzer import WebFuzzer
     wf = WebFuzzer()
     target_1 = Target("http://www.hyperiongray.com")
