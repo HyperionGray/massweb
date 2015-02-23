@@ -17,6 +17,7 @@
 .. |CrawlTarget| replace:: :class:`CrawlTarget`
 .. |FuzzyTargetGroup| replace:: :class:`FuzzyTargetGroup`
 .. |FuzzyTarget| replace:: :class:`FuzzyTarget`
+.. |FuzzyTargets| replace:: :class:`FuzzyTarget` objects
 .. |Target| replace:: :class:`Target`
 .. |Targets| replace:: :class:`Target` objects
 .. |Check| replace:: :class:`Check`

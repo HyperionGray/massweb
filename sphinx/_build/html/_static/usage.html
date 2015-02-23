@@ -8,7 +8,7 @@
     
     <title>Usage &mdash; MassWeb 0.3.1 documentation</title>
     
-    <link rel="stylesheet" href="default.css" type="text/css" />
+    <link rel="stylesheet" href="alabaster.css" type="text/css" />
     <link rel="stylesheet" href="pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -25,7 +25,11 @@
     <script type="text/javascript" src="doctools.js"></script>
     <link rel="top" title="MassWeb 0.3.1 documentation" href="../index.html" />
     <link rel="next" title="massweb" href="../massweb.html" />
-    <link rel="prev" title="Features" href="features.html" /> 
+    <link rel="prev" title="Features" href="features.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
   </head>
   <body>
     <div class="related">
@@ -54,14 +58,20 @@
             
   <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<p>There are two main use cases for MassWeb:
-* mass requests of URLs
-* or mass scanning for vulnerabilities of these URLs,</p>
+<p>There are two main use cases for MassWeb:</p>
+<ul class="simple">
+<li>mass requests of URLs</li>
+<li>or mass scanning for vulnerabilities of these URLs,</li>
+</ul>
 <div class="section" id="mass-requests">
 <h2>Mass Requests<a class="headerlink" href="#mass-requests" title="Permalink to this headline">¶</a></h2>
-<p>Mass requests are done via MassWeb&#8217;s <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object. Let&#8217;s say, you&#8217;re just interested in requesting a bunch of URLs in a reasonable amount of time, and don&#8217;t want to deal with getting into the MassWeb API:</p>
+<p>Mass requests are done via MassWeb&#8217;s <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object. Let&#8217;s say, you&#8217;re
+just interested in requesting a bunch of URLs in a reasonable amount of time,
+and don&#8217;t want to deal with getting into the MassWeb API</p>
+<div class="section" id="example-1">
+<h3>Example 1<a class="headerlink" href="#example-1" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">urls_to_fetch</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;http://www.hyperiongray.com&quot;</span><span class="p">,</span> <span class="s">&quot;http://course.hyperiongray.com/vuln1/&quot;</span><span class="p">,</span> <span class="s">&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">urls_to_fetch</span> <span class="o">=</span> <span class="p">[</span><span class="s">u&quot;http://www.hyperiongray.com&quot;</span><span class="p">,</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln1/&quot;</span><span class="p">,</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">urls_to_fetch</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
@@ -72,19 +82,29 @@
 <span class="go">(&#39;http://course.hyperiongray.com/vuln1/&#39;, &lt;Response [200]&gt;)</span>
 </pre></div>
 </div>
-<p>In other words, simply instantiate a MassRequest object and pass in any iterable to the
-<tt class="xref py py-meth docutils literal"><span class="pre">get_urls()</span></tt> function. Note that by default, the MassRequest object works with 10 threads and has a timeout of 10 seconds per URL (more on this later). What is returned is a tuple of the form:</p>
+<p>In other words, simply instantiate a <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object and pass in any
+iterable to the <tt class="xref py py-meth docutils literal"><span class="pre">get_urls()</span></tt> function. Note that by default, the
+<tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object works with 10 threads and has a timeout of 10 seconds per
+URL (more on this later). What is returned is a tuple of the form:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">url_fetched</span><span class="p">,</span> <span class="n">Response</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To retrieve results, you can use the <tt class="xref py py-data docutils literal"><span class="pre">mr.results</span></tt> attribute, which simply returns a tuple with the url fetched and a <a class="reference external" href="http://docs.python-requests.org/en/latest/api/">Python Requests response object</a>, which gives you access to everything you could ever want about the response.</p>
-<p>So let&#8217;s consider a more complicated example, let&#8217;s say we want to load in a bunch of URLs to fetch via GET, but we also have some POST requests we want to send. We do that by using the Target object to prepare our URLs and POST data before sending it:</p>
+<p>To retrieve results, you can use the <tt class="xref py py-data docutils literal"><span class="pre">MassRequest.results</span></tt> attribute, which simply
+returns a tuple with the URL fetched and a <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response">requests.Response</a> object, which gives you access to
+everything you could ever want about the response from the server.</p>
+<p>So let&#8217;s consider a more complicated example, let&#8217;s say we want to load in a
+bunch of URLs to fetch via GET, but we also have some POST requests we want to
+send. We do that by using the <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> object to prepare our URLs and POST data
+before sending it.</p>
+</div>
+<div class="section" id="example-2">
+<h3>Example 2<a class="headerlink" href="#example-2" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_1</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;password&quot;</span> <span class="p">:</span> <span class="s">&quot;blh123&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;how&quot;</span> <span class="p">:</span> <span class="s">&quot;I&#39;m good thx&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_3</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">&quot;http://www.hyperiongray.com/&quot;</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;get&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_1</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;password&quot;</span> <span class="p">:</span> <span class="s">&quot;blh123&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;how&quot;</span> <span class="p">:</span> <span class="s">&quot;I&#39;m good thx&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_3</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">u&quot;http://www.hyperiongray.com/&quot;</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;get&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_1</span><span class="p">,</span> <span class="n">target_2</span><span class="p">,</span> <span class="n">target_3</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span><span class="o">.</span><span class="n">request_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
@@ -102,10 +122,28 @@
 <span class="go">http://course.hyperiongray.com/vuln1 200``</span>
 </pre></div>
 </div>
-<p>Again, pretty simple, just create a Target object with the parameters url, data (if it&#8217;s a POST request), and ttype of &#8220;post&#8221; or &#8220;get&#8221;. Put these in some kind of iterable and pass it off to mr.request_targets(), which does all of the work for you. What is returned is a tuple with the Target object (which casts to a URL) and a Python Requests Response object.</p>
-<p>This is all great, but it&#8217;s called MASSWeb, not fetch-me-3-urls-web. Let&#8217;s see how we could conduct mass requests with this thing. Let&#8217;s say we have a series of about 1000 URLs and we want them fast, we don&#8217;t have time to wait to make sure our data is perfect, we want some quick and dirty responses if possible and if they take too long, produce a timeout. First, let&#8217;s say you have a file called urls.txt of 1000 URLs and we want them in less then 2000 seconds or 2 seconds per URL. In other words, if it&#8217;s not a URL that can be fetched quickly, move on. This can be useful for things like web crawling when you have no idea how long a target is going to take to respond and get you your data, so regardless of whether it&#8217;s a networking issue, too-much-data issue or anything else, we want a hard timeout of 2 seconds per URL. Here&#8217;s how we would do that:</p>
+<p>Again, pretty simple, just create a <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> object with the parameters <tt class="xref py py-data docutils literal"><span class="pre">url</span></tt>, <tt class="xref py py-data docutils literal"><span class="pre">data</span></tt>
+(if it&#8217;s a POST request), and <tt class="xref py py-data docutils literal"><span class="pre">ttype</span></tt> of &#8220;post&#8221; or &#8220;get&#8221;. Put these in some kind
+of iterable and pass it off to <tt class="xref py py-meth docutils literal"><span class="pre">MassRequest.request_targets()</span></tt>, which does all of the work
+for you. What is returned is a tuple with the <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> object (which casts to a
+URL) and a <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response">requests.Response</a> object.</p>
+<p>This is all great, but it&#8217;s called <em>MASSWeb</em>, not fetch-me-3-URLs-web. Let&#8217;s see
+how we could conduct mass requests with this thing. Let&#8217;s say we have a series
+of about 1000 URLs and we want them fast, we don&#8217;t have time to wait to make
+sure our data is perfect, we want some quick and dirty responses if possible
+and if they take too long, produce a timeout. First, let&#8217;s say you have a file
+called urls.txt of 1000 URLs and we want them in less then 2000 seconds or 2
+seconds per URL. In other words, if it&#8217;s not a URL that can be fetched quickly,
+move on. This can be useful for things like web crawling when you have no idea
+how long a target is going to take to respond and get you your data, so
+regardless of whether it&#8217;s a networking issue, too-much-data issue or anything
+else, we want a hard timeout of 2 seconds per URL. Here&#8217;s how we would do
+that.</p>
+</div>
+<div class="section" id="example-3">
+<h3>Example 3<a class="headerlink" href="#example-3" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="n">num_threads</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">&quot;http://user:password@10.0.0.1:3089/&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">&quot;http://user:password@10.0.0.2:3089/&quot;</span><span class="p">}])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="n">num_threads</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.1:3089/&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.2:3089/&quot;</span><span class="p">}])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;../urls.txt&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
@@ -124,33 +162,50 @@
 <span class="go">(&#39;http://www.abcselfstore.co.uk/abc24-hour-access.html&#39;, &lt;Response [200]&gt;)</span>
 </pre></div>
 </div>
-<p>We&#8217;ve already seen what is returned in normal cases, but the first couple of items show a funny __PNK_REQ_FAILED string being returned instead of the Python Requests Response object that we expect. These are URLs that were not fetched properly for whatever reason, usually some kind of TCP timeout or an exception in Python Requests. Similarly if getting a URL times out (thread timeout, not TCP timeout), then __PNK_THREAD_TIMEOUT is returned. The proxy list is just a list of proxies <a class="reference external" href="http://docs.python-requests.org/en/latest/user/advanced/#proxies">formatted like this</a> specifies. Currently, requests get routed through proxies specified in the list at random, though we are currently working on improving this.</p>
+<p>We&#8217;ve already seen what is returned in normal cases, but the first couple of
+items show a funny <tt class="docutils literal"><span class="pre">__PNK_REQ_FAILED</span></tt> string being returned instead of the
+<a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response">requests.Response</a> object that we expect. These are URLs that were not fetched
+properly for whatever reason, usually some kind of TCP timeout or an exception
+in <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request">Requests</a>. Similarly if getting a URL times out (thread timeout, not
+TCP timeout), then <tt class="docutils literal"><span class="pre">__PNK_THREAD_TIMEOUT</span></tt> is returned. The proxy list is just a
+list of proxies <a class="reference external" href="http://docs.python-requests.org/en/latest/user/advanced/#proxies">formatted like this</a> specifies.
+Currently, requests get routed through proxies specified in the list at random,
+though we are currently working on improving this.</p>
+</div>
 </div>
 <div class="section" id="web-application-fuzzing">
 <h2>Web Application Fuzzing<a class="headerlink" href="#web-application-fuzzing" title="Permalink to this headline">¶</a></h2>
 <p>MassWeb is also a web application scanner. Let&#8217;s scan some websites!</p>
-<p>We&#8217;re going to take a look at the main (and only for now) scanning class, the WebFuzzer class. This works by:</p>
-<p># creating a set of Payloads that will get inserted into GET and POST parameters
-# adding Targets (GET or POST requests to be performed) to the object
-# Identifying additional POST requests on the GET requests specified, if you&#8217;d like
-# Creating a list of &#8220;Fuzzy Targets&#8221; (Targets with payloads attached to them)
-# Calling the .fuzz() method</p>
-<p>The web app fuzzer allows you the same control that the MassRequest object allows you - it&#8217;s automatically threaded, and you can set how much time you would like to allow it to take (it&#8217;s also quite fast). That might sound like few steps to get up and running, but it&#8217;s actually quite easy. Let&#8217;s see it in action with a simple web app fuzzer:</p>
+<p>We&#8217;re going to take a look at the main (and only for now) scanning class, the <tt class="xref py py-class docutils literal"><span class="pre">WebFuzzer</span></tt> class. This works by:</p>
+<ol class="arabic simple">
+<li>Creating a set of <tt class="xref py py-class docutils literal"><span class="pre">Payload</span></tt> objects that will get inserted into GET and POST parameters.</li>
+<li>Adding Targets (GET or POST requests to be performed) to the object.</li>
+<li>Identifying additional POST requests on the GET requests specified, if you&#8217;d like.</li>
+<li>Creating a list of <tt class="xref py py-class docutils literal"><span class="pre">FuzzyTarget</span></tt> objects (<tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> objects with payloads attached to them)</li>
+<li>Calling the <tt class="xref py py-meth docutils literal"><span class="pre">WebFuzzer.fuzz()</span></tt> method.</li>
+</ol>
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">WebFuzzer</span></tt> allows you the same control that the <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object
+allows you. It&#8217;s automatically threaded, and you can set how much time you
+would like to allow it to take (it&#8217;s also quite fast). That might sound like
+few steps to get up and running, but it&#8217;s actually quite easy. Let&#8217;s see it in
+action with a simple implementation of a web app fuzzer</p>
+<div class="section" id="example-4">
+<span id="id3"></span><h3>Example 4<a class="headerlink" href="#example-4" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">massweb.payloads.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
 <span class="n">xss_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;&quot;&gt;&lt;ScRipT&gt;alert(31337)&lt;/ScrIpT&gt;&#39;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;xss&quot;</span><span class="p">])</span>
 <span class="n">trav_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;../../../../../../../../../../../../../../../../../../etc/passwd&#39;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;trav&quot;</span><span class="p">])</span>
 <span class="n">sqli_xpathi_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&quot;&#39;)--&quot;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;sqli&quot;</span><span class="p">,</span> <span class="s">&quot;xpathi&quot;</span><span class="p">])</span>
 
-<span class="n">wf</span> <span class="o">=</span> <span class="n">WebFuzzer</span><span class="p">(</span><span class="n">num_threads</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">&quot;http://user:password@10.0.0.1:3089/&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">&quot;http://user:password@10.0.0.2:3089/&quot;</span><span class="p">}])</span>
+<span class="n">wf</span> <span class="o">=</span> <span class="n">WebFuzzer</span><span class="p">(</span><span class="n">num_threads</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.1:3089/&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.2:3089/&quot;</span><span class="p">}])</span>
 <span class="n">wf</span><span class="o">.</span><span class="n">add_payload</span><span class="p">(</span><span class="n">xss_payload</span><span class="p">)</span>
 <span class="n">wf</span><span class="o">.</span><span class="n">add_payload</span><span class="p">(</span><span class="n">trav_payload</span><span class="p">)</span>
 <span class="n">wf</span><span class="o">.</span><span class="n">add_payload</span><span class="p">(</span><span class="n">sqli_xpathi_payload</span><span class="p">)</span>
-<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">)</span>
-<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">)</span>
-<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">&quot;http://www.wpsurfing.co.za/?feed=</span><span class="si">%22%</span><span class="s">3E%3CScRipT</span><span class="si">%3E</span><span class="s">alert</span><span class="si">%2831337%</span><span class="s">29%3C</span><span class="si">%2F</span><span class="s">ScrIpT</span><span class="si">%3E</span><span class="s">&quot;</span><span class="p">)</span>
-<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">&quot;http://www.sfgcd.com/ProductsBuy.asp?ProNo=1</span><span class="si">%3E</span><span class="s">&amp;amp;amp;ProName=1&quot;</span><span class="p">)</span>
-<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">&quot;http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;amp;typeofsite=snippetdetail&amp;amp;amp;ID=1368&amp;amp;amp;Sectionid=1&quot;</span><span class="p">)</span>
-<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">&quot;http://www.dobrevsource.org/index.php?id=1&quot;</span><span class="p">)</span>
+<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">u&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">)</span>
+<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">u&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">)</span>
+<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">u&quot;http://www.wpsurfing.co.za/?feed=</span><span class="si">%22%</span><span class="s">3E%3CScRipT</span><span class="si">%3E</span><span class="s">alert</span><span class="si">%2831337%</span><span class="s">29%3C</span><span class="si">%2F</span><span class="s">ScrIpT</span><span class="si">%3E</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">u&quot;http://www.sfgcd.com/ProductsBuy.asp?ProNo=1</span><span class="si">%3E</span><span class="s">&amp;amp;amp;ProName=1&quot;</span><span class="p">)</span>
+<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">u&quot;http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;amp;typeofsite=snippetdetail&amp;amp;amp;ID=1368&amp;amp;amp;Sectionid=1&quot;</span><span class="p">)</span>
+<span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">u&quot;http://www.dobrevsource.org/index.php?id=1&quot;</span><span class="p">)</span>
 
 <span class="k">print</span> <span class="s">&quot;Targets list pre post determination:&quot;</span>
 <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
@@ -171,24 +226,56 @@
     <span class="k">print</span> <span class="n">r</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">fuzzy_target</span><span class="o">.</span><span class="n">ttype</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">fuzzy_target</span><span class="o">.</span><span class="n">payload</span>
 </pre></div>
 </div>
-<p>Let&#8217;s run through the above code, first we create a Payload object, where we add the payload string and a check type list. The check_type_list marks the vulnerability or vulnerabilities that your payload is testing for - valid ones are:
-* mxi (mail header injection)
-*  osci (os command injection)
-* sqli (SQL injection)
-* trav (path traversal)
-* xpathi (XPath injection)
-* xss (cross site scripting)</p>
-<p>The first two test for XSS and Path Traversal, while the third one is a valid payload for both SQL Injection and XPath Injection. Then we instantiate the <tt class="xref py py-class docutils literal"><span class="pre">WebFuzzer</span></tt> object, passing in some of our favorite parameters
-<tt class="xref py py-data docutils literal"><span class="pre">num_threads</span></tt> and :data`time_per_url`, and then add the <tt class="xref py py-class docutils literal"><span class="pre">Payload</span></tt> objects to it. Next up, we add our <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> objects, we chose in the above to just add targets via a URL, but this could also be done by adding a Target object and the <a href="#id1"><span class="problematic" id="id2">:method:`.add_target()`</span></a> method, which would look something like the following:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">massweb.fuzzers.web_fuzzer</span> <span class="kn">import</span> <span class="n">WebFuzzer</span>
+<p>Let&#8217;s run through the above code, first we create a <tt class="xref py py-class docutils literal"><span class="pre">Payload</span></tt> object, where we
+add the payload string and a check type list. The <cite>check_type_list</cite> marks the
+vulnerability or vulnerabilities that your payload is testing for. Valid check
+types are:</p>
+<ul class="simple">
+<li>mxi (mail header injection)</li>
+<li>osci (os command injection)</li>
+<li>sqli (SQL injection)</li>
+<li>trav (path traversal)</li>
+<li>xpathi (XPath injection)</li>
+<li>xss (cross site scripting)</li>
+</ul>
+<p>The first two test for XSS and Path Traversal, while the third one is a valid
+payload for both SQL Injection and XPath Injection. Then we instantiate the
+<tt class="xref py py-class docutils literal"><span class="pre">WebFuzzer</span></tt> object, passing in some of our favorite parameters
+<tt class="xref py py-data docutils literal"><span class="pre">num_threads</span></tt> and <tt class="xref py py-data docutils literal"><span class="pre">time_per_url</span></tt>, and then add the <tt class="xref py py-class docutils literal"><span class="pre">Payload</span></tt> objects to it.
+Next up, we add our <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> objects, we chose in the above to just add targets via a
+URL, but this could also be done by adding a Target object and the
+<tt class="xref py py-meth docutils literal"><span class="pre">WebFuzzer.add_target()</span></tt> method, which would look something like the following</p>
+</div>
+<div class="section" id="example-5">
+<span id="id4"></span><h3>Example 5<a class="headerlink" href="#example-5" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">massweb.fuzzers.web_fuzzer</span> <span class="kn">import</span> <span class="n">WebFuzzer</span>
 <span class="n">wf</span> <span class="o">=</span> <span class="n">WebFuzzer</span><span class="p">()</span>
-<span class="n">target_1</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">&quot;http://www.hyperiongray.com&quot;</span><span class="p">)</span>
-<span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;password&quot;</span> <span class="p">:</span> <span class="s">&quot;blah&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
+<span class="n">target_1</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://www.hyperiongray.com&quot;</span><span class="p">)</span>
+<span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;password&quot;</span> <span class="p">:</span> <span class="s">&quot;blah&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The advantage to specifying a Target object instead of adding targets via a URL string is that you can explicitly specify POST requests that you&#8217;d like to be included in your scanning. However, in most cases this is a pain, this information would have to be determined by a web scraping script of some sort to determine valid forms, valid parameters within those forms, etc. We wanted an easier way. In the above example (Web App Fuzzing Example 1) on line 26, calling <a href="#id3"><span class="problematic" id="id4">:method:`wf.determine_posts_from_targets()`</span></a> will reach out to the existing Target set and try to find POST requests for you (note: this only supports finding basic forms for now, not AJAX POSTs or others) and automatically adds them to the target set.</p>
-<p>Following that, we must create our set of GET and POST requests with payloads inserted explicitly, which is done via the <tt class="docutils literal"><span class="pre">wf.generate_fuzzy_targets()</span></tt> method. You can access the FuzzyTarget classes that this creates by the <tt class="xref py py-data docutils literal"><span class="pre">fuzzy_targets</span></tt> object attribute. FuzzyTargets are exactly like Targets, except they include the payload that was used to generate it, which can be accessed via the <tt class="xref py py-data docutils literal"><span class="pre">payload</span></tt> attribute on a FuzzyTargets class.</p>
-<p>Once the <a href="#id13"><span class="problematic" id="id14">|FuzzyTargets|</span></a> are generated, we can fuzz with <a href="#id5"><span class="problematic" id="id6">:method:`wf.fuzz()`</span></a> which outputs a <tt class="xref py py-class docutils literal"><span class="pre">Result</span></tt> object. A result object is simply a result dictionary (e.g. <tt class="docutils literal"><span class="pre">&quot;results&quot;:</span> <span class="pre">{&quot;xpathi&quot;:</span> <span class="pre">False,</span> <span class="pre">&quot;sqli&quot;:</span> <span class="pre">False}</span></tt>) and the <tt class="xref py py-class docutils literal"><span class="pre">FuzzyTarget</span></tt> object that achieved this result. When cast to string, a Result object returns valid JSON.</p>
+<p>The advantage to specifying a <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> object instead of adding targets via a
+URL string is that you can explicitly specify POST requests that you&#8217;d like to
+be included in your scanning. However, in most cases this is a pain, this
+information would have to be determined by a web scraping script of some sort
+to determine valid forms, valid parameters within those forms, etc. We wanted
+an easier way. In the above example (<a class="reference internal" href="#example-4"><em>Example 4</em></a>)
+on line 26, calling <tt class="docutils literal"><span class="pre">wf.determine_posts_from_targets()</span></tt> will reach out
+to the existing <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> set and try to find POST requests for you (note: this
+only supports finding basic forms for now, not AJAX POSTs or others) and
+automatically adds them to the target set.</p>
+<p>Following that, we must create our set of GET and POST requests with payloads
+inserted explicitly, which is done via the <tt class="xref py py-meth docutils literal"><span class="pre">WebFuzzer.generate_fuzzy_targets()</span></tt>
+method. You can access the <tt class="xref py py-class docutils literal"><span class="pre">FuzzyTarget</span></tt> objects that this creates by the
+<tt class="xref py py-data docutils literal"><span class="pre">WebFuzzer.fuzzy_targets</span></tt> object attribute. <tt class="xref py py-class docutils literal"><span class="pre">FuzzyTarget</span></tt> objects are exactly like <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> objects,
+except they include the payload that was used to generate it, which can be
+accessed via the <tt class="xref py py-data docutils literal"><span class="pre">FuzzyTarget.payload</span></tt> attribute.</p>
+<p>Once the <tt class="xref py py-class docutils literal"><span class="pre">FuzzyTarget</span></tt> objects are generated, we can fuzz with <tt class="docutils literal"><span class="pre">wf.fuzz()</span></tt>
+which outputs a <tt class="xref py py-class docutils literal"><span class="pre">Result</span></tt> object. A result object is simply a result dictionary
+(e.g. <tt class="docutils literal"><span class="pre">&quot;results&quot;:</span> <span class="pre">{&quot;xpathi&quot;:</span> <span class="pre">False,</span> <span class="pre">&quot;sqli&quot;:</span> <span class="pre">False}</span></tt>) and the <tt class="xref py py-class docutils literal"><span class="pre">FuzzyTarget</span></tt>
+object that achieved this result. When cast to string, a <tt class="xref py py-class docutils literal"><span class="pre">Result</span></tt> object returns
+valid JSON.</p>
 <p>So let&#8217;s visualize all of that so that it makes a bit more sense:</p>
 <p>Targets list pre post determination:</p>
 <div class="highlight-python"><div class="highlight"><pre>http://course.hyperiongray.com/vuln1
@@ -292,6 +379,7 @@ http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandle
 </div>
 </div>
 </div>
+</div>
 
 
           </div>
@@ -305,27 +393,29 @@ http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandle
 
 
 
-
-
-
-    
-
 <p>
-<a href="https://travis-ci.org/">
-    <img
-        alt="https://secure.travis-ci.org/.png?branch=master"
-        src="https://secure.travis-ci.org/.png?branch=master"
-    >
-</a>
+<iframe src="http://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
+
+
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#mass-requests">Mass Requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#web-application-fuzzing">Web Application Fuzzing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mass-requests">Mass Requests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-1">Example 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-2">Example 2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-3">Example 3</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#web-application-fuzzing">Web Application Fuzzing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-4">Example 4</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-5">Example 5</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../massweb.html">massweb</a></li>
@@ -349,27 +439,20 @@ http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandle
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="../massweb.html" title="massweb"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="features.html" title="Features"
-             >previous</a> |</li>
-        <li><a href="../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2015, myauthor.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/_static/usage.txt"
+          rel="nofollow">Page source</a></li>
     </div>
+
+    
+
+    
   </body>
 </html>
