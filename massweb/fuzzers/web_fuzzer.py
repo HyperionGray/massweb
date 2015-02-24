@@ -31,6 +31,9 @@ logger.setLevel(logging.DEBUG)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
+GET = "get"
+POST = "post"
+
 class WebFuzzer(iFuzzer):
     """ Fuzzy a generated list of Targets.
 
@@ -93,9 +96,9 @@ class WebFuzzer(iFuzzer):
             for payload in self.payloads:
                 fuzzy_url = (self.replace_param_value(url, query_param,
                                                       str(payload)))
-                fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, "get",
+                fuzzy_target = FuzzyTarget(fuzzy_url, url, query_param, GET,
                                            payload=payload)
-                logger.debug("fuzzy_target type: %s", type(fuzzy_target))
+                logger.debug("GET fuzzy_target type: %s", type(fuzzy_target))
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
@@ -112,11 +115,11 @@ class WebFuzzer(iFuzzer):
             data_copy = target.data.copy()
             for payload in self.payloads:
                 data_copy[key] = str(payload)
-                fuzzy_target = FuzzyTarget(url, url, key, "post",
+                fuzzy_target = FuzzyTarget(url, url, key, POST,
                                            data=data_copy.copy(),
                                            payload=payload,
                                            unfuzzed_data=target.data)
-                logger.debug("fuzzy_target type: %s", type(fuzzy_target))
+                logger.debug("POST fuzzy_target type: %s", type(fuzzy_target))
                 fuzzy_targets.append(fuzzy_target)
         return fuzzy_targets
 
@@ -154,12 +157,18 @@ class WebFuzzer(iFuzzer):
             logger.debug("target type: %s", type(target))
             try:
                 result = self.analyze_response(target, response)
-            except (TypeError, AttributeError):
+            except (TypeError, AttributeError) as err:
                 # If request failed and str is returned instead of Response obj
                 #  could save some cycles here not analyzing response
                 if self.hadoop_reporting:
                     logger.info("Marking target as failed due to exception: ", exc_info=True)
-                result = self._make_failed_result(target, "__PNK_FAILED_RESPONSE")
+                logger.debug(err)
+                try:
+                    result = self._make_failed_result(target, "__PNK_FAILED_RESPONSE")
+                except TypeError as err:
+                    logger.debug("Failed to make a failed result for %s.", target)
+                    logger.warn(err.message, exc_info=True)
+                    continue
             results.append(result)
         return results
 
@@ -174,8 +183,8 @@ class WebFuzzer(iFuzzer):
     def analyze_response(self, ftarget, response):
         """ Analyze the results of the request and return the info gathered.
 
-        ftargeet    Target object.
-        response    requests.Respnse object.
+        ftargeet    FuzzyTarget object.
+        response    requests.Response object.
 
         returns     Result object.
         raises      TypeError or AttributeError when non requests.Response is given as response.
@@ -186,12 +195,12 @@ class WebFuzzer(iFuzzer):
         result_dic = {}
         check_type_list = ftarget.payload.check_type_list
         if self.hadoop_reporting:
-            logger.info(u"Response is of type %s for target %s",
+            logger.info("Response is of type %s for target %s.",
                         response.__class__.__name__, ftarget)
         worthy = parse_worthy(response,
                               hadoop_reporting=self.hadoop_reporting)
         if worthy:
-            logger.info("Target %s looks worth checking for vulnerabilities.",
+            logger.info("FuzzyTarget %s looks worth checking for vulnerabilities.",
                         ftarget)
         else:
             logger.info("Response deemed non-parse-worthy. Setting all checks "
