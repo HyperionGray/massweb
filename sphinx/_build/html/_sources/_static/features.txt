@@ -1,20 +1,32 @@
 Features
 ========
 
+.. include:: subs.rst
+
 Current
 _______
 
-* MassRequests library can be used to request large amounts of GET or POST requests in a short amount of time and with a hard timeout
-    * Threading is handled transparently, you don't have to write any multi-threaded code
-    * Support for a "tcp timeout" and a "hard timeout" (i.e. the absolute max amount of time to spend per URL) allowing one to calculate the upper bound timeline for fetching all desired data
-    * Support for proxy rotation
-* Automatically discover valid POST requests, and add to target set
-* Scan web apps for vulnerabilities via GET and POST
-    * Threading is handled transparently, you don't have to write any multi-threaded code
-    * Support for hard timeouts
-    * Configurable payload sets and vulnerability checks
+* |MassRequest|:
 
-Future
-______
+    * The |MassRequest| library can be used to request large amounts of GET or
+      POST requests in a short amount of time and with a hard timeout.
 
-* LASERS!!
+    * Threading is handled transparently, you don't have to write any
+      multi-threaded code.
+
+    * Both "TCP timeout" and "hard timeout" (i.e. the absolute max
+      amount of time to spend per URL) Allowing one to calculate the upper
+      bound timeline for fetching all desired data.
+
+    * Proxy rotation to produce an apparent distribution of requests.
+
+    * Automatically discover valid POST requests, and add to target set.
+
+* |MAssCrawl|:
+
+    * Scan web applications for vulnerabilities via GET and POST with |MassCrawl|.
+
+    * Configurable payload sets and vulnerability checks.
+
+    * Support for all the same features found in the |MassRequest| library.
+

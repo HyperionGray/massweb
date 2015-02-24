@@ -14,7 +14,7 @@ Mass Requests
 
 Mass requests are done via MassWeb's |MassRequest| object. Let's say, you're
 just interested in requesting a bunch of URLs in a reasonable amount of time,
-and don't want to deal with getting into the MassWeb API
+and don't want to deal with getting into the `MassWeb API`_
 
 Example 1
 ^^^^^^^^^
@@ -24,12 +24,12 @@ Example 1
     >>> urls_to_fetch = [u"http://www.hyperiongray.com", u"http://course.hyperiongray.com/vuln1/", u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/"]
     >>> mr = MassRequest()
     >>> mr.get_urls(urls_to_fetch)
-    >>> for r in mr.results:
-    ...     print r
+    >>> for target, response in mr.results:
+    ...     print target, response
     ... 
-    ('http://www.hyperiongray.com', <Response [200]>)
-    ('http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/', <Response [200]>)
-    ('http://course.hyperiongray.com/vuln1/', <Response [200]>)
+    http://www.hyperiongray.com <Response [200]>
+    http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/ <Response [200]>
+    http://course.hyperiongray.com/vuln1/ <Response [200]>
 
 
 In other words, simply instantiate a |MassRequest| object and pass in any
@@ -37,11 +37,10 @@ iterable to the :meth:`get_urls` function. Note that by default, the
 |MassRequest| object works with 10 threads and has a timeout of 10 seconds per
 URL (more on this later). What is returned is a tuple of the form::
 
-    (url_fetched, Response)
+    (Target or u"url", Response)
 
 To retrieve results, you can use the :data:`MassRequest.results` attribute, which simply
-returns a tuple with the URL fetched and a `requests.Response
-<http://docs.python-requests.org/en/latest/api/#requests.Response>`_ object, which gives you access to
+returns a tuple with the URL fetched and a requests.Response_ object, which gives you access to
 everything you could ever want about the response from the server.
 
 So let's consider a more complicated example, let's say we want to load in a
@@ -56,37 +55,37 @@ Example 2
     >>> from massweb.mass_requests.mass_request import MassRequest
     >>> from massweb.targets.target import Target
     >>>
-    >>> target_1 = Target(url = u"http://course.hyperiongray.com/vuln1", data = {"password" : "blh123"}, ttype = "post")
-    >>> target_2 = Target(url = u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/", data = {"how" : "I'm good thx"}, ttype = "post")
-    >>> target_3 = Target(url = u"http://www.hyperiongray.com/", ttype = "get")
+    >>> target_1 = Target(url=u"http://course.hyperiongray.com/vuln1", data={"password": "blh123"}, ttype="post")
+    >>> target_2 = Target(url=u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/", data={"how": "I'm good thx"}, ttype="post")
+    >>> target_3 = Target(url=u"http://www.hyperiongray.com/", ttype="get")
     >>> targets = [target_1, target_2, target_3]
     >>> mr = MassRequest()
     >>> mr.request_targets(targets)
-    >>> for r in mr.results:
-    ...     print r
+    >>> for result in mr.results:
+    ...     print result
     ... 
     (<massweb.targets.target.Target object at 0x15496d0>, <Response [200]>)
     (<massweb.targets.target.Target object at 0x1549650>, <Response [200]>)
     (<massweb.targets.target.Target object at 0x1549490>, <Response [200]>)
-    >>> for r in mr.results:
-    ...     print r[0], r[1].status_code
+    >>> for target, response in mr.results:
+    ...     print target, response.status_code
     ... 
     http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/ 200
     http://www.hyperiongray.com/ 200
-    http://course.hyperiongray.com/vuln1 200``
+    http://course.hyperiongray.com/vuln1 200
 
 Again, pretty simple, just create a |Target| object with the parameters :data:`url`, :data:`data`
 (if it's a POST request), and :data:`ttype` of "post" or "get". Put these in some kind
 of iterable and pass it off to :meth:`MassRequest.request_targets()`, which does all of the work
 for you. What is returned is a tuple with the |Target| object (which casts to a
-URL) and a `requests.Response <http://docs.python-requests.org/en/latest/api/#requests.Response>`_ object.
+URL) and a requests.Response_ object.
 
 This is all great, but it's called *MASSWeb*, not fetch-me-3-URLs-web. Let's see
 how we could conduct mass requests with this thing. Let's say we have a series
 of about 1000 URLs and we want them fast, we don't have time to wait to make
 sure our data is perfect, we want some quick and dirty responses if possible
 and if they take too long, produce a timeout. First, let's say you have a file
-called urls.txt of 1000 URLs and we want them in less then 2000 seconds or 2
+called ``urls.txt`` of 1000 URLs and we want them in less then 2000 seconds or 2
 seconds per URL. In other words, if it's not a URL that can be fetched quickly,
 move on. This can be useful for things like web crawling when you have no idea
 how long a target is going to take to respond and get you your data, so
@@ -98,34 +97,34 @@ Example 3
 ^^^^^^^^^
 ::
 
+    >>> urls_file = "urls.txt"
+    >>> proxies = [{"http": "user:password@http://proxy.example.com:1234/some/path"}, {"http": "otheruser:otherpassword@http://proxy.example.net:6789/someother/path"}]
     >>> from massweb.mass_requests.mass_request import MassRequest
-    >>> mr = MassRequest(num_threads = 20, time_per_url = 2, proxy_list = [{"http":u"http://user:password@10.0.0.1:3089/"}, {"http":u"http://user:password@10.0.0.2:3089/"}])
-    >>> f = open("../urls.txt")
-    >>> mr.get_urls(f)
+    >>> mr = MassRequest(num_threads=20, time_per_url=2, proxy_list=proxies)
+    >>> mr.get_urls_from_file(urls_file)
     >>> len(mr.results)
     1000
-    >>> for i in range(1,10):
-    ...     print mr.results[i]
+    >>> for target, response in mr.results[:10]:
+    ...     print target, response
     ... 
-    ('http://www.abcselfstorage.co.uk/', '__PNK_REQ_FAILED')
-    ('http://www.abcskiphirews32.co.uk/', '__PNK_REQ_FAILED')
-    ('http://abcskateboarding.co.uk/', <Response [404]>)
-    ('http://www.abcsalestraining.co.uk/', <Response [200]>)
-    ('http://www.abcservice.co.uk/', <Response [200]>)
-    ('http://www.abcseaangling.co.uk/', <Response [200]>)
-    ('http://www.abcselfdrive.co.uk/', <Response [404]>)
-    ('http://www.abcselfstore.co.uk/storage-blogwp-login.php?redirect_to=http%3A%2F%2Fwww.abcselfstore.co.uk%2Fstorage-blog%2Fwp-admin%2F&amp;reauth=1', <Response [404]>)
-    ('http://www.abcselfstore.co.uk/abc24-hour-access.html', <Response [200]>)
+    http://www.abcselfstorage.co.uk/ __PNK_REQ_FAILED
+    http://www.abcskiphirews32.co.uk/ __PNK_REQ_FAILED
+    http://abcskateboarding.co.uk/ <Response [404]>
+    http://www.abcsalestraining.co.uk/ <Response [200]>
+    http://www.abcservice.co.uk/ <Response [200]>
+    http://www.abcseaangling.co.uk/ <Response [200]>
+    http://www.abcselfdrive.co.uk/ <Response [404]>
+    http://www.abcselfstore.co.uk/storage-blogwp-login.php?redirect_to=http%3A%2F%2Fwww.abcselfstore.co.uk%2Fstorage-blog%2Fwp-admin%2F&amp;reauth=1 <Response [404]>
+    http://www.abcselfstore.co.uk/abc24-hour-access.html <Response [200]>
 
 
 We've already seen what is returned in normal cases, but the first couple of
 items show a funny ``__PNK_REQ_FAILED`` string being returned instead of the 
-`requests.Response <http://docs.python-requests.org/en/latest/api/#requests.Response>`_ object that we expect. These are URLs that were not fetched
+requests.Response_ object that we expect. These are URLs that were not fetched
 properly for whatever reason, usually some kind of TCP timeout or an exception
-in `Requests <http://docs.python-requests.org/en/latest/api/#requests.request>`_. Similarly if getting a URL times out (thread timeout, not
+in requests.Request_. Similarly if getting a URL times out (thread timeout, not
 TCP timeout), then ``__PNK_THREAD_TIMEOUT`` is returned. The proxy list is just a
-list of proxies `formatted like this
-<http://docs.python-requests.org/en/latest/user/advanced/#proxies>`_ specifies.
+list of proxies `formatted like this`_ page specifies.
 Currently, requests get routed through proxies specified in the list at random,
 though we are currently working on improving this.
 
@@ -147,7 +146,7 @@ The |WebFuzzer| allows you the same control that the |MassRequest| object
 allows you. It's automatically threaded, and you can set how much time you
 would like to allow it to take (it's also quite fast). That might sound like
 few steps to get up and running, but it's actually quite easy. Let's see it in
-action with a simple implementation of a web app fuzzer
+action with a simple implementation of a web app fuzzer.
 
 .. _example_4:
 
@@ -155,12 +154,16 @@ Example 4
 ^^^^^^^^^
 ::
 
+    from massweb.fuzzers.web_fuzzer import WebFuzzer
     from massweb.payloads.payload import Payload
-    xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
-    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
-    sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
 
-    wf = WebFuzzer(num_threads = 30, time_per_url = 5, proxy_list = [{"http":u"http://user:password@10.0.0.1:3089/"}, {"http":u"http://user:password@10.0.0.2:3089/"}])
+    proxies = [{"http": "user:password@http://proxy.example.com:1234/some/path"}, {"http": "otheruser:otherpassword@http://proxy2.example.net:6789/some/path"}]
+
+    xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
+    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list=["trav"])
+    sqli_xpathi_payload = Payload("')--", check_type_list=["sqli", "xpathi"])
+
+    wf = WebFuzzer(num_threads=30, time_per_url=5, proxy_list=proxies)
     wf.add_payload(xss_payload)
     wf.add_payload(trav_payload)
     wf.add_payload(sqli_xpathi_payload)
@@ -191,7 +194,7 @@ Example 4
 
 
 Let's run through the above code, first we create a |Payload| object, where we
-add the payload string and a check type list. The `check_type_list` marks the
+add the payload string and a check type list. The :data:`check_type_list` marks the
 vulnerability or vulnerabilities that your payload is testing for. Valid check
 types are: 
 
@@ -221,7 +224,7 @@ Example 5
     from massweb.fuzzers.web_fuzzer import WebFuzzer
     wf = WebFuzzer()
     target_1 = Target(u"http://www.hyperiongray.com")
-    target_2 = Target(u"http://course.hyperiongray.com/vuln1", data = {"password" : "blah"}, ttype = "post")
+    target_2 = Target(u"http://course.hyperiongray.com/vuln1", data={"password": "blah"}, ttype="post")
 
 
 The advantage to specifying a |Target| object instead of adding targets via a
@@ -257,7 +260,7 @@ Targets list pre post determination::
     http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E
     http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;amp;ProName=1
     http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=1
-    http://www.dobrevsource.org/index.php?id=1``
+    http://www.dobrevsource.org/index.php?id=1
 
 
 Targets list after additional injection points have been found::
@@ -352,4 +355,8 @@ Results of our fuzzing::
     {"url": "http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandler.php", "results": {"xpathi": false, "sqli": false}} post ')--
     {"url": "http://www.sfgcd.com/Search.asp", "results": {"xpathi": false, "sqli": false}} post ')--
     {"url": "http://www.sfgcd.com/ProductsBuy.asp?ProNo=%27%29--&amp;ProName=1", "results": {"xpathi": false, "sqli": false}} get ')--
+
+
+.. note::
+    It is highly recommended that proxy credentials not be part of your code. Pulling them from environmental variables or configuration files outside of your codebase are recommended. The examples above include them inline for the sake of simplicity.
 

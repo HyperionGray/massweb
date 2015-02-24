@@ -60,7 +60,7 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="pip-recommended">
 <h2>PIP (Recommended)<a class="headerlink" href="#pip-recommended" title="Permalink to this headline">¶</a></h2>
-<p>To install MassWeb with pip, simply type <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">massweb</span></tt> and you should get a working install on your system.</p>
+<p>To install MassWeb with <a class="reference external" href="https://pip.pypa.io/en/latest/">pip</a>, simply type <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">massweb</span></tt> and you should get a working install on your system.</p>
 </div>
 <div class="section" id="manual">
 <h2>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">¶</a></h2>
@@ -74,7 +74,7 @@
 </ul>
 </div></blockquote>
 <ol class="arabic">
-<li><p class="first">Download MassWeb <a class="reference external" href="http://fixme">here</a>.</p>
+<li><p class="first">Download MassWeb <a class="reference external" href="https://bitbucket.org/acaceres/massweb/get/master.tar.bz2">massweb_archive</a>.</p>
 </li>
 <li><p class="first">Unpack the archive.</p>
 </li>
@@ -88,29 +88,32 @@ python setup.py install
 </div>
 <div class="section" id="development">
 <h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
-<p>For development it is recommended that you use <cite>virtualenv</cite>. Below are the steps to start building and testing.</p>
+<p>For development it is recommended that you use <cite>virtualenv</cite>. Below are the
+steps to start building and testing.</p>
 <ol class="arabic">
-<li><p class="first">Clone the git <a class="reference external" href="fixme">repo</a>.</p>
+<li><p class="first">Clone the git <a class="reference external" href="https://bitbucket.org/acaceres/massweb">massweb_repo</a>.</p>
 </li>
-<li><p class="first">Add virtualenv directory to your copy of the repo:</p>
+<li><p class="first">Add virtualenv directory to your copy of the repository:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ cd massweb
 $ virtualenv env
 </pre></div>
 </div>
 </li>
-<li><p class="first">Activate the virtualenv and run the <tt class="docutils literal"><span class="pre">refresh.sh</span></tt> script:
-* If you are working on the documentation export <tt class="docutils literal"><span class="pre">REFRESH_SPHINX=true</span></tt> before running <tt class="docutils literal"><span class="pre">refresh.sh</span></tt>.</p>
+<li><p class="first">Activate the virtualenv and run the <tt class="docutils literal"><span class="pre">refresh.sh</span></tt> script:</p>
 <div class="highlight-python"><div class="highlight"><pre>$ source env/bin/activate
 $ ./test/refresh.sh
 </pre></div>
 </div>
 </li>
-<li><p class="first">Make changes.</p>
-</li>
-<li><p class="first">Run <tt class="docutils literal"><span class="pre">refresh.sh</span></tt> again to build and install in a clean virtualenv.</p>
-</li>
-<li><p class="first">Test changes.</p>
-</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you are working on the documentation export <tt class="docutils literal"><span class="pre">REFRESH_SPHINX=true</span></tt> before running <tt class="docutils literal"><span class="pre">refresh.sh</span></tt>.</p>
+</div>
+<ol class="arabic simple">
+<li>Make changes.</li>
+<li>Run <tt class="docutils literal"><span class="pre">refresh.sh</span></tt> again to build and install in a clean virtualenv.</li>
+<li>Test changes.</li>
 </ol>
 </div>
 </div>
@@ -126,11 +129,6 @@ $ ./test/refresh.sh
 
 
 
-
-<p>
-<iframe src="http://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
 
 
 <h3>Navigation</h3>

@@ -67,26 +67,26 @@
 <h2>Mass Requests<a class="headerlink" href="#mass-requests" title="Permalink to this headline">¶</a></h2>
 <p>Mass requests are done via MassWeb&#8217;s <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object. Let&#8217;s say, you&#8217;re
 just interested in requesting a bunch of URLs in a reasonable amount of time,
-and don&#8217;t want to deal with getting into the MassWeb API</p>
+and don&#8217;t want to deal with getting into the <a class="reference external" href="http://massweb-docs.readthedocs.org">MassWeb API</a></p>
 <div class="section" id="example-1">
 <h3>Example 1<a class="headerlink" href="#example-1" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">urls_to_fetch</span> <span class="o">=</span> <span class="p">[</span><span class="s">u&quot;http://www.hyperiongray.com&quot;</span><span class="p">,</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln1/&quot;</span><span class="p">,</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">urls_to_fetch</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="k">print</span> <span class="n">r</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">target</span><span class="p">,</span> <span class="n">response</span>
 <span class="gp">...</span>
-<span class="go">(&#39;http://www.hyperiongray.com&#39;, &lt;Response [200]&gt;)</span>
-<span class="go">(&#39;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&#39;, &lt;Response [200]&gt;)</span>
-<span class="go">(&#39;http://course.hyperiongray.com/vuln1/&#39;, &lt;Response [200]&gt;)</span>
+<span class="go">http://www.hyperiongray.com &lt;Response [200]&gt;</span>
+<span class="go">http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/ &lt;Response [200]&gt;</span>
+<span class="go">http://course.hyperiongray.com/vuln1/ &lt;Response [200]&gt;</span>
 </pre></div>
 </div>
 <p>In other words, simply instantiate a <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object and pass in any
 iterable to the <tt class="xref py py-meth docutils literal"><span class="pre">get_urls()</span></tt> function. Note that by default, the
 <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> object works with 10 threads and has a timeout of 10 seconds per
 URL (more on this later). What is returned is a tuple of the form:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">url_fetched</span><span class="p">,</span> <span class="n">Response</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">Target</span> <span class="ow">or</span> <span class="s">u&quot;url&quot;</span><span class="p">,</span> <span class="n">Response</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To retrieve results, you can use the <tt class="xref py py-data docutils literal"><span class="pre">MassRequest.results</span></tt> attribute, which simply
@@ -102,24 +102,24 @@ before sending it.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_1</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;password&quot;</span> <span class="p">:</span> <span class="s">&quot;blh123&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">u&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;how&quot;</span> <span class="p">:</span> <span class="s">&quot;I&#39;m good thx&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">target_3</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s">u&quot;http://www.hyperiongray.com/&quot;</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;get&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_1</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">u&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;password&quot;</span><span class="p">:</span> <span class="s">&quot;blh123&quot;</span><span class="p">},</span> <span class="n">ttype</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">u&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;how&quot;</span><span class="p">:</span> <span class="s">&quot;I&#39;m good thx&quot;</span><span class="p">},</span> <span class="n">ttype</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_3</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s">u&quot;http://www.hyperiongray.com/&quot;</span><span class="p">,</span> <span class="n">ttype</span><span class="o">=</span><span class="s">&quot;get&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_1</span><span class="p">,</span> <span class="n">target_2</span><span class="p">,</span> <span class="n">target_3</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span><span class="o">.</span><span class="n">request_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="k">print</span> <span class="n">r</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">result</span>
 <span class="gp">...</span>
 <span class="go">(&lt;massweb.targets.target.Target object at 0x15496d0&gt;, &lt;Response [200]&gt;)</span>
 <span class="go">(&lt;massweb.targets.target.Target object at 0x1549650&gt;, &lt;Response [200]&gt;)</span>
 <span class="go">(&lt;massweb.targets.target.Target object at 0x1549490&gt;, &lt;Response [200]&gt;)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="k">print</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">status_code</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">target</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span>
 <span class="gp">...</span>
 <span class="go">http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/ 200</span>
 <span class="go">http://www.hyperiongray.com/ 200</span>
-<span class="go">http://course.hyperiongray.com/vuln1 200``</span>
+<span class="go">http://course.hyperiongray.com/vuln1 200</span>
 </pre></div>
 </div>
 <p>Again, pretty simple, just create a <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> object with the parameters <tt class="xref py py-data docutils literal"><span class="pre">url</span></tt>, <tt class="xref py py-data docutils literal"><span class="pre">data</span></tt>
@@ -132,7 +132,7 @@ how we could conduct mass requests with this thing. Let&#8217;s say we have a se
 of about 1000 URLs and we want them fast, we don&#8217;t have time to wait to make
 sure our data is perfect, we want some quick and dirty responses if possible
 and if they take too long, produce a timeout. First, let&#8217;s say you have a file
-called urls.txt of 1000 URLs and we want them in less then 2000 seconds or 2
+called <tt class="docutils literal"><span class="pre">urls.txt</span></tt> of 1000 URLs and we want them in less then 2000 seconds or 2
 seconds per URL. In other words, if it&#8217;s not a URL that can be fetched quickly,
 move on. This can be useful for things like web crawling when you have no idea
 how long a target is going to take to respond and get you your data, so
@@ -142,33 +142,34 @@ that.</p>
 </div>
 <div class="section" id="example-3">
 <h3>Example 3<a class="headerlink" href="#example-3" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="n">num_threads</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.1:3089/&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.2:3089/&quot;</span><span class="p">}])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;../urls.txt&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span><span class="o">.</span><span class="n">get_urls</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">urls_file</span> <span class="o">=</span> <span class="s">&quot;urls.txt&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proxies</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span> <span class="s">&quot;user:password@http://proxy.example.com:1234/some/path&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span> <span class="s">&quot;otheruser:otherpassword@http://proxy.example.net:6789/someother/path&quot;</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="n">num_threads</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">time_per_url</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">proxy_list</span><span class="o">=</span><span class="n">proxies</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mr</span><span class="o">.</span><span class="n">get_urls_from_file</span><span class="p">(</span><span class="n">urls_file</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
 <span class="go">1000</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">print</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">target</span><span class="p">,</span> <span class="n">response</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">[:</span><span class="mi">10</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">target</span><span class="p">,</span> <span class="n">response</span>
 <span class="gp">...</span>
-<span class="go">(&#39;http://www.abcselfstorage.co.uk/&#39;, &#39;__PNK_REQ_FAILED&#39;)</span>
-<span class="go">(&#39;http://www.abcskiphirews32.co.uk/&#39;, &#39;__PNK_REQ_FAILED&#39;)</span>
-<span class="go">(&#39;http://abcskateboarding.co.uk/&#39;, &lt;Response [404]&gt;)</span>
-<span class="go">(&#39;http://www.abcsalestraining.co.uk/&#39;, &lt;Response [200]&gt;)</span>
-<span class="go">(&#39;http://www.abcservice.co.uk/&#39;, &lt;Response [200]&gt;)</span>
-<span class="go">(&#39;http://www.abcseaangling.co.uk/&#39;, &lt;Response [200]&gt;)</span>
-<span class="go">(&#39;http://www.abcselfdrive.co.uk/&#39;, &lt;Response [404]&gt;)</span>
-<span class="go">(&#39;http://www.abcselfstore.co.uk/storage-blogwp-login.php?redirect_to=http%3A%2F%2Fwww.abcselfstore.co.uk%2Fstorage-blog%2Fwp-admin%2F&amp;amp;reauth=1&#39;, &lt;Response [404]&gt;)</span>
-<span class="go">(&#39;http://www.abcselfstore.co.uk/abc24-hour-access.html&#39;, &lt;Response [200]&gt;)</span>
+<span class="go">http://www.abcselfstorage.co.uk/ __PNK_REQ_FAILED</span>
+<span class="go">http://www.abcskiphirews32.co.uk/ __PNK_REQ_FAILED</span>
+<span class="go">http://abcskateboarding.co.uk/ &lt;Response [404]&gt;</span>
+<span class="go">http://www.abcsalestraining.co.uk/ &lt;Response [200]&gt;</span>
+<span class="go">http://www.abcservice.co.uk/ &lt;Response [200]&gt;</span>
+<span class="go">http://www.abcseaangling.co.uk/ &lt;Response [200]&gt;</span>
+<span class="go">http://www.abcselfdrive.co.uk/ &lt;Response [404]&gt;</span>
+<span class="go">http://www.abcselfstore.co.uk/storage-blogwp-login.php?redirect_to=http%3A%2F%2Fwww.abcselfstore.co.uk%2Fstorage-blog%2Fwp-admin%2F&amp;amp;reauth=1 &lt;Response [404]&gt;</span>
+<span class="go">http://www.abcselfstore.co.uk/abc24-hour-access.html &lt;Response [200]&gt;</span>
 </pre></div>
 </div>
 <p>We&#8217;ve already seen what is returned in normal cases, but the first couple of
 items show a funny <tt class="docutils literal"><span class="pre">__PNK_REQ_FAILED</span></tt> string being returned instead of the
 <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response">requests.Response</a> object that we expect. These are URLs that were not fetched
 properly for whatever reason, usually some kind of TCP timeout or an exception
-in <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request">Requests</a>. Similarly if getting a URL times out (thread timeout, not
+in <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.request">requests.Request</a>. Similarly if getting a URL times out (thread timeout, not
 TCP timeout), then <tt class="docutils literal"><span class="pre">__PNK_THREAD_TIMEOUT</span></tt> is returned. The proxy list is just a
-list of proxies <a class="reference external" href="http://docs.python-requests.org/en/latest/user/advanced/#proxies">formatted like this</a> specifies.
+list of proxies <a class="reference external" href="http://docs.python-requests.org/en/latest/user/advanced/#proxies">formatted like this</a> page specifies.
 Currently, requests get routed through proxies specified in the list at random,
 though we are currently working on improving this.</p>
 </div>
@@ -188,15 +189,19 @@ though we are currently working on improving this.</p>
 allows you. It&#8217;s automatically threaded, and you can set how much time you
 would like to allow it to take (it&#8217;s also quite fast). That might sound like
 few steps to get up and running, but it&#8217;s actually quite easy. Let&#8217;s see it in
-action with a simple implementation of a web app fuzzer</p>
+action with a simple implementation of a web app fuzzer.</p>
 <div class="section" id="example-4">
-<span id="id3"></span><h3>Example 4<a class="headerlink" href="#example-4" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">massweb.payloads.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
-<span class="n">xss_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;&quot;&gt;&lt;ScRipT&gt;alert(31337)&lt;/ScrIpT&gt;&#39;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;xss&quot;</span><span class="p">])</span>
-<span class="n">trav_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;../../../../../../../../../../../../../../../../../../etc/passwd&#39;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;trav&quot;</span><span class="p">])</span>
-<span class="n">sqli_xpathi_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&quot;&#39;)--&quot;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;sqli&quot;</span><span class="p">,</span> <span class="s">&quot;xpathi&quot;</span><span class="p">])</span>
+<span id="id1"></span><h3>Example 4<a class="headerlink" href="#example-4" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">massweb.fuzzers.web_fuzzer</span> <span class="kn">import</span> <span class="n">WebFuzzer</span>
+<span class="kn">from</span> <span class="nn">massweb.payloads.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
 
-<span class="n">wf</span> <span class="o">=</span> <span class="n">WebFuzzer</span><span class="p">(</span><span class="n">num_threads</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.1:3089/&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span><span class="s">u&quot;http://user:password@10.0.0.2:3089/&quot;</span><span class="p">}])</span>
+<span class="n">proxies</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&quot;http&quot;</span><span class="p">:</span> <span class="s">&quot;user:password@http://proxy.example.com:1234/some/path&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;http&quot;</span><span class="p">:</span> <span class="s">&quot;otheruser:otherpassword@http://proxy2.example.net:6789/some/path&quot;</span><span class="p">}]</span>
+
+<span class="n">xss_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;&quot;&gt;&lt;ScRipT&gt;alert(31337)&lt;/ScrIpT&gt;&#39;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;xss&quot;</span><span class="p">])</span>
+<span class="n">trav_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;../../../../../../../../../../../../../../../../../../etc/passwd&#39;</span><span class="p">,</span> <span class="n">check_type_list</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;trav&quot;</span><span class="p">])</span>
+<span class="n">sqli_xpathi_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&quot;&#39;)--&quot;</span><span class="p">,</span> <span class="n">check_type_list</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;sqli&quot;</span><span class="p">,</span> <span class="s">&quot;xpathi&quot;</span><span class="p">])</span>
+
+<span class="n">wf</span> <span class="o">=</span> <span class="n">WebFuzzer</span><span class="p">(</span><span class="n">num_threads</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">time_per_url</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">proxy_list</span><span class="o">=</span><span class="n">proxies</span><span class="p">)</span>
 <span class="n">wf</span><span class="o">.</span><span class="n">add_payload</span><span class="p">(</span><span class="n">xss_payload</span><span class="p">)</span>
 <span class="n">wf</span><span class="o">.</span><span class="n">add_payload</span><span class="p">(</span><span class="n">trav_payload</span><span class="p">)</span>
 <span class="n">wf</span><span class="o">.</span><span class="n">add_payload</span><span class="p">(</span><span class="n">sqli_xpathi_payload</span><span class="p">)</span>
@@ -227,7 +232,7 @@ action with a simple implementation of a web app fuzzer</p>
 </pre></div>
 </div>
 <p>Let&#8217;s run through the above code, first we create a <tt class="xref py py-class docutils literal"><span class="pre">Payload</span></tt> object, where we
-add the payload string and a check type list. The <cite>check_type_list</cite> marks the
+add the payload string and a check type list. The <tt class="xref py py-data docutils literal"><span class="pre">check_type_list</span></tt> marks the
 vulnerability or vulnerabilities that your payload is testing for. Valid check
 types are:</p>
 <ul class="simple">
@@ -247,12 +252,12 @@ URL, but this could also be done by adding a Target object and the
 <tt class="xref py py-meth docutils literal"><span class="pre">WebFuzzer.add_target()</span></tt> method, which would look something like the following</p>
 </div>
 <div class="section" id="example-5">
-<span id="id4"></span><h3>Example 5<a class="headerlink" href="#example-5" title="Permalink to this headline">¶</a></h3>
+<span id="id2"></span><h3>Example 5<a class="headerlink" href="#example-5" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
 <span class="kn">from</span> <span class="nn">massweb.fuzzers.web_fuzzer</span> <span class="kn">import</span> <span class="n">WebFuzzer</span>
 <span class="n">wf</span> <span class="o">=</span> <span class="n">WebFuzzer</span><span class="p">()</span>
 <span class="n">target_1</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://www.hyperiongray.com&quot;</span><span class="p">)</span>
-<span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;password&quot;</span> <span class="p">:</span> <span class="s">&quot;blah&quot;</span><span class="p">},</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
+<span class="n">target_2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://course.hyperiongray.com/vuln1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;password&quot;</span><span class="p">:</span> <span class="s">&quot;blah&quot;</span><span class="p">},</span> <span class="n">ttype</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The advantage to specifying a <tt class="xref py py-class docutils literal"><span class="pre">Target</span></tt> object instead of adding targets via a
@@ -283,7 +288,7 @@ http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/
 http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E
 http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;amp;amp;ProName=1
 http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;amp;typeofsite=snippetdetail&amp;amp;amp;ID=1368&amp;amp;amp;Sectionid=1
-http://www.dobrevsource.org/index.php?id=1``
+http://www.dobrevsource.org/index.php?id=1
 </pre></div>
 </div>
 <p>Targets list after additional injection points have been found:</p>
@@ -377,6 +382,10 @@ http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandle
 {&quot;url&quot;: &quot;http://www.sfgcd.com/ProductsBuy.asp?ProNo=%27%29--&amp;amp;ProName=1&quot;, &quot;results&quot;: {&quot;xpathi&quot;: false, &quot;sqli&quot;: false}} get &#39;)--
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is highly recommended that proxy credentials not be part of your code. Pulling them from environmental variables or configuration files outside of your codebase are recommended. The examples above include them inline for the sake of simplicity.</p>
+</div>
 </div>
 </div>
 </div>
@@ -392,11 +401,6 @@ http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandle
 
 
 
-
-<p>
-<iframe src="http://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
 
 
 <h3>Navigation</h3>

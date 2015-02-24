@@ -61,34 +61,30 @@
 <div class="section" id="current">
 <h2>Current<a class="headerlink" href="#current" title="Permalink to this headline">¶</a></h2>
 <ul>
-<li><dl class="first docutils">
-<dt>MassRequests library can be used to request large amounts of GET or POST requests in a short amount of time and with a hard timeout</dt>
-<dd><ul class="first last simple">
-<li>Threading is handled transparently, you don&#8217;t have to write any multi-threaded code</li>
-<li>Support for a &#8220;tcp timeout&#8221; and a &#8220;hard timeout&#8221; (i.e. the absolute max amount of time to spend per URL) allowing one to calculate the upper bound timeline for fetching all desired data</li>
-<li>Support for proxy rotation</li>
+<li><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt>:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> library can be used to request large amounts of GET or
+POST requests in a short amount of time and with a hard timeout.</li>
+<li>Threading is handled transparently, you don&#8217;t have to write any
+multi-threaded code.</li>
+<li>Both &#8220;TCP timeout&#8221; and &#8220;hard timeout&#8221; (i.e. the absolute max
+amount of time to spend per URL) Allowing one to calculate the upper
+bound timeline for fetching all desired data.</li>
+<li>Proxy rotation to produce an apparent distribution of requests.</li>
+<li>Automatically discover valid POST requests, and add to target set.</li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
-<li><p class="first">Automatically discover valid POST requests, and add to target set</p>
-</li>
-<li><dl class="first docutils">
-<dt>Scan web apps for vulnerabilities via GET and POST</dt>
-<dd><ul class="first last simple">
-<li>Threading is handled transparently, you don&#8217;t have to write any multi-threaded code</li>
-<li>Support for hard timeouts</li>
-<li>Configurable payload sets and vulnerability checks</li>
+<li><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">MassCrawl</span></tt>:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Scan web applications for vulnerabilities via GET and POST with <tt class="xref py py-class docutils literal"><span class="pre">MassCrawl</span></tt>.</li>
+<li>Configurable payload sets and vulnerability checks.</li>
+<li>Support for all the same features found in the <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> library.</li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </li>
-</ul>
-</div>
-<div class="section" id="future">
-<h2>Future<a class="headerlink" href="#future" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>LASERS!!</li>
 </ul>
 </div>
 </div>
@@ -105,11 +101,6 @@
 
 
 
-<p>
-<iframe src="http://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
-
 
 <h3>Navigation</h3>
 <ul class="current">
@@ -117,7 +108,6 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Features</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#current">Current</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#future">Future</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>

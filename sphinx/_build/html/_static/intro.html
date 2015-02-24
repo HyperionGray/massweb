@@ -60,17 +60,30 @@
 <h1>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="the-problem">
 <h2>The Problem<a class="headerlink" href="#the-problem" title="Permalink to this headline">¶</a></h2>
-<p>In PunkSPIDER 3.0 (the release we&#8217;re currently working on) we have to scan several hundred million hosts in a very short amount of time over a Hadoop distributed cluster. There&#8217;s a few big challenges with this:</p>
+<p>In PunkSPIDER 3.0 (the release we&#8217;re currently working on) we have to scan
+several hundred million hosts in a very short amount of time over a <a class="reference external" href="http://hadoop.apache.org/">Hadoop</a>
+distributed cluster. There&#8217;s a few big challenges with this:</p>
 <ol class="arabic simple">
-<li>We have to do it super fast, so we can&#8217;t simply do requests &#8220;one by one&#8221;, we could take care of this with Hadoop job settings but this is highly inefficient - we need the native mapper and reducer to be multi-threaded</li>
-<li>It&#8217;s highly variable how long a URL takes to get a response - we could be downloading a tiny 1kb page or we could be hitting a 200GB monster (think high-quality video), we need an upper bound to the amount of time that a large set of requests will take</li>
-<li>We&#8217;re doing lots of requests here, we use about 100-150 high performance proxies when we scan, a proxy rotation system would be nice</li>
-<li>We need all of this to be simple, we want to be able to do all of this with just a few lines of code</li>
+<li>We have to do it super fast, so we can&#8217;t simply do requests &#8220;one by one&#8221;, we
+could take care of this with <a class="reference external" href="http://hadoop.apache.org/">Hadoop</a> job settings but this is highly
+inefficient - we need the native mapper and reducer to be multi-threaded</li>
+<li>It&#8217;s highly variable how long a URL takes to get a response - we could be
+downloading a tiny 1kb page or we could be hitting a 200GB monster (think
+high-quality video), we need an upper bound to the amount of time that a
+large set of requests will take.</li>
+<li>We&#8217;re doing lots of requests here, we use about 100-150 high performance
+proxies when we scan, a proxy rotation system would be nice</li>
+<li>We need all of this to be simple, we want to be able to do all of this with
+just a few lines of code.</li>
 </ol>
 </div>
 <div class="section" id="the-sollution">
 <h2>The Sollution<a class="headerlink" href="#the-sollution" title="Permalink to this headline">¶</a></h2>
-<p>MassWeb is a library meant for lightning-fast web application fuzzing. It attempts to solve all of the major problems of massive Internet-level scans in one convenient library. We use it in PunkSPIDER to scan several hundred million URLs for vulnerabilities over the course of just a few days (3 for our last scan).&nbsp; Use it wisely and please don&#8217;t do anything nasty with this.</p>
+<p>MassWeb is a <a class="reference external" href="http://massweb-docs.readthedocs.org">library</a> meant for lightning-fast web application fuzzing. It
+attempts to solve all of the major problems of massive Internet-level scans in
+one convenient library. We use it in <a class="reference external" href="http://punkspider.hyperiongray.com/">PunkSPIDER</a> to scan several hundred million
+URLs for vulnerabilities over the course of just a few days (3 for our last
+scan).&nbsp; Use it wisely and please don&#8217;t do anything nasty with this.</p>
 </div>
 </div>
 
@@ -85,11 +98,6 @@
 
 
 
-
-<p>
-<iframe src="http://ghbtns.com/github-btn.html?user=&repo=&type=watch&count=true&size=large"
-  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
-</p>
 
 
 <h3>Navigation</h3>
