@@ -49,11 +49,11 @@ class MassRequest(object):
         self.identified_post_requests = []
         self.hadoop_reporting = hadoop_reporting
         self.ttype_func_callback = {GET: (pnk_request_raw,
-                                          self.add_to_finished, 'get'),
+                                          self.add_to_finished, GET),
                                     POST: (pnk_request_raw,
-                                           self.add_to_finished, 'post'),
+                                           self.add_to_finished, POST),
                                     IDENTIFY_POSTS: (find_post_requests,
-                                        self.add_to_identified_post, 'post')}
+                                        self.add_to_identified_post, POST)}
         if self.hadoop_reporting:
             logger.info("Instantiated MassRequest object with %d threads and"
                         "%d time per url", num_threads, time_per_url)
@@ -85,14 +85,14 @@ class MassRequest(object):
         logger.info("IN ADD_TO_IDENTIFIED_POST")
         for request in requests:
             self.identified_post_requests.append(request)
-
-        logger.info(self.identified_post_requests)
+            logger.debug("Added request to results: %s, %s", request.__class__.__name__, request)
 
     def add_to_finished(self, request):
         """ Add finished requests to the list of finished requests """
-        self.finished.append(request[0])
+        target, response = request
+        self.finished.append(target)
         self.results.append(request)
-        logger.debug("target type added to results: %s", type(request[0]))
+        logger.debug("Added request to results: %s, (%s, %s)", target.__class__.__name__, target, response)
 
     def request_targets(self, targets):
         """ Apply the payloads of the provided targets. """
@@ -131,7 +131,7 @@ class MassRequest(object):
 
     def get_targets(self, targets):
         """ Try to send GET requests to all the listed targets. """
-        ret = self._check_method_input(targets, 'targets', Target, "ist")
+        ret = self._check_method_input(targets, 'targets', Target, "list")
         if ret:
             raise ret
         self.handle_targets(targets=targets)
@@ -146,7 +146,7 @@ class MassRequest(object):
         ret = self._check_method_input(urls, "urls", unicode)
         if ret:
             raise ret
-        targets = [self.to_target(x, "get") for x in urls]
+        targets = [self.to_target(x, GET) for x in urls]
         self.handle_targets(targets=targets)
 
     def _urls_from_file(self, filename):
@@ -173,23 +173,26 @@ class MassRequest(object):
                 Look for potential post request targets.
 
         """
+        logger.debug("In MassRequest.handle_targets()")
         # If no targets we have nothing to do so return now.
         if not targets:
+            logger.debug("No targets in `targets`.")
             return None
-        # If no action specified then pick one from the first target in the
-        #   list.
-        if not action:
-            action = targets[0].ttype
         # Load up the process pool
         self.pool = Pool(processes=self.num_threads)
         self.proc_results = []
         # for each target in targets ...
         for target in targets:
+            if not action:
+                this_action = target.ttype
+            else:
+                this_action = action
             # Append it to the list of attempted urls
             self.attempted.append(target)
-            proc = self.create_process(target, action)
+            proc = self.create_process(target, this_action)
             # Stash the process handle for later use
             self.proc_results.append(proc)
+            this_action = None
         if self.hadoop_reporting:
             logger.info("Giving each URL %d seconds to respond",
                         self.time_per_url)
@@ -232,9 +235,11 @@ class MassRequest(object):
         """ Find the Target objects that were attempted but not finished and
             set their respnse to __PNK_THREAD_TIMEOUT
         """
+        logger.debug("In MassRequest.list_diff")
         list_diff = Set(self.attempted).difference(Set(self.finished))
-#        self.clear_lists()
+        self.clear_lists()
         for url in list_diff:
+            logger.debug("failed target of type: %s", url.__class__.__name__)
             logger.debug("URL %s got timeout", url)
             self.results.append((url, "__PNK_THREAD_TIMEOUT"))
 
@@ -242,9 +247,11 @@ class MassRequest(object):
         """ Set attempted, finished, and identified_post_requests to empty
             lists.
         """
-        #use del here to give hint to garbage collector (free memory)
+        # Use del here to give hint to garbage collector (free memory)
         del self.attempted
+        self.attempted = []
         del self.finished
+        self.finished = []
 
     def to_target(self, item, request_type):
         """ Convert item into a Target object.

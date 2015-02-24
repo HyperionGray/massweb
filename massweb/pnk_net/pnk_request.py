@@ -33,11 +33,11 @@ def pnk_request_raw(target, request_type=GET, data=None, req_timeout=5,
         elif isinstance(target, Target):
             url = target.url
             if target.data and data:
-                logger.error("Target.data and data are bot specified useing Target.data.")
-                logger.debug("Target.data %s; data: %s", target.data, data)
+                logger.error("%s.data and data are both specified using Target.data.", target.__class__.__name__)
+                logger.debug("%s.data %s; data: %s", target.__class__.__name__, target.data, data)
             data = target.data or data
         else:
-            raise TypeError("target must be an instance of Target or basestring not: %s", type(target))
+            raise TypeError("target must be an instance of Target or basestring not: %s", target.__class__.__name__)
         if request_type == GET:
             if hadoop_reporting:
                 logger.info("GET requesting %s", target)

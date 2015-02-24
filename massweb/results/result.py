@@ -2,6 +2,8 @@
 
 import json
 
+from massweb.targets.fuzzy_target import FuzzyTarget
+
 
 class Result(object):
     """ Result type: encapsulates information relevant to the results
@@ -29,5 +31,7 @@ class Result(object):
         result_dic      dict containing keys of types of chercks and bool
                             values indicating success or failure. Default None.
         """
+        if not isinstance(fuzzy_target, FuzzyTarget):
+            raise TypeError("fuzzy_target must be an instance of FuzzyTarget not %s." % fuzzy_target.__class__.__name__)
         self.fuzzy_target = fuzzy_target
         self.result_dic = result_dic or {}

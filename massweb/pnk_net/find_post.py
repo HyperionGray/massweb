@@ -20,6 +20,9 @@ logger.setLevel(logging.INFO)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
+GET = "get"
+POST = "post"
+
 def normalize_link(url_to_normalize, current_page_url):
     #FIXME: not quite, doesn't include path in normalization, gets paths wrong
     if not url_to_normalize or not current_page_url:
@@ -53,10 +56,9 @@ def find_post_requests(**kwargs):
         norm_url = norm_link_dic["norm_url"]
         form_host = norm_link_dic["netloc"]
         if strict_scope:
-            #if form explicitly specifies host that doesn't match current host
-            #if doesn't specify host, gets normalized to host so assumed to match
+            # If form explicitly specifies domain that doesn't match current host
+            #   then don't process it.
             if form_host and (url_host != form_host):
-                #print "no host match"
                 continue
         listform = ["text", "radio", "checkbox", "password", "file", "image", "hidden"]
         _input = form.findAll('input', {'type' : listform})
@@ -70,14 +72,12 @@ def find_post_requests(**kwargs):
                 value = urllib.quote_plus(elem["value"])
             except:
                 if hadoop_reporting:
-                    logger.warn("Handled exception: ")
-                    traceback.print_exc()
+                    logger.warn("Handled exception: ", exc_info=True)
                 value = ""
             post_data[input_name] = value
-        target_post = Target(norm_url, data = post_data, ttype = "post")
+        target_post = Target(norm_url, data=post_data, ttype=POST)
         post_requests.append(target_post)
     if hadoop_reporting:
-        logger.info(u"Found %s post requests on page %s", len(post_requests), target)
-        logger.info(post_requests)        
-    
+        logger.info("Found %s post requests on page %s", len(post_requests), target)
+        logger.info(post_requests)
     return post_requests
