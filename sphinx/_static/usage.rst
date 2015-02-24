@@ -27,9 +27,9 @@ Example 1
     >>> for target, response in mr.results:
     ...     print target, response
     ... 
-    ('http://www.hyperiongray.com', <Response [200]>)
-    ('http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/', <Response [200]>)
-    ('http://course.hyperiongray.com/vuln1/', <Response [200]>)
+    http://www.hyperiongray.com <Response [200]>
+    http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/ <Response [200]>
+    http://course.hyperiongray.com/vuln1/ <Response [200]>
 
 
 In other words, simply instantiate a |MassRequest| object and pass in any
@@ -73,7 +73,7 @@ Example 2
     ... 
     http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/ 200
     http://www.hyperiongray.com/ 200
-    http://course.hyperiongray.com/vuln1 200``
+    http://course.hyperiongray.com/vuln1 200
 
 Again, pretty simple, just create a |Target| object with the parameters :data:`url`, :data:`data`
 (if it's a POST request), and :data:`ttype` of "post" or "get". Put these in some kind
@@ -108,15 +108,15 @@ Example 3
     >>> for target, response in mr.results[:10]:
     ...     print target, response
     ... 
-    ('http://www.abcselfstorage.co.uk/', '__PNK_REQ_FAILED')
-    ('http://www.abcskiphirews32.co.uk/', '__PNK_REQ_FAILED')
-    ('http://abcskateboarding.co.uk/', <Response [404]>)
-    ('http://www.abcsalestraining.co.uk/', <Response [200]>)
-    ('http://www.abcservice.co.uk/', <Response [200]>)
-    ('http://www.abcseaangling.co.uk/', <Response [200]>)
-    ('http://www.abcselfdrive.co.uk/', <Response [404]>)
-    ('http://www.abcselfstore.co.uk/storage-blogwp-login.php?redirect_to=http%3A%2F%2Fwww.abcselfstore.co.uk%2Fstorage-blog%2Fwp-admin%2F&amp;reauth=1', <Response [404]>)
-    ('http://www.abcselfstore.co.uk/abc24-hour-access.html', <Response [200]>)
+    http://www.abcselfstorage.co.uk/ __PNK_REQ_FAILED
+    http://www.abcskiphirews32.co.uk/ __PNK_REQ_FAILED
+    http://abcskateboarding.co.uk/ <Response [404]>
+    http://www.abcsalestraining.co.uk/ <Response [200]>
+    http://www.abcservice.co.uk/ <Response [200]>
+    http://www.abcseaangling.co.uk/ <Response [200]>
+    http://www.abcselfdrive.co.uk/ <Response [404]>
+    http://www.abcselfstore.co.uk/storage-blogwp-login.php?redirect_to=http%3A%2F%2Fwww.abcselfstore.co.uk%2Fstorage-blog%2Fwp-admin%2F&amp;reauth=1 <Response [404]>
+    http://www.abcselfstore.co.uk/abc24-hour-access.html <Response [200]>
 
 
 We've already seen what is returned in normal cases, but the first couple of
@@ -262,7 +262,7 @@ Targets list pre post determination::
     http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E
     http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;amp;ProName=1
     http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=1
-    http://www.dobrevsource.org/index.php?id=1``
+    http://www.dobrevsource.org/index.php?id=1
 
 
 Targets list after additional injection points have been found::
