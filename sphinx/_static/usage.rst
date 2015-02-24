@@ -14,7 +14,7 @@ Mass Requests
 
 Mass requests are done via MassWeb's |MassRequest| object. Let's say, you're
 just interested in requesting a bunch of URLs in a reasonable amount of time,
-and don't want to deal with getting into the MassWeb API
+and don't want to deal with getting into the `MassWeb API`_
 
 Example 1
 ^^^^^^^^^
@@ -37,11 +37,10 @@ iterable to the :meth:`get_urls` function. Note that by default, the
 |MassRequest| object works with 10 threads and has a timeout of 10 seconds per
 URL (more on this later). What is returned is a tuple of the form::
 
-    (url_fetched, Response)
+    (Target or u"url", Response)
 
 To retrieve results, you can use the :data:`MassRequest.results` attribute, which simply
-returns a tuple with the URL fetched and a `requests.Response
-<http://docs.python-requests.org/en/latest/api/#requests.Response>`_ object, which gives you access to
+returns a tuple with the URL fetched and a requests.Response_ object, which gives you access to
 everything you could ever want about the response from the server.
 
 So let's consider a more complicated example, let's say we want to load in a
@@ -79,7 +78,7 @@ Again, pretty simple, just create a |Target| object with the parameters :data:`u
 (if it's a POST request), and :data:`ttype` of "post" or "get". Put these in some kind
 of iterable and pass it off to :meth:`MassRequest.request_targets()`, which does all of the work
 for you. What is returned is a tuple with the |Target| object (which casts to a
-URL) and a `requests.Response <http://docs.python-requests.org/en/latest/api/#requests.Response>`_ object.
+URL) and a requests.Response_ object.
 
 This is all great, but it's called *MASSWeb*, not fetch-me-3-URLs-web. Let's see
 how we could conduct mass requests with this thing. Let's say we have a series
@@ -121,12 +120,11 @@ Example 3
 
 We've already seen what is returned in normal cases, but the first couple of
 items show a funny ``__PNK_REQ_FAILED`` string being returned instead of the 
-`requests.Response <http://docs.python-requests.org/en/latest/api/#requests.Response>`_ object that we expect. These are URLs that were not fetched
+requests.Response_ object that we expect. These are URLs that were not fetched
 properly for whatever reason, usually some kind of TCP timeout or an exception
-in `Requests <http://docs.python-requests.org/en/latest/api/#requests.request>`_. Similarly if getting a URL times out (thread timeout, not
+in requests.Request_. Similarly if getting a URL times out (thread timeout, not
 TCP timeout), then ``__PNK_THREAD_TIMEOUT`` is returned. The proxy list is just a
-list of proxies `formatted like this
-<http://docs.python-requests.org/en/latest/user/advanced/#proxies>`_ specifies.
+list of proxies `formatted like this`_ page specifies.
 Currently, requests get routed through proxies specified in the list at random,
 though we are currently working on improving this.
 
@@ -196,7 +194,7 @@ Example 4
 
 
 Let's run through the above code, first we create a |Payload| object, where we
-add the payload string and a check type list. The `check_type_list` marks the
+add the payload string and a check type list. The :data:`check_type_list` marks the
 vulnerability or vulnerabilities that your payload is testing for. Valid check
 types are: 
 

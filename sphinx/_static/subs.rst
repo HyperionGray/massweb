@@ -30,8 +30,7 @@
 
 .. Thirdparty Classes and Exceptions
 
-.. requests
-
+.. |Request| replace:: :class:`Request`
 .. |Response| replace:: :class:`Response`
 .. |HTTPError| replace:: :exc:`HTTPError`
 
@@ -84,5 +83,23 @@
 
 .. |massrequest-request-desc-short| replace:: (URL, |Response|)
 
-.. |checkmethodinput-raises-typeerror| replace:: |TypeError| -- If items in |arg| are not instances of |arg-inner-type|.
-.. |checkmethodinput-raises-valueerror| replace:: |ValueError| -- When |arg| is not given or is empty.
+.. .. |checkmethodinput-raises-typeerror| replace:: |TypeError| -- If items in |arg| are not instances of |arg-inner-type|.
+.. .. |checkmethodinput-raises-valueerror| replace:: |ValueError| -- When |arg| is not given or is empty.
+
+
+.. Links
+.. _MassWeb API: http://massweb-docs.readthedocs.org
+.. _punkspider: http://punkspider.hyperiongray.com/
+.. _library: http://massweb-docs.readthedocs.org
+.. _hadoop: http://hadoop.apache.org/ 
+.. _pip: https://pip.pypa.io/en/latest/
+.. _requests: http://docs.python-requests.org/en/latest/user/install/#install
+.. _beautifulsoup4: http://www.crummy.com/software/BeautifulSoup/bs4/doc/index.html?highlight=tag#installing-beautiful-soup
+.. _html5lib: https://github.com/html5lib/html5lib-python
+
+.. _massweb_archive: https://bitbucket.org/acaceres/massweb/get/master.tar.bz2
+.. _massweb_repo: https://bitbucket.org/acaceres/massweb
+.. _requests.Response: http://docs.python-requests.org/en/latest/api/#requests.Response
+.. _requests.Request: http://docs.python-requests.org/en/latest/api/#requests.request
+.. _proxies: http://docs.python-requests.org/en/latest/user/advanced/#proxies
+.. _formatted like this: http://docs.python-requests.org/en/latest/user/advanced/#proxies
