@@ -24,8 +24,8 @@ Example 1
     >>> urls_to_fetch = [u"http://www.hyperiongray.com", u"http://course.hyperiongray.com/vuln1/", u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/"]
     >>> mr = MassRequest()
     >>> mr.get_urls(urls_to_fetch)
-    >>> for r in mr.results:
-    ...     print r
+    >>> for target, response in mr.results:
+    ...     print target, response
     ... 
     ('http://www.hyperiongray.com', <Response [200]>)
     ('http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/', <Response [200]>)
@@ -56,20 +56,20 @@ Example 2
     >>> from massweb.mass_requests.mass_request import MassRequest
     >>> from massweb.targets.target import Target
     >>>
-    >>> target_1 = Target(url = u"http://course.hyperiongray.com/vuln1", data = {"password" : "blh123"}, ttype = "post")
-    >>> target_2 = Target(url = u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/", data = {"how" : "I'm good thx"}, ttype = "post")
-    >>> target_3 = Target(url = u"http://www.hyperiongray.com/", ttype = "get")
+    >>> target_1 = Target(url=u"http://course.hyperiongray.com/vuln1", data={"password": "blh123"}, ttype="post")
+    >>> target_2 = Target(url=u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/", data={"how": "I'm good thx"}, ttype="post")
+    >>> target_3 = Target(url=u"http://www.hyperiongray.com/", ttype="get")
     >>> targets = [target_1, target_2, target_3]
     >>> mr = MassRequest()
     >>> mr.request_targets(targets)
-    >>> for r in mr.results:
-    ...     print r
+    >>> for result in mr.results:
+    ...     print result
     ... 
     (<massweb.targets.target.Target object at 0x15496d0>, <Response [200]>)
     (<massweb.targets.target.Target object at 0x1549650>, <Response [200]>)
     (<massweb.targets.target.Target object at 0x1549490>, <Response [200]>)
-    >>> for r in mr.results:
-    ...     print r[0], r[1].status_code
+    >>> for target, response in mr.results:
+    ...     print target, response.status_code
     ... 
     http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/ 200
     http://www.hyperiongray.com/ 200
@@ -86,7 +86,7 @@ how we could conduct mass requests with this thing. Let's say we have a series
 of about 1000 URLs and we want them fast, we don't have time to wait to make
 sure our data is perfect, we want some quick and dirty responses if possible
 and if they take too long, produce a timeout. First, let's say you have a file
-called urls.txt of 1000 URLs and we want them in less then 2000 seconds or 2
+called ``urls.txt`` of 1000 URLs and we want them in less then 2000 seconds or 2
 seconds per URL. In other words, if it's not a URL that can be fetched quickly,
 move on. This can be useful for things like web crawling when you have no idea
 how long a target is going to take to respond and get you your data, so
@@ -98,14 +98,15 @@ Example 3
 ^^^^^^^^^
 ::
 
+    >>> urls_file = "urls.txt"
+    >>> proxies = [{"http": "user:password@http://proxy.example.com:1234/some/path"}, {"http": "otheruser:otherpassword@http://proxy.example.net:6789/someother/path"}]
     >>> from massweb.mass_requests.mass_request import MassRequest
-    >>> mr = MassRequest(num_threads = 20, time_per_url = 2, proxy_list = [{"http":u"http://user:password@10.0.0.1:3089/"}, {"http":u"http://user:password@10.0.0.2:3089/"}])
-    >>> f = open("../urls.txt")
-    >>> mr.get_urls(f)
+    >>> mr = MassRequest(num_threads=20, time_per_url=2, proxy_list=proxies)
+    >>> mr.get_urls_from_file(urls_file)
     >>> len(mr.results)
     1000
-    >>> for i in range(1,10):
-    ...     print mr.results[i]
+    >>> for target, response in mr.results[:10]:
+    ...     print target, response
     ... 
     ('http://www.abcselfstorage.co.uk/', '__PNK_REQ_FAILED')
     ('http://www.abcskiphirews32.co.uk/', '__PNK_REQ_FAILED')
@@ -147,7 +148,7 @@ The |WebFuzzer| allows you the same control that the |MassRequest| object
 allows you. It's automatically threaded, and you can set how much time you
 would like to allow it to take (it's also quite fast). That might sound like
 few steps to get up and running, but it's actually quite easy. Let's see it in
-action with a simple implementation of a web app fuzzer
+action with a simple implementation of a web app fuzzer.
 
 .. _example_4:
 
@@ -155,12 +156,16 @@ Example 4
 ^^^^^^^^^
 ::
 
+    from massweb.fuzzers.web_fuzzer import WebFuzzer
     from massweb.payloads.payload import Payload
-    xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
-    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"])
-    sqli_xpathi_payload = Payload("')--", check_type_list = ["sqli", "xpathi"])
 
-    wf = WebFuzzer(num_threads = 30, time_per_url = 5, proxy_list = [{"http":u"http://user:password@10.0.0.1:3089/"}, {"http":u"http://user:password@10.0.0.2:3089/"}])
+    proxies = [{"http": "user:password@http://proxy.example.com:1234/some/path"}, {"http": "otheruser:otherpassword@http://proxy2.example.net:6789/some/path"}]
+
+    xss_payload = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"])
+    trav_payload = Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list=["trav"])
+    sqli_xpathi_payload = Payload("')--", check_type_list=["sqli", "xpathi"])
+
+    wf = WebFuzzer(num_threads=30, time_per_url=5, proxy_list=proxies)
     wf.add_payload(xss_payload)
     wf.add_payload(trav_payload)
     wf.add_payload(sqli_xpathi_payload)
@@ -221,7 +226,7 @@ Example 5
     from massweb.fuzzers.web_fuzzer import WebFuzzer
     wf = WebFuzzer()
     target_1 = Target(u"http://www.hyperiongray.com")
-    target_2 = Target(u"http://course.hyperiongray.com/vuln1", data = {"password" : "blah"}, ttype = "post")
+    target_2 = Target(u"http://course.hyperiongray.com/vuln1", data={"password": "blah"}, ttype="post")
 
 
 The advantage to specifying a |Target| object instead of adding targets via a
@@ -352,4 +357,8 @@ Results of our fuzzing::
     {"url": "http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/formhandler.php", "results": {"xpathi": false, "sqli": false}} post ')--
     {"url": "http://www.sfgcd.com/Search.asp", "results": {"xpathi": false, "sqli": false}} post ')--
     {"url": "http://www.sfgcd.com/ProductsBuy.asp?ProNo=%27%29--&amp;ProName=1", "results": {"xpathi": false, "sqli": false}} get ')--
+
+
+.. note::
+    It is highly recommended that proxy credentials not be part of your code. Pulling them from environmental variables or configuration files outside of your codebase are recommended. The examples above include them inline for the sake of simplicity.
 
