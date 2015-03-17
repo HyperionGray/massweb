@@ -1,108 +1,128 @@
+""" Fuzzer Prototype. """
+
+import logging
+
+from massweb.fuzz_generators.url_generator import append_to_param
+from massweb.fuzz_generators.url_generator import replace_param_value
 from massweb.payloads.payload import Payload
 from massweb.targets.target import Target
-from urlparse import parse_qs
-from urlparse import urlparse
-from urlparse import urlunparse
-from urllib import urlencode
+
+
+logger = logging.getLogger("iFuzzer")
+
 
 class iFuzzer(object):
+    """ Prototype Fuzzer class. """
+
+    def __init__(self):
+        """ Prototype __init__ method. """
+        self.fuzzy_targets = []
+        self.targets = []
+        self.payloads = []
+        self.mreq = None
 
     def add_payload(self, payload):
+        """ Add a Payload object to the list of payloads.
 
-        if type(payload) != Payload:
-            raise Exception("payload must be of type Payload")
+        payload     Payload object.
 
+        """
+        if not isinstance(payload, Payload):
+            raise TypeError("payload must be of type Payload")
         self.payloads.append(payload)
 
     def add_payload_from_string(self, payload_str, check_type_list):
+        """ Add a Payload generated from a string.
 
+        Add a Payload object created from the string provided and the types
+        of checks to preform.
+
+        payload_str         String representing the payload.
+        check_type_list     list of strings identifying the types of checks to preform.
+
+        """
         payload = Payload(payload_str, check_type_list)
-        self.payloads.append(payload)
+        self.add_payload(payload)
 
-    def add_target_from_url(self, url, data = None):
+    def add_target_from_url(self, url, data=None):
+        """ Add a target based on the URL and POAST request data.
 
-        target = Target(url, data = data)
-        self.targets.append(target)
+        url     URL as a string.
+        data    POST request data as s dict.
+
+        """
+        target = Target(url, data=data)
+        self.add_target(target)
 
     def add_target(self, target):
+        """ Add Target object to list of targets.
 
-        if type(target) != Target:
-            raise Exception("target must be of type Target")
+        target  Target object.
 
-        self.targets.append(target)
+        """
+        if not isinstance(target, Target):
+            raise TypeError("target must be of type Target")
+        if target not in self.targets:
+            self.targets.append(target)
 
+    #FIXME: remove this to make bsqli and web fuzzers have a more uniform
+    #   interface. See PNKTHR-61
     def generate_fuzzy_targets(self):
+        """ Prototype for the method that generates a list of targets with the fuzzing data added. """
         pass
 
-    def replace_param_value(self, url, param, replacement_string):
-        '''Replace a parameter in a url with another string. Returns
-        a fully reassembled url as a string.'''
+    def determine_posts_from_targets(self, depreciated=None):
+        """ Add targets with POST requests to this Fuzzer's list of targets.
 
-        url_parsed = urlparse(url)
-        query_dic = parse_qs(url_parsed.query)
-        #!potential bug here? This expects a list, but seems to work        
-        query_dic[param] = [replacement_string for x in query_dic[param]]
+        depreciated     Interface placeholder for dedupe which was unused.
 
-        #this incidentally will also automatically url-encode the payload (thanks urlencode!)
-        #!might cause some incorrect query params and keys with utf-8, needs more testing
-        str_query_dic = {}
-        for k, v in query_dic.iteritems():
-            str_query_dic[unicode(k).encode('utf-8', 'replace')] = [x.encode('utf-8', 'replace') for x in v]
-
-        query_reassembled = urlencode(str_query_dic, doseq = True)
-
-        #3rd element is always the query, replace query with our own
-        url_list_parsed = list(url_parsed)
-        url_list_parsed[4] = query_reassembled
-        url_parsed_q_replaced = tuple(url_list_parsed)
-        url_reassembled = urlunparse(url_parsed_q_replaced)
-
-        return url_reassembled
+        """
+        if depreciated is False or depreciated:
+            logger.warn("The dedupe argument for determine_posts_from_targets"
+                        " is depreciated.")
+        identified_posts = self.identify_posts()
     
-    def append_to_param(self, url, param, append_string):
-        '''Append a value to a parameter'''
+        self.append_targets(identified_posts)
 
-        url_parsed = urlparse(url)
-        query_dic = parse_qs(url_parsed.query)
-        #!potential bug here? This expects a list, but seems to work        
-        query_dic[param] = [x + append_string for x in query_dic[param]]
+    def append_targets(self, targets):
+        """ Append a list of Target objects to self.targets. """
+        for target in targets:
+            self.add_target(target)
 
-        #this incidentally will also automatically url-encode the payload (thanks urlencode!)
-        #!might cause some incorrect query params and keys with utf-8, needs more testing
-        str_query_dic = {}
-        for k, v in query_dic.iteritems():
-            str_query_dic[unicode(k).encode('utf-8', 'replace')] = [x.encode('utf-8', 'replace') for x in v]
-
-        query_reassembled = urlencode(str_query_dic, doseq = True)
-
-        #3rd element is always the query, replace query with our own
-        url_list_parsed = list(url_parsed)
-        url_list_parsed[4] = query_reassembled
-        url_parsed_q_replaced = tuple(url_list_parsed)
-        url_reassembled = urlunparse(url_parsed_q_replaced)
-
-        return url_reassembled
-
-    def determine_posts_from_targets(self, dedupe = True):
-
+    def identify_posts(self):
+        """ Return a list of POST Targets. """
         self.mreq.get_post_requests_from_targets(self.targets)
-        identified_posts = self.mreq.identified_post_requests            
+        identified_posts = self.mreq.identified_post_requests
+        deduped_posts = list(set(identified_posts))
+        return deduped_posts
 
-        #dedupe posts if relevant
-        identified_posts = list(set(identified_posts))
+    def append_to_param(self, url, param, append_string):
+        """ Replace a parameter in a url with another string.
 
-        for ip in identified_posts:
-            if ip not in self.targets:
-                self.targets.append(ip)
+        Return a fully reassembled url as a string.
+
+        url                 URL to mangle as string.
+        param               Parameter in url to replace the value of.
+        append_string  String to append to the value of param in url with.
+
+        """
+        # for the purposes of maintaining consistent interfaces
+        return append_to_param(url, param, append_string)
+
+    def replace_param_value(self, url, param, replacement_string):
+        """ Replace a parameter in a url with another string.
+
+        Return a fully reassembled url as a string.
+
+        url                 URL to mangle as string.
+        param               Parameter in url to replace the value of.
+        replacement_string  String to replace the value of param in url with.
+
+        """
+        # for the purposes of maintaining consistent interfaces
+        return replace_param_value(url, param, replacement_string)
 
     def fuzz(self):
-        raise Exception("Not Implemented Error")
-
-if __name__ == "__main__":
-    url = "http://www.hyperiongray.com/?q=3234&&q=55555&x=33"
-    param = "q"
-    append_string= " AND 1=1"
-    ifuz = iFuzzer()
-    print ifuz.append_to_param(url, param, append_string)
-
-    
+        """ Prototype for the primary entry point of Fuzzers. """
+        raise NotImplementedError("fuzz() needs to be implemented in each "
+                                  "child class.")

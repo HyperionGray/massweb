@@ -1,0 +1,378 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>massweb.fuzzers.web_fuzzer &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for massweb.fuzzers.web_fuzzer</h1><div class="highlight"><pre>
+<span class="c"># coding=utf-8</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.fuzzy_target</span> <span class="kn">import</span> <span class="n">FuzzyTarget</span>
+<span class="kn">from</span> <span class="nn">massweb.fuzzers.ifuzzer</span> <span class="kn">import</span> <span class="n">iFuzzer</span>
+<span class="kn">from</span> <span class="nn">massweb.fuzz_generators.url_generator</span> <span class="kn">import</span> <span class="n">generate_fuzzy_urls</span>
+<span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
+<span class="kn">from</span> <span class="nn">massweb.payloads.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">parse_qs</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlunparse</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.mxi</span> <span class="kn">import</span> <span class="n">MXICheck</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.osci</span> <span class="kn">import</span> <span class="n">OSCICheck</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.sqli</span> <span class="kn">import</span> <span class="n">SQLICheck</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.trav</span> <span class="kn">import</span> <span class="n">TravCheck</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.xpathi</span> <span class="kn">import</span> <span class="n">XPathICheck</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.xss</span> <span class="kn">import</span> <span class="n">XSSCheck</span>
+<span class="kn">from</span> <span class="nn">massweb.results.result</span> <span class="kn">import</span> <span class="n">Result</span> 
+<span class="kn">from</span> <span class="nn">massweb.mass_requests.response_analysis</span> <span class="kn">import</span> <span class="n">parse_worthy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">StreamHandler</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(name)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s">&#39;%m/</span><span class="si">%d</span><span class="s">/%Y %I:%M:%S %p&#39;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;WebFuzzer&#39;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdin</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getreader</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WebFuzzer"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.web_fuzzer.WebFuzzer">[docs]</a><span class="k">class</span> <span class="nc">WebFuzzer</span><span class="p">(</span><span class="n">iFuzzer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">payloads</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">num_threads</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">request_timeout</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{}],</span> <span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">payload_groups</span> <span class="o">=</span> <span class="p">[]):</span>
+
+        <span class="c">#do this because we may need to create more MassRequest objects in checks (like bsqli), needs to be configured the same</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mreq_config_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;num_threads&quot;</span> <span class="p">:</span> <span class="n">num_threads</span><span class="p">,</span> <span class="s">&quot;time_per_url&quot;</span> <span class="p">:</span> <span class="n">time_per_url</span><span class="p">,</span> <span class="s">&quot;request_timeout&quot;</span> <span class="p">:</span> <span class="n">request_timeout</span><span class="p">,</span> <span class="s">&quot;proxy_list&quot;</span> <span class="p">:</span> <span class="n">proxy_list</span><span class="p">,</span> <span class="s">&quot;hadoop_reporting&quot;</span> <span class="p">:</span> <span class="n">hadoop_reporting</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mreq</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">mreq_config_dict</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payloads</span> <span class="o">=</span> <span class="n">payloads</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">mxi_check</span> <span class="o">=</span> <span class="n">MXICheck</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">osci_check</span> <span class="o">=</span> <span class="n">OSCICheck</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sqli_check</span> <span class="o">=</span> <span class="n">SQLICheck</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trav_check</span> <span class="o">=</span> <span class="n">TravCheck</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xpathi_check</span> <span class="o">=</span> <span class="n">XPathICheck</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xss_check</span> <span class="o">=</span> <span class="n">XSSCheck</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="n">hadoop_reporting</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Hadoop reporting set in fuzzer&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__generate_fuzzy_target_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">url</span>
+        <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">parsed_url_query</span> <span class="o">=</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">query</span>
+        <span class="n">url_q_dic</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed_url_query</span><span class="p">)</span>
+
+        <span class="n">fuzzy_targets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">query_param</span><span class="p">,</span> <span class="n">query_val</span> <span class="ow">in</span> <span class="n">url_q_dic</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+
+            <span class="k">for</span> <span class="n">payload</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">payloads</span><span class="p">:</span>
+
+                <span class="n">fuzzy_url</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">replace_param_value</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">query_param</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="p">)))</span>
+                <span class="n">fuzzy_target</span> <span class="o">=</span> <span class="n">FuzzyTarget</span><span class="p">(</span><span class="n">fuzzy_url</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">query_param</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="p">)</span>
+                <span class="n">fuzzy_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fuzzy_target</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fuzzy_targets</span>
+
+    <span class="k">def</span> <span class="nf">__generate_fuzzy_target_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">url</span>
+        <span class="n">fuzzy_targets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">post_keys</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">post_keys</span><span class="p">:</span>
+            <span class="n">data_copy</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">payload</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">payloads</span><span class="p">:</span>
+                <span class="n">data_copy</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+                <span class="n">fuzzy_target</span> <span class="o">=</span> <span class="n">FuzzyTarget</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="p">,</span> <span class="n">unfuzzed_data</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">fuzzy_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fuzzy_target</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fuzzy_targets</span>
+
+<div class="viewcode-block" id="WebFuzzer.generate_fuzzy_targets"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.web_fuzzer.WebFuzzer.generate_fuzzy_targets">[docs]</a>    <span class="k">def</span> <span class="nf">generate_fuzzy_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Generating fuzzy targets&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Targets list must not be empty!&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_targets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;get&quot;</span><span class="p">:</span>
+                <span class="n">fuzzy_target_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__generate_fuzzy_target_get</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_targets</span> <span class="o">+=</span> <span class="n">fuzzy_target_list</span>
+
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;post&quot;</span><span class="p">:</span>
+                <span class="n">fuzzy_target_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__generate_fuzzy_target_post</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_targets</span> <span class="o">+=</span> <span class="n">fuzzy_target_list</span>
+            
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_targets</span>
+</div>
+<div class="viewcode-block" id="WebFuzzer.fuzz"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.web_fuzzer.WebFuzzer.fuzz">[docs]</a>    <span class="k">def</span> <span class="nf">fuzz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mreq</span><span class="o">.</span><span class="n">request_targets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mreq</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+            <span class="n">ftarget</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c">#!not yet multithreaded, should it be?</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyze_response</span><span class="p">(</span><span class="n">ftarget</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="k">except</span><span class="p">:</span>
+
+                <span class="c">#if request failed and str is returned instead of Response obj</span>
+                <span class="c">#could save some cycles here not analyzing response</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Marking target as failed due to exception: &quot;</span><span class="p">)</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyze_response</span><span class="p">(</span><span class="n">ftarget</span><span class="p">,</span> <span class="s">&quot;__PNK_FAILED_RESPONSE&quot;</span><span class="p">)</span>
+
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span>
+</div>
+<div class="viewcode-block" id="WebFuzzer.analyze_response"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.web_fuzzer.WebFuzzer.analyze_response">[docs]</a>    <span class="k">def</span> <span class="nf">analyze_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftarget</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+
+        <span class="c">#!function is a mess, response is of type text or non-text, trying to read blah blah</span>
+        <span class="n">result_dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">check_type_list</span> <span class="o">=</span> <span class="n">ftarget</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">check_type_list</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Response is of type </span><span class="si">%s</span><span class="s"> for target </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="p">)),</span><span class="nb">unicode</span><span class="p">(</span><span class="n">ftarget</span><span class="p">)))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parse_worthy</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Target </span><span class="si">%s</span><span class="s"> looks worth checking for vulnerabilities, doing so&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">ftarget</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Response deemed non-parse-worthy, returning false check dic for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">ftarget</span><span class="p">))</span>
+                <span class="n">result_dic</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">check_type</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+                    <span class="n">result_dic</span><span class="p">[</span><span class="n">check_type</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+                <span class="k">return</span> <span class="n">Result</span><span class="p">(</span><span class="n">ftarget</span><span class="p">,</span> <span class="n">result_dic</span><span class="p">)</span>
+
+        <span class="k">except</span><span class="p">:</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Checking parse-worthiness threw exception (it was probably a string from a failed response), returning false check dic for </span><span class="si">%s</span><span class="s">. Here is the handled exception: &quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">ftarget</span><span class="p">))</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+
+            <span class="n">result_dic</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">check_type</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+                <span class="n">result_dic</span><span class="p">[</span><span class="n">check_type</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+            <span class="k">return</span> <span class="n">Result</span><span class="p">(</span><span class="n">ftarget</span><span class="p">,</span> <span class="n">result_dic</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="s">&quot;mxi&quot;</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+
+            <span class="n">mxi_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mxi_check</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;mxi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mxi_result</span>
+
+        <span class="k">if</span> <span class="s">&quot;sqli&quot;</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+
+            <span class="n">sqli_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqli_check</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;sqli&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqli_result</span>
+
+        <span class="k">if</span> <span class="s">&quot;xpathi&quot;</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+
+            <span class="n">xpathi_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpathi_check</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;xpathi&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xpathi_result</span>
+
+        <span class="k">if</span> <span class="s">&quot;trav&quot;</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+
+            <span class="n">trav_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trav_check</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;trav&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trav_result</span>
+
+        <span class="k">if</span> <span class="s">&quot;osci&quot;</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+
+            <span class="n">osci_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">osci_check</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;osci&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">osci_result</span>
+
+        <span class="k">if</span> <span class="s">&quot;xss&quot;</span> <span class="ow">in</span> <span class="n">check_type_list</span><span class="p">:</span>
+
+            <span class="n">xss_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xss_check</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;xss&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xss_result</span>
+
+        <span class="k">return</span> <span class="n">Result</span><span class="p">(</span><span class="n">ftarget</span><span class="p">,</span> <span class="n">result_dic</span><span class="p">)</span>
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">xss_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;&quot;&gt;&lt;ScRipT&gt;alert(31337)&lt;/ScrIpT&gt;&#39;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;xss&quot;</span><span class="p">])</span>
+<span class="c">#    trav_payload = Payload(&#39;../../../../../../../../../../../../../../../../../../etc/passwd&#39;, check_type_list = [&quot;trav&quot;])</span>
+<span class="c">#    sqli_xpathi_payload = Payload(&quot;&#39;)--&quot;, check_type_list = [&quot;sqli&quot;, &quot;xpathi&quot;])</span>
+    <span class="n">bsqli_payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="s">&#39;bsqlipayload&#39;</span><span class="p">,</span> <span class="n">check_type_list</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;bsqli&quot;</span><span class="p">])</span>
+
+    <span class="n">wf</span> <span class="o">=</span> <span class="n">WebFuzzer</span><span class="p">(</span><span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="c">#    wf.add_payload(xss_payload)</span>
+<span class="c">##    wf.add_payload(trav_payload)</span>
+<span class="c">#    wf.add_payload(sqli_xpathi_payload)</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">add_payload</span><span class="p">(</span><span class="n">bsqli_payload</span><span class="p">)</span>
+
+<span class="c">#    wf.add_target_from_url(u&quot;http://course.hyperiongray.com/vuln1&quot;)</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">add_target_from_url</span><span class="p">(</span><span class="s">u&quot;http://www.hyperiongray.com/?q=whatever&quot;</span><span class="p">)</span>
+<span class="c">#    wf.add_target_from_url(u&quot;http://www.wpsurfing.co.za/?feed=11&quot;)</span>
+<span class="c">#    wf.add_target_from_url(u&quot;http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;amp;ProName=1&quot;)</span>
+<span class="c">#    wf.add_target_from_url(u&quot;http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=1&quot;)</span>
+<span class="c">#    wf.add_target_from_url(u&quot;http://www.dobrevȤȤȤȤȤȤsource.org/index.php?idȤȤȤȤȤȤ=1ȤȤȤȤ&quot;)</span>
+
+    <span class="k">print</span> <span class="s">&quot;Targets list pre post detrmination:&quot;</span>
+    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">target</span>
+
+    <span class="k">print</span> <span class="s">&quot;Targets list after additional injection points have been found:&quot;</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">determine_posts_from_targets</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">target</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="k">print</span> <span class="s">&quot;FuzzyTargets list:&quot;</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">generate_fuzzy_targets</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ft</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">:</span>
+        <span class="k">print</span> <span class="n">ft</span><span class="p">,</span> <span class="n">ft</span><span class="o">.</span><span class="n">ttype</span><span class="p">,</span> <span class="n">ft</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">ft</span><span class="o">.</span><span class="n">unfuzzed_url</span><span class="p">,</span> <span class="n">ft</span><span class="o">.</span><span class="n">unfuzzed_data</span>
+
+    <span class="k">print</span> <span class="s">&quot;Results of our fuzzing:&quot;</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">wf</span><span class="o">.</span><span class="n">fuzz</span><span class="p">():</span>
+        <span class="k">print</span> <span class="n">r</span>
+
+<span class="c">#    print &quot;targs&quot;</span>
+<span class="c">#    for target in wf.targets:</span>
+<span class="c">#        print target</span>
+
+<span class="c">#    print &quot;--------fuzzy&quot;</span>
+<span class="c">#    for target in ft:</span>
+<span class="c">#        print target</span>
+
+
+<span class="c">#    for target in wf.generate_fuzzy_targets():</span>
+<span class="c">#        print target.url, str(target.data)</span>
+
+<span class="c">#    for r in wf.fuzz():</span>
+<span class="c">#        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload</span>
+
+<span class="c">#    gf = GetFuzzer(proxy_list = [{}])</span>
+<span class="c">#    mx_sqli_xmli_trav_osci_payload = Payload(&quot;../../../../../../../../../../../../../../../../../../../../etc/passwd#--&#39;@!\\&quot;</span>
+<span class="c">#                                             , check_type_list = [&quot;mxi&quot;, &quot;sqli&quot;, &quot;xpathi&quot;, &quot;trav&quot;, &quot;osci&quot;])</span>
+<span class="c">#</span>
+
+<span class="c">#    gf.add_payload(mx_sqli_xmli_trav_osci_payload)</span>
+<span class="c">#    gf.add_payload(xss_payload)</span>
+
+<span class="c">#    gf.add_target_from_url(&quot;http://www.hyperiongray.com/?q=user&amp;t=eke&quot;)</span>
+<span class="c">#    gf.add_target_from_url(&quot;http://www.sfgcd.com/ProductsBuy.asp?ProNo=%22%3E%3CSCrIpT%3Ealert%2826702%29%3C%2FScRiPt%3E&amp;amp;ProName=%C2%A2%C3%81%C2%A03%083D%09&quot;)</span>
+<span class="c">#    gf.add_target_from_url(&quot;http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=%27%29&quot;)</span>
+<span class="c">#    gf.add_target_from_url(&quot;http://www.dobrevsource.org/index.php?id=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd&quot;)</span>
+<span class="c">#    gf.add_target_from_url(&quot;http://www.dobrevsource.org/&quot;)</span>
+<span class="c">#    gf.add_target_from_url(&quot;http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E&quot;)</span>
+<span class="c">#</span>
+<span class="c">#    for t in gf.generate_fuzzy_targets():</span>
+<span class="c">#        print t.url</span>
+<span class="c">#        print t.payload.check_type_list</span>
+<span class="c">#</span>
+<span class="c">#    for res in gf.fuzz():</span>
+<span class="c">#        print res</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../massweb.html">massweb</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

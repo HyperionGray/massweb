@@ -2,3 +2,8 @@ build/
 massweb.egg-info/
 dist/
 *.pyc
+env
+*.log
+*.log.*
+*.diff
+sphinx/_build/doctrees/

@@ -1,256 +1,192 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+""" MassCrawl is the crawler/spider part of MassWeb """
+
 import sys
-import traceback
 from urlparse import urlparse
-from bs4 import BeautifulSoup, SoupStrainer
-from massweb.mass_requests.mass_request import MassRequest
-from massweb.pnk_net.find_post import normalize_link
-from massweb.targets.crawl_target import CrawlTarget
-from massweb.pnk_net.find_post import find_post_requests
-from massweb.mass_requests.response_analysis import parse_worthy
 import codecs
 import logging
-from logging import StreamHandler
-logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-mc_logger = logging.getLogger('MassCrawlLogger')
-mc_logger.setLevel(logging.INFO)
+
+from bs4 import BeautifulSoup, SoupStrainer
+
+from requests.exceptions import HTTPError
+
+from massweb.targets.crawl_target import CrawlTarget
+from massweb.mass_requests.mass_request import MassRequest
+from massweb.mass_requests.response_analysis import parse_worthy
+from massweb.pnk_net.find_post import normalize_link
+from massweb.pnk_net.find_post import find_post_requests
+
+logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p')
+logger = logging.getLogger('MassCrawlLogger')
+logger.setLevel(logging.DEBUG)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
+
 class MassCrawl(object):
 
-    def __init__(self, seeds = [], add_seeds_to_scope = True):
-
-        mc_logger.info("Insantiating MassCrawl object")
+    def __init__(self, seeds=[], add_seeds_to_scope=True):
+        logger.info("Insantiating MassCrawl object")
         self.seeds = seeds
         self.domains = []
         self.posts_identified = []
-
-        for seed in seeds:
-            domain_raw = urlparse(seed).netloc
-            if ":" in domain_raw:
-                domain = domain_raw.split(":")[0]
-            else:
-                domain = domain_raw
-
-            self.domains.append(domain)
-
         self.targets = []
+        self.results = []
+        self.mreq = None
+        self.add_seeds_to_scope(seeds)
+        self.add_seeds_to_targets(seeds)
+
+    def add_seeds_to_scope(self, seeds):
+        for seed in seeds:
+            self.add_to_scope_from_url(seed)
+
+    def add_seeds_to_targets(self, seeds):
         for seed in seeds:
             ct = CrawlTarget(seed)
             self.add_target(ct)
 
     def get_domain_from_url(self, url):
-
         domain_raw = urlparse(url).netloc
         if ":" in domain_raw:
             domain = domain_raw.split(":")[0]
         else:
             domain = domain_raw
-
         return domain
 
     def add_to_scope_from_url(self, url):
-
         domain = self.get_domain_from_url(url)
         self.add_to_scope(domain)
 
     def add_to_scope(self, domain):
-
         if domain not in self.domains:
             self.domains.append(domain)
 
     def in_scope(self, url):
-
         domain = self.get_domain_from_url(url)
-
-        if domain in self.domains:
-            return True
-        else:
-            return False
+        return domain in self.domains
 
     def add_target(self, target):
-
         if target not in self.targets:
             self.targets.append(target)
 
-    def parse_response(self, response, stay_in_scope = True, max_links = 10):
-        #implement max_links
+    def parse_response(self, response, stay_in_scope=True, max_links=10):
+        links = []
+        for tag in BeautifulSoup(response.text, 'html.parser',
+                                 parse_only=SoupStrainer(['a', 'img', 'script',
+                                                          'link'])):
+            # stop finding links if max links reached
+            if len(links) <= max_links:
+                link = self.parse_tag(tag, response, stay_in_scope)
+                if link:
+                    links.append(link)
+        return links
 
-        response_text = response.text
-        url = response.url
+    def parse_tag(self, tag, response, stay_in_scope):
+        href = None
+        if tag.get('href'):
+            href = tag.get('href')
+        elif tag.get('src'):
+            href = tag.get('src')
+        if href and not href.startswith("mailto:"):
+            link_normed = normalize_link(href, response.url)["norm_url"]
+            if stay_in_scope:
+                if self.in_scope(link_normed):
+                    return link_normed
+            else:
+                return link_normed
 
-        link_c = 0
-        
-        for link in BeautifulSoup(response_text, 'html.parser', parse_only=SoupStrainer(['a', 'img', 'script', 'link'])):
-
-            #stop spitting back links if max links reached
-            if link_c > max_links:
-                raise StopIteration
-
-            href = None
-            if link.get('href'):
-                href = link.get('href')
-
-            elif link.get('src'):
-                href = link.get('src')
-
-            if href and not href.startswith("mailto:"):
-
-                try:
-                    link_normed = normalize_link(href, url)["norm_url"]
-                    if stay_in_scope:
-
-                        if self.in_scope(link_normed):
-
-                            link_c += 1
-                            yield link_normed
-
-                    else:
-                        link_c += 1
-                        yield link_normed
-
-                except:
-                    try:
-                        mc_logger.info("Handled exception: ")
-                        traceback.print_exc()
-                    except:
-                        mc_logger.warn("Couldn't print exception in MassCrawl.parse_response")
-
-                    continue
+    def dedupe_targets(self):
+        seen_hashes = []
+        for target in self.targets:
+            target_hash = hash(target)
+            if target_hash in seen_hashes:
+                self.targets.pop(self.targets.index(target))
+                logger.warn("Found duplicate target: %s", target)
+            else:
+                seen_hashes.append(target_hash)
 
     def filter_targets_by_scope(self):
-
-        #!in large-scale crawls, there's some out of scope posts,
-        #!this is a hack to stop that, real issue should be found 
-        #and resoolved
-        mc_logger.info(u"Filtering targets by scope")
-        filtered_targets = []
+        #FIXME: !in large-scale crawls, there's some out of scope posts,
+        #   this is a hack to stop that, real issue should be found
+        #   and resolved
+        logger.info("Filtering targets by scope")
         for target in self.targets:
+            if not self.in_scope(target.url):
+                self.targets.pop(self.targets.index(target))
+                logger.warn("Target filtered out that was not in scope: %s",
+                               target.url)
 
-            if self.in_scope(target.url):
-                filtered_targets.append(target)
-            else:
-                mc_logger.warn(u"Target filtered out that was not in scope: %s" % target.url)
-
-        self.targets = filtered_targets
-
-    def fetch(self, num_threads = 10, time_per_url = 10, request_timeout = 10, proxy_list = [{}]):
+    def fetch(self, num_threads=10, time_per_url=10, request_timeout=10,
+              proxy_list=[{}]):
         """Fetch URLs and append them to the seed list"""
-        
-        self.mreq = MassRequest(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list, hadoop_reporting = True)
-        unfetched_targets = [unfetched_target for unfetched_target in self.targets if unfetched_target.status == "unfetched"]
-
+        self.mreq = MassRequest(num_threads=num_threads,
+                                time_per_url=time_per_url,
+                                request_timeout=request_timeout,
+                                proxy_list=proxy_list,
+                                hadoop_reporting=True)
+        unfetched_targets = [unfetched_target
+                             for unfetched_target in self.targets
+                             if unfetched_target.status == "unfetched"]
         for ut in unfetched_targets:
-            mc_logger.info(u"Fetching " + unicode(ut))
-
-        #!note this only fetches via GET, doesn't submit forms for more links
+            logger.info("Fetching %s", ut)
+        # NB: this only fetches via GET, doesn't submit forms for more links
         self.mreq.get_targets(self.targets)
         self.results = self.mreq.results
-
         for target in self.targets:
             target.status = "fetched"
 
-    def parse(self, stay_in_scope = True, max_links = 10):
-
-        for result in self.results:
-
+    def parse(self, stay_in_scope=True, max_links=10):
+        for target, response in self.results:
+            # skip 40X replies and strings (i.e. failed requests)
+            logger.info("Attempting to parse %s", target)
             try:
-                #skip 400s and strings (i.e. failed requests)
-                mc_logger.info(u"Attempting to parse " + unicode(result[0]))
-
-                response = result[1]
                 response.raise_for_status()
-                
-                url_path = urlparse(unicode(result[0])).path
-
-                try:
-
-                    if parse_worthy(response, content_type_match = "text/html", hadoop_reporting = True):
-                        mc_logger.info(u"pase_worthy function tells us to parse")
-                        pass
-                    else:
-                        mc_logger.info(u"pase_worthy function tells us not to try parsing")
-                        continue
-
-                except:
-
-                    mc_logger.warn(u"The response threw an exception trying to find parse worthiness, it was most likely a failed response. Handled exception: ")
-                    traceback.print_exc()
-                    continue
-                
-                mc_logger.info(u"Finding post requests on page %s" % unicode(response.url))
-
-                #!this doesn't stay in scope?
-                post_request_targets = find_post_requests(response.url, response.text)
-
-                for target_post in post_request_targets:
-
-                    ct_post = CrawlTarget(target_post.url)
-                    ct_post.__dict__ = target_post.__dict__
-                    ct_post.status = "unfetched"
-                    self.add_target(ct_post)
-
-                links = self.parse_response(response, stay_in_scope = stay_in_scope, max_links = max_links)
-                for link in links:
-                    ct_link = CrawlTarget(unicode(link))
-                    self.add_target(ct_link)
-
-            except:
-
-                try:
-                    mc_logger.info("Handled exception: ")
-                    traceback.print_exc()
-
-                except:
-                    mc_logger.warn("Couldn't print exception in MassCrawl.parse")
-
-
+            except (HTTPError, AttributeError) as exc:   # only exception type we care about from requests.Response
+                logger.debug("Failed request.", exc_info=True)
+                continue
+            if parse_worthy(response, content_type_match="text/html",
+                            hadoop_reporting=True):
+                logger.info("pase_worthy function tells us to parse")
+            else:
+                logger.info("pase_worthy function tells us not to try"
+                            " parsing")
+                continue
+            logger.info("Finding post requests on page %s", response.url)
+            #FIXME: !this doesn't stay in scope?
+            post_request_targets = find_post_requests(target=response.url,
+                                                      response_text=response.text)
+            for target_post in post_request_targets:
+                ct_post = CrawlTarget(target_post.url)
+                ct_post.__dict__ = target_post.__dict__
+                ct_post.status = "unfetched"
+                self.add_target(ct_post)
+            links = self.parse_response(response, stay_in_scope=stay_in_scope,
+                                        max_links=max_links)
+            for link in links:
+                ct_link = CrawlTarget(unicode(link))
+                self.add_target(ct_link)
             if stay_in_scope:
                 self.filter_targets_by_scope()
 
-            mc_logger.info(u"Finished attempted parsing for " + unicode(result[0]))
+            logger.info("Finished attempted parsing for %s", target)
 
-    def crawl(self, 
-              depth = 3, 
-              num_threads = 10, 
-              time_per_url = 10, 
-              request_timeout = 10, 
-              proxy_list = [{}], 
-              stay_in_scope = True, 
-              max_links = 20):
+    def crawl(self,
+              depth=3,
+              num_threads=10,
+              time_per_url=10,
+              request_timeout=10,
+              proxy_list=None,
+              stay_in_scope=True,
+              max_links=10, dedupe=True):
 
         for _ in range(depth):
-
-            mc_logger.info("Entering the fetch phase at depth %s" % str(depth))
-            self.fetch(num_threads = num_threads, time_per_url = time_per_url, request_timeout = request_timeout, proxy_list = proxy_list)
-            mc_logger.info("Entering the parse phase at depth %s" % str(depth))
-            self.parse(max_links = max_links, stay_in_scope = stay_in_scope)
-
-            if stay_in_scope:                
+            logger.info("Entering the fetch phase at depth %d", depth)
+            self.fetch(num_threads=num_threads, time_per_url=time_per_url,
+                       request_timeout=request_timeout, proxy_list=proxy_list or None)
+            logger.info("Entering the parse phase at depth %d", depth)
+            self.parse(max_links=max_links, stay_in_scope=stay_in_scope)
+            if dedupe:
+                self.dedupe_targets()
+            if stay_in_scope:
                 self.filter_targets_by_scope()
-
-
-if __name__ == "__main__":
-
-    seeds = ["http://www.hyperiongray.com", "http://course.hyperiongray.com/vuln1", "http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/",
-             "http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E", "http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1",
-             "http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1", "http://www.dobrevsource.org/index.php?id=1",
-             u"http://JP納豆.例.jp/", u"http://prisons.ir/", u"http://www.qeng.ir/", u"http://www.girlsworker.jp/shiryo.zip"]
-
-    seeds_uni = [unicode(seed) for seed in seeds]
-
-    mc = MassCrawl(seeds = seeds_uni)
-    mc.crawl(num_threads = 30, time_per_url = 5, request_timeout = 3, proxy_list = [{}])
-
-#    f = open("out", "a")
-#    for t in mc.targets:
-#        f.write(t.url)
-
-#    for t in mc.targets:
-#        with codecs.open("test_output", "a", "utf-8") as temp:
-#            temp.write(t.url)
-#            temp.write("\n")
-#            
-#    print len(mc.targets)

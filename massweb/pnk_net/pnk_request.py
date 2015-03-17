@@ -1,62 +1,61 @@
-import sys
-import time
-import json
-import requests
-import traceback
-from massweb.targets.fuzzy_target import FuzzyTarget
-from massweb.targets.target import Target
-from massweb.proxy_rotator.proxy_rotate import get_random_proxy
+
 import codecs
 import logging
-from logging import StreamHandler
+import sys
+
+import requests
+
+from massweb.targets.target import Target
+from massweb.proxy_rotator.proxy_rotate import get_random_proxy
+
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('pnknet')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
-def pnk_request_raw(url_or_target, request_type = "get", data = None, req_timeout = 5, proxy_list = [{}], hadoop_reporting = False, **kwargs):
+#FIXME: define in central const module
+IDENTIFY_POSTS = 'identify_post'
+GET = 'get'
+POST = 'post'
 
-    if proxy_list[0]:
+
+def pnk_request_raw(target, request_type=GET, data=None, req_timeout=5,
+                    proxy_list=None, hadoop_reporting=False, **kwargs):
+    if proxy_list is not None:
         proxy = get_random_proxy(proxy_list)
     else:
         proxy = {}
-
+    logger.debug("pnk_request_raw input target type: %s", target.__class__.__name__)
     try:
-
-        if (isinstance(url_or_target, unicode) or isinstance(url_or_target, str)) and request_type == "get":
-
+        if isinstance(target, basestring):
+            url = target.strip()
+        elif isinstance(target, Target):
+            url = target.url
+            if target.data and data:
+                logger.error("%s.data and data are both specified using Target.data.", target.__class__.__name__)
+                logger.debug("%s.data %s; data: %s", target.__class__.__name__, target.data, data)
+            data = target.data or data
+        else:
+            raise TypeError("target must be an instance of Target or basestring not: %s", target.__class__.__name__)
+        if request_type == GET:
             if hadoop_reporting:
-                logger.info(u"GET requesting %s" % unicode(url_or_target))
-
-            url_or_target = url_or_target.strip()
-            r = requests.get(url_or_target, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
-
-        if (isinstance(url_or_target, unicode) or isinstance(url_or_target, str)) and request_type == "post":
-
+                logger.info("GET requesting %s", target)
+            response = requests.get(url, proxies=proxy,
+                                    timeout=req_timeout,
+                                    allow_redirects=False, **kwargs)
+        elif request_type == POST:
+            logger.debug(" POST Data: %s", data)
             if hadoop_reporting:
-                logger.info(u"POST requesting %s" % unicode(url_or_target))
-
-            url_or_target = url_or_target.strip()
-            r = requests.post(url_or_target, data = data, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
-
-        if (isinstance(url_or_target, Target)) and request_type == "get":
-            if hadoop_reporting:
-                logger.info(u"GET requesting %s" % unicode(url_or_target))
-
-            r = requests.get(url_or_target.url, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
-
-        if (isinstance(url_or_target, Target)) and request_type == "post":
-
-            if hadoop_reporting:
-                logger.info(u"POST requesting %s" % unicode(url_or_target))
-
-            r = requests.post(url_or_target.url, data = data, proxies = proxy, timeout = req_timeout, allow_redirects = False, **kwargs)
-            return (url_or_target, r)
-
+                logger.info("POST requesting %s", target)
+            response = requests.post(url, data=data, proxies=proxy,
+                                     timeout=req_timeout,
+                                     allow_redirects=False, **kwargs)
+        else:
+            raise ValueError("request_type must be either %s or %s", GET, POST)
+        logger.debug("pnk_request_raw output target type: %s", target.__class__.__name__)
+        return (target, response)
     except:
-        #threads suck at exceptions (or I do?), use this to mark failure
-        return (url_or_target, "__PNK_REQ_FAILED")
+        # Threads suck at exceptions (or I do?), use this to mark failure
+        logger.debug("pnk_request_raw output target type: %s", target.__class__.__name__)
+        return (target, "__PNK_REQ_FAILED")

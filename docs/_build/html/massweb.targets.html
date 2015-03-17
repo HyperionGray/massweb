@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>targets &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="index.html" />
+    <link rel="up" title="massweb" href="massweb.html" />
+    <link rel="next" title="vuln_checks" href="massweb.vuln_checks.html" />
+    <link rel="prev" title="results" href="massweb.results.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.vuln_checks.html" title="vuln_checks"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="massweb.results.html" title="results"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="massweb.html" accesskey="U">massweb</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="targets">
+<h1>targets<a class="headerlink" href="#targets" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-massweb.targets.crawl_target">
+<span id="crawl-target"></span><h2>crawl_target<a class="headerlink" href="#module-massweb.targets.crawl_target" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="massweb.targets.crawl_target.CrawlTarget">
+<em class="property">class </em><tt class="descclassname">massweb.targets.crawl_target.</tt><tt class="descname">CrawlTarget</tt><big>(</big><em>url</em>, <em>data=None</em>, <em>ttype='get'</em>, <em>status='unfetched'</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/crawl_target.html#CrawlTarget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.crawl_target.CrawlTarget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#massweb.targets.target.Target" title="massweb.targets.target.Target"><tt class="xref py py-class docutils literal"><span class="pre">massweb.targets.target.Target</span></tt></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-massweb.targets.fuzzy_target">
+<span id="fuzzy-target"></span><h2>fuzzy_target<a class="headerlink" href="#module-massweb.targets.fuzzy_target" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="massweb.targets.fuzzy_target.FuzzyTarget">
+<em class="property">class </em><tt class="descclassname">massweb.targets.fuzzy_target.</tt><tt class="descname">FuzzyTarget</tt><big>(</big><em>url</em>, <em>unfuzzed_url</em>, <em>fuzzy_param</em>, <em>ttype='get'</em>, <em>data=None</em>, <em>payload=None</em>, <em>unfuzzed_data=None</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/fuzzy_target.html#FuzzyTarget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.fuzzy_target.FuzzyTarget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#massweb.targets.target.Target" title="massweb.targets.target.Target"><tt class="xref py py-class docutils literal"><span class="pre">massweb.targets.target.Target</span></tt></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-massweb.targets.fuzzy_target_group">
+<span id="fuzzy-target-group"></span><h2>fuzzy_target_group<a class="headerlink" href="#module-massweb.targets.fuzzy_target_group" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="massweb.targets.fuzzy_target_group.FuzzyTargetGroup">
+<em class="property">class </em><tt class="descclassname">massweb.targets.fuzzy_target_group.</tt><tt class="descname">FuzzyTargetGroup</tt><big>(</big><em>fuzzy_targets=None</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/fuzzy_target_group.html#FuzzyTargetGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.fuzzy_target_group.FuzzyTargetGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="massweb.targets.fuzzy_target_group.FuzzyTargetGroup.add_target">
+<tt class="descname">add_target</tt><big>(</big><em>fuzzy_target</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/fuzzy_target_group.html#FuzzyTargetGroup.add_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.fuzzy_target_group.FuzzyTargetGroup.add_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-massweb.targets.target">
+<span id="target"></span><h2>target<a class="headerlink" href="#module-massweb.targets.target" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="massweb.targets.target.Target">
+<em class="property">class </em><tt class="descclassname">massweb.targets.target.</tt><tt class="descname">Target</tt><big>(</big><em>url</em>, <em>data=None</em>, <em>ttype='get'</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/target.html#Target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.target.Target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="massweb.html">massweb</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzz_generators.html">fuzz_generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html">fuzzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.mass_requests.html">mass_requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.masscrawler.html">masscrawler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html">payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.pnk_net.html">pnk_net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.proxy_rotator.html">proxy_rotator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.results.html">results</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">targets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.targets.crawl_target">crawl_target</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.targets.fuzzy_target">fuzzy_target</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.targets.fuzzy_target_group">fuzzy_target_group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.targets.target">target</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html">vuln_checks</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="_sources/massweb.targets.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Features &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="underscore.js"></script>
+    <script type="text/javascript" src="doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="../index.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="Installation" href="install.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="current">
+<h2>Current<a class="headerlink" href="#current" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt>:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> library can be used to request large amounts of GET or
+POST requests in a short amount of time and with a hard timeout.</li>
+<li>Threading is handled transparently, you don&#8217;t have to write any
+multi-threaded code.</li>
+<li>Both &#8220;TCP timeout&#8221; and &#8220;hard timeout&#8221; (i.e. the absolute max
+amount of time to spend per URL) Allowing one to calculate the upper
+bound timeline for fetching all desired data.</li>
+<li>Proxy rotation to produce an apparent distribution of requests.</li>
+<li>Automatically discover valid POST requests, and add to target set.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><tt class="xref py py-class docutils literal"><span class="pre">MassCrawl</span></tt>:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Scan web applications for vulnerabilities via GET and POST with <tt class="xref py py-class docutils literal"><span class="pre">MassCrawl</span></tt>.</li>
+<li>Configurable payload sets and vulnerability checks.</li>
+<li>Support for all the same features found in the <tt class="xref py py-class docutils literal"><span class="pre">MassRequest</span></tt> library.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#current">Current</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../massweb.html">massweb</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/_static/features.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

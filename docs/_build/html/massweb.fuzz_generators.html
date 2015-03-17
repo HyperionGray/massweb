@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fuzz_generators &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="index.html" />
+    <link rel="up" title="massweb" href="massweb.html" />
+    <link rel="next" title="fuzzers" href="massweb.fuzzers.html" />
+    <link rel="prev" title="massweb" href="massweb.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="massweb.fuzzers.html" title="fuzzers"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="massweb.html" title="massweb"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="massweb.html" accesskey="U">massweb</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fuzz-generators">
+<h1>fuzz_generators<a class="headerlink" href="#fuzz-generators" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-massweb.fuzz_generators.url_generator">
+<span id="url-generator"></span><h2>url_generator<a class="headerlink" href="#module-massweb.fuzz_generators.url_generator" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="massweb.fuzz_generators.url_generator.generate_fuzzy_urls">
+<tt class="descclassname">massweb.fuzz_generators.url_generator.</tt><tt class="descname">generate_fuzzy_urls</tt><big>(</big><em>url</em>, <em>payloads</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzz_generators/url_generator.html#generate_fuzzy_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzz_generators.url_generator.generate_fuzzy_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="massweb.fuzz_generators.url_generator.replace_param_value">
+<tt class="descclassname">massweb.fuzz_generators.url_generator.</tt><tt class="descname">replace_param_value</tt><big>(</big><em>url</em>, <em>param</em>, <em>replacement_string</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzz_generators/url_generator.html#replace_param_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzz_generators.url_generator.replace_param_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace a parameter in a url with another string. Returns
+a fully reassembled url as a string.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_static/usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="massweb.html">massweb</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="">fuzz_generators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-massweb.fuzz_generators.url_generator">url_generator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.fuzzers.html">fuzzers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.mass_requests.html">mass_requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.masscrawler.html">masscrawler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.payloads.html">payloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.pnk_net.html">pnk_net</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.proxy_rotator.html">proxy_rotator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.results.html">results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.targets.html">targets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="massweb.vuln_checks.html">vuln_checks</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="_sources/massweb.fuzz_generators.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

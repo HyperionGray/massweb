@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>massweb.pnk_net.find_post &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for massweb.pnk_net.find_post</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span> 
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span><span class="p">,</span> <span class="n">SoupStrainer</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">requests.exceptions</span> <span class="kn">import</span> <span class="n">ConnectionError</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.fuzzy_target</span> <span class="kn">import</span> <span class="n">FuzzyTarget</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">massweb.pnk_net.pnk_request</span> <span class="kn">import</span> <span class="n">pnk_request_raw</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urljoin</span>
+<span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">StreamHandler</span>
+<span class="kn">from</span> <span class="nn">bs4.element</span> <span class="kn">import</span> <span class="n">Tag</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(name)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s">&#39;%m/</span><span class="si">%d</span><span class="s">/%Y %I:%M:%S %p&#39;</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;find_post&#39;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stdin</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getreader</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+<div class="viewcode-block" id="normalize_link"><a class="viewcode-back" href="../../../massweb.pnk_net.html#massweb.pnk_net.find_post.normalize_link">[docs]</a><span class="k">def</span> <span class="nf">normalize_link</span><span class="p">(</span><span class="n">url_to_normalize</span><span class="p">,</span> <span class="n">current_page_url</span><span class="p">):</span>
+
+    <span class="c">#not quite, doesn&#39;t include path in normalization, gets paths wrong</span>
+
+    <span class="n">cp_scheme</span><span class="p">,</span> <span class="n">cp_netloc</span><span class="p">,</span> <span class="n">cp_path</span><span class="p">,</span> <span class="n">cp_params</span><span class="p">,</span> <span class="n">cp_query</span><span class="p">,</span> <span class="n">cp_fragment</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">current_page_url</span><span class="p">)</span>
+
+    <span class="n">parsed_url_to_normalize</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url_to_normalize</span><span class="p">)</span>
+    <span class="n">scheme</span><span class="p">,</span> <span class="n">netloc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">fragment</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url_to_normalize</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_url_to_normalize</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">parsed_url_to_normalize</span><span class="o">.</span><span class="n">netloc</span><span class="p">:</span>
+        <span class="n">full_url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">current_page_url</span><span class="p">,</span> <span class="n">url_to_normalize</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">full_url</span> <span class="o">=</span> <span class="n">url_to_normalize</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;norm_url&quot;</span> <span class="p">:</span> <span class="n">full_url</span><span class="p">,</span> <span class="s">&quot;netloc&quot;</span> <span class="p">:</span> <span class="n">netloc</span><span class="p">}</span>
+</div>
+<div class="viewcode-block" id="find_post_requests"><a class="viewcode-back" href="../../../massweb.pnk_net.html#massweb.pnk_net.find_post.find_post_requests">[docs]</a><span class="k">def</span> <span class="nf">find_post_requests</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">response_text</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">strict_scope</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">hadoop_reporting</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Finding additional post requests in </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">response_text</span><span class="p">:</span>
+        <span class="n">response_text</span> <span class="o">=</span> <span class="n">pnk_request_raw</span><span class="p">(</span><span class="n">url</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="k">if</span> <span class="n">strict_scope</span><span class="p">:</span>
+        <span class="n">url_host</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">netloc</span>
+
+    <span class="n">post_requests</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">response_text</span><span class="p">,</span> <span class="s">&#39;html.parser&#39;</span><span class="p">,</span> <span class="n">parse_only</span><span class="o">=</span><span class="n">SoupStrainer</span><span class="p">(</span><span class="s">&#39;form&#39;</span><span class="p">)):</span>
+
+        <span class="n">norm_link_dic</span> <span class="o">=</span> <span class="n">normalize_link</span><span class="p">(</span><span class="n">form</span><span class="p">[</span><span class="s">&quot;action&quot;</span><span class="p">],</span> <span class="n">url</span><span class="p">)</span>
+        <span class="n">norm_url</span> <span class="o">=</span> <span class="n">norm_link_dic</span><span class="p">[</span><span class="s">&quot;norm_url&quot;</span><span class="p">]</span>
+        <span class="n">form_host</span> <span class="o">=</span> <span class="n">norm_link_dic</span><span class="p">[</span><span class="s">&quot;netloc&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">strict_scope</span><span class="p">:</span>
+
+            <span class="c">#if form explicitly specifies host that doesn&#39;t match current host</span>
+            <span class="c">#if doesn&#39;t specify host, gets normalized to host so assumed to match</span>
+            <span class="k">if</span> <span class="n">form_host</span> <span class="ow">and</span> <span class="p">(</span><span class="n">url_host</span> <span class="o">!=</span> <span class="n">form_host</span><span class="p">):</span>
+                <span class="c">#print &quot;no host match&quot;</span>
+                <span class="k">continue</span>
+
+        <span class="n">listform</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;text&quot;</span><span class="p">,</span> <span class="s">&quot;radio&quot;</span><span class="p">,</span> <span class="s">&quot;checkbox&quot;</span><span class="p">,</span> <span class="s">&quot;password&quot;</span><span class="p">,</span> <span class="s">&quot;file&quot;</span><span class="p">,</span> <span class="s">&quot;image&quot;</span><span class="p">,</span> <span class="s">&quot;hidden&quot;</span><span class="p">]</span>
+        <span class="n">_input</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">findAll</span><span class="p">(</span><span class="s">&#39;input&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;type&#39;</span> <span class="p">:</span> <span class="n">listform</span><span class="p">})</span>
+
+        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">_input</span><span class="p">:</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">input_name</span> <span class="o">=</span> <span class="n">elem</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">urllib</span><span class="o">.</span><span class="n">quote_plus</span><span class="p">(</span><span class="n">elem</span><span class="p">[</span><span class="s">&quot;value&quot;</span><span class="p">])</span>
+
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">hadoop_reporting</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Handled exception: &quot;</span><span class="p">)</span>
+                    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+
+            <span class="n">post_data</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="n">target_post</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">norm_url</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">post_data</span><span class="p">,</span> <span class="n">ttype</span> <span class="o">=</span> <span class="s">&quot;post&quot;</span><span class="p">)</span>
+        <span class="n">post_requests</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_post</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hadoop_reporting</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">u&quot;Found </span><span class="si">%s</span><span class="s"> post requests on page </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">unicode</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">post_requests</span><span class="p">)),</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">url</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">post_requests</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+
+<span class="c">#    find_post_requests(&quot;http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=ddd&quot;)</span>
+
+<span class="c">#    for p in find_post_requests(&quot;http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=ddd&quot;, strict_scope = False, hadoop_reporting = True):</span>
+<span class="c">#        print p</span>
+
+<span class="c">#    for p in find_post_requests(&quot;http://www.amazon.com/&quot;, hadoop_reporting = True, strict_scope = False):</span>
+<span class="c">#        print p, p.data</span>
+
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_post_requests</span><span class="p">(</span><span class="s">&quot;http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/&quot;</span><span class="p">,</span> <span class="n">hadoop_reporting</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">strict_scope</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="k">print</span> <span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../massweb.html">massweb</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
