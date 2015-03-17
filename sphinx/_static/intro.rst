@@ -26,7 +26,7 @@ distributed cluster. There's a few big challenges with this:
    just a few lines of code.
 
 
-The Sollution
+The Solution
 -------------
 
 MassWeb is a library_ meant for lightning-fast web application fuzzing. It
@@ -34,4 +34,3 @@ attempts to solve all of the major problems of massive Internet-level scans in
 one convenient library. We use it in PunkSPIDER_ to scan several hundred million
 URLs for vulnerabilities over the course of just a few days (3 for our last
 scan).  Use it wisely and please don't do anything nasty with this.
-

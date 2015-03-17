@@ -62,34 +62,16 @@
 <h1>fuzz_generators<a class="headerlink" href="#fuzz-generators" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-massweb.fuzz_generators.url_generator">
 <span id="url-generator"></span><h2>url_generator<a class="headerlink" href="#module-massweb.fuzz_generators.url_generator" title="Permalink to this headline">¶</a></h2>
-<p>Some helpers to generate URLs for fuzzing.</p>
 <dl class="function">
-<dt id="massweb.fuzz_generators.url_generator.append_to_param">
-<tt class="descclassname">massweb.fuzz_generators.url_generator.</tt><tt class="descname">append_to_param</tt><big>(</big><em>url</em>, <em>param</em>, <em>value</em><big>)</big><a class="headerlink" href="#massweb.fuzz_generators.url_generator.append_to_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace a parameter in a url with another string.</p>
-<p>Return a fully reassembled url as a string.</p>
-<p>url                 URL to mangle as string.
-param               Parameter in url to replace the value of.
-value               String to replace the value of param in url with.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="massweb.fuzz_generators.url_generator.geneerate_fuzzy_urls">
-<tt class="descclassname">massweb.fuzz_generators.url_generator.</tt><tt class="descname">geneerate_fuzzy_urls</tt><big>(</big><em>url</em>, <em>payloads</em><big>)</big><a class="headerlink" href="#massweb.fuzz_generators.url_generator.geneerate_fuzzy_urls" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a URL suitable for fuzzing, using the suplied payloads.</p>
-<p>url         Base URL.
-payloads    list of Payload objects to apply to url.
-returns     list of URLs as strings</p>
-</dd></dl>
+<dt id="massweb.fuzz_generators.url_generator.generate_fuzzy_urls">
+<tt class="descclassname">massweb.fuzz_generators.url_generator.</tt><tt class="descname">generate_fuzzy_urls</tt><big>(</big><em>url</em>, <em>payloads</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzz_generators/url_generator.html#generate_fuzzy_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzz_generators.url_generator.generate_fuzzy_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="massweb.fuzz_generators.url_generator.replace_param_value">
-<tt class="descclassname">massweb.fuzz_generators.url_generator.</tt><tt class="descname">replace_param_value</tt><big>(</big><em>url</em>, <em>param</em>, <em>replacement_string</em><big>)</big><a class="headerlink" href="#massweb.fuzz_generators.url_generator.replace_param_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace a parameter in a url with another string.</p>
-<p>Return a fully reassembled url as a string.</p>
-<p>url                 URL to mangle as string.
-param               Parameter in url to replace the value of.
-replacement_string  String to replace the value of param in url with.</p>
+<tt class="descclassname">massweb.fuzz_generators.url_generator.</tt><tt class="descname">replace_param_value</tt><big>(</big><em>url</em>, <em>param</em>, <em>replacement_string</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzz_generators/url_generator.html#replace_param_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzz_generators.url_generator.replace_param_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace a parameter in a url with another string. Returns
+a fully reassembled url as a string.</p>
 </dd></dl>
 
 </div>

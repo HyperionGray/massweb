@@ -62,142 +62,80 @@
 <h1>fuzzers<a class="headerlink" href="#fuzzers" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-massweb.fuzzers.bsqli_fuzzer">
 <span id="bsqli-fuzzer"></span><h2>bsqli_fuzzer<a class="headerlink" href="#module-massweb.fuzzers.bsqli_fuzzer" title="Permalink to this headline">¶</a></h2>
-<p>Blind SQL injection fuzzer.</p>
 <dl class="class">
 <dt id="massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer">
-<em class="property">class </em><tt class="descclassname">massweb.fuzzers.bsqli_fuzzer.</tt><tt class="descname">BSQLiFuzzer</tt><big>(</big><em>targets</em>, <em>bsqli_payload_groups=None</em>, <em>num_threads=10</em>, <em>time_per_url=10</em>, <em>request_timeout=10</em>, <em>proxy_list=None</em>, <em>hadoop_reporting=False</em>, <em>payload_groups=None</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.fuzzers.bsqli_fuzzer.</tt><tt class="descname">BSQLiFuzzer</tt><big>(</big><em>targets, bsqli_payload_groups=[], num_threads=10, time_per_url=10, request_timeout=10, proxy_list=[{}], hadoop_reporting=False, payload_groups=[]</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/bsqli_fuzzer.html#BSQLiFuzzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.fuzzers.ifuzzer.iFuzzer" title="massweb.fuzzers.ifuzzer.iFuzzer"><tt class="xref py py-class docutils literal"><span class="pre">massweb.fuzzers.ifuzzer.iFuzzer</span></tt></a></p>
-<p>Blined SQL Injection Fuzzer class.</p>
 <dl class="method">
 <dt id="massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.check_for_bsqli">
-<tt class="descname">check_for_bsqli</tt><big>(</big><em>fuzzy_target_group</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.check_for_bsqli" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check a group of Target objects for evidence of vulnerabilities.</p>
-<p>fuzzy_target_group  list of Target objects with fuzzing data.
-returns             True if vulnerability is present, False if not.</p>
-</dd></dl>
+<tt class="descname">check_for_bsqli</tt><big>(</big><em>fuzzy_target_group</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/bsqli_fuzzer.html#BSQLiFuzzer.check_for_bsqli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.check_for_bsqli" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.fuzz">
-<tt class="descname">fuzz</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.fuzz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make all our targets fuzzy and deploy their payloads.</p>
-<p>returns     list of Result objects.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.identify_posts">
-<tt class="descname">identify_posts</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.identify_posts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of POST Targets.</p>
-<p>Overrides iFuzzer.identify_posts() to avoid the need for self.mreq.
-This methos is called in iFuzzer.determine_posts_from_targets().</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.newmreq">
-<tt class="descname">newmreq</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.newmreq" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hot, fresh MassRequest everytime!</p>
-<p>Workaround for the iFuzzer class using self.mreq.</p>
-</dd></dl>
+<tt class="descname">fuzz</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/bsqli_fuzzer.html#BSQLiFuzzer.fuzz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.fuzz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.request_target_group">
-<tt class="descname">request_target_group</tt><big>(</big><em>fuzzy_target_group</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.request_target_group" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fire off the fuzzies.</p>
-<p>fuzzy_target_group  Group of Targets with fuzzing data added (the fuzzies).
-returns             the resulting MassRequest.results.</p>
-</dd></dl>
+<tt class="descname">request_target_group</tt><big>(</big><em>fuzzy_target_group</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/bsqli_fuzzer.html#BSQLiFuzzer.request_target_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.bsqli_fuzzer.BSQLiFuzzer.request_target_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.fuzzers.ifuzzer">
 <span id="ifuzzer"></span><h2>ifuzzer<a class="headerlink" href="#module-massweb.fuzzers.ifuzzer" title="Permalink to this headline">¶</a></h2>
-<p>Fuzzer Prototype.</p>
 <dl class="class">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer">
-<em class="property">class </em><tt class="descclassname">massweb.fuzzers.ifuzzer.</tt><tt class="descname">iFuzzer</tt><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.fuzzers.ifuzzer.</tt><tt class="descname">iFuzzer</tt><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Prototype Fuzzer class.</p>
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.add_payload">
-<tt class="descname">add_payload</tt><big>(</big><em>payload</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_payload" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a Payload object to the list of payloads.</p>
-<p>payload     Payload object.</p>
-</dd></dl>
+<tt class="descname">add_payload</tt><big>(</big><em>payload</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.add_payload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_payload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.add_payload_from_string">
-<tt class="descname">add_payload_from_string</tt><big>(</big><em>payload_str</em>, <em>check_type_list</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_payload_from_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a Payload generated from a string.</p>
-<p>Add a Payload object created from the string provided and the types
-of checks to preform.</p>
-<p>payload_str         String representing the payload.
-check_type_list     list of strings identifying the types of checks to preform.</p>
-</dd></dl>
+<tt class="descname">add_payload_from_string</tt><big>(</big><em>payload_str</em>, <em>check_type_list</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.add_payload_from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_payload_from_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.add_target">
-<tt class="descname">add_target</tt><big>(</big><em>target</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_target" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add Target object to list of targets.</p>
-<p>target  Target object.</p>
-</dd></dl>
+<tt class="descname">add_target</tt><big>(</big><em>target</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.add_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.add_target_from_url">
-<tt class="descname">add_target_from_url</tt><big>(</big><em>url</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_target_from_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a target based on the URL and POAST request data.</p>
-<p>url     URL as a string.
-data    POST request data as s dict.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.fuzzers.ifuzzer.iFuzzer.append_targets">
-<tt class="descname">append_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.append_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Append a list of Target objects to self.targets.</p>
-</dd></dl>
+<tt class="descname">add_target_from_url</tt><big>(</big><em>url</em>, <em>data=None</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.add_target_from_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.add_target_from_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.append_to_param">
-<tt class="descname">append_to_param</tt><big>(</big><em>url</em>, <em>param</em>, <em>append_string</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.append_to_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace a parameter in a url with another string.</p>
-<p>Return a fully reassembled url as a string.</p>
-<p>url                 URL to mangle as string.
-param               Parameter in url to replace the value of.
-append_string  String to append to the value of param in url with.</p>
+<tt class="descname">append_to_param</tt><big>(</big><em>url</em>, <em>param</em>, <em>append_string</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.append_to_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.append_to_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a value to a parameter</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.determine_posts_from_targets">
-<tt class="descname">determine_posts_from_targets</tt><big>(</big><em>depreciated=None</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.determine_posts_from_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add targets with POST requests to this Fuzzer&#8217;s list of targets.</p>
-<p>depreciated     Interface placeholder for dedupe which was unused.</p>
-</dd></dl>
+<tt class="descname">determine_posts_from_targets</tt><big>(</big><em>dedupe=True</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.determine_posts_from_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.determine_posts_from_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.fuzz">
-<tt class="descname">fuzz</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.fuzz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prototype for the primary entry point of Fuzzers.</p>
-</dd></dl>
+<tt class="descname">fuzz</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.fuzz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.fuzz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.generate_fuzzy_targets">
-<tt class="descname">generate_fuzzy_targets</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.generate_fuzzy_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prototype for the method that generates a list of targets with the fuzzing data added.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.fuzzers.ifuzzer.iFuzzer.identify_posts">
-<tt class="descname">identify_posts</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.identify_posts" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of POST Targets.</p>
-</dd></dl>
+<tt class="descname">generate_fuzzy_targets</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.generate_fuzzy_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.generate_fuzzy_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.ifuzzer.iFuzzer.replace_param_value">
-<tt class="descname">replace_param_value</tt><big>(</big><em>url</em>, <em>param</em>, <em>replacement_string</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.replace_param_value" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace a parameter in a url with another string.</p>
-<p>Return a fully reassembled url as a string.</p>
-<p>url                 URL to mangle as string.
-param               Parameter in url to replace the value of.
-replacement_string  String to replace the value of param in url with.</p>
+<tt class="descname">replace_param_value</tt><big>(</big><em>url</em>, <em>param</em>, <em>replacement_string</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/ifuzzer.html#iFuzzer.replace_param_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.ifuzzer.iFuzzer.replace_param_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace a parameter in a url with another string. Returns
+a fully reassembled url as a string.</p>
 </dd></dl>
 
 </dd></dl>
@@ -205,36 +143,24 @@ replacement_string  String to replace the value of param in url with.</p>
 </div>
 <div class="section" id="module-massweb.fuzzers.web_fuzzer">
 <span id="web-fuzzer"></span><h2>web_fuzzer<a class="headerlink" href="#module-massweb.fuzzers.web_fuzzer" title="Permalink to this headline">¶</a></h2>
-<p>Web Fuzzer Class.</p>
 <dl class="class">
 <dt id="massweb.fuzzers.web_fuzzer.WebFuzzer">
-<em class="property">class </em><tt class="descclassname">massweb.fuzzers.web_fuzzer.</tt><tt class="descname">WebFuzzer</tt><big>(</big><em>targets=None</em>, <em>payloads=None</em>, <em>num_threads=10</em>, <em>time_per_url=10</em>, <em>request_timeout=10</em>, <em>proxy_list=None</em>, <em>hadoop_reporting=False</em>, <em>depreciated=None</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.fuzzers.web_fuzzer.</tt><tt class="descname">WebFuzzer</tt><big>(</big><em>targets=[], payloads=[], num_threads=10, time_per_url=10, request_timeout=10, proxy_list=[{}], hadoop_reporting=False, payload_groups=[]</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/web_fuzzer.html#WebFuzzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.fuzzers.ifuzzer.iFuzzer" title="massweb.fuzzers.ifuzzer.iFuzzer"><tt class="xref py py-class docutils literal"><span class="pre">massweb.fuzzers.ifuzzer.iFuzzer</span></tt></a></p>
-<p>Fuzzy a generated list of Targets.</p>
-<p>Generates lists of targets with associated payloads and runs them against
-the target systems.</p>
 <dl class="method">
 <dt id="massweb.fuzzers.web_fuzzer.WebFuzzer.analyze_response">
-<tt class="descname">analyze_response</tt><big>(</big><em>ftarget</em>, <em>response</em><big>)</big><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer.analyze_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Analyze the results of the request and return the info gathered.</p>
-<p>ftargeet    FuzzyTarget object.
-response    requests.Response object.</p>
-<p>returns     Result object.
-raises      TypeError or AttributeError when non requests.Response is given as response.</p>
-</dd></dl>
+<tt class="descname">analyze_response</tt><big>(</big><em>ftarget</em>, <em>response</em><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/web_fuzzer.html#WebFuzzer.analyze_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer.analyze_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.web_fuzzer.WebFuzzer.fuzz">
-<tt class="descname">fuzz</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer.fuzz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fuzz all the targets and return the results.</p>
-<p>returns     list of Result objects.</p>
-</dd></dl>
+<tt class="descname">fuzz</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/web_fuzzer.html#WebFuzzer.fuzz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer.fuzz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.fuzzers.web_fuzzer.WebFuzzer.generate_fuzzy_targets">
-<tt class="descname">generate_fuzzy_targets</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer.generate_fuzzy_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Associate fuzzing data with the targets.</p>
-</dd></dl>
+<tt class="descname">generate_fuzzy_targets</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/massweb/fuzzers/web_fuzzer.html#WebFuzzer.generate_fuzzy_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.fuzzers.web_fuzzer.WebFuzzer.generate_fuzzy_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

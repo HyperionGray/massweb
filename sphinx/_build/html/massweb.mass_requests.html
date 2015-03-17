@@ -64,155 +64,52 @@
 <span id="mass-request"></span><h2>mass_request<a class="headerlink" href="#module-massweb.mass_requests.mass_request" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="massweb.mass_requests.mass_request.MassRequest">
-<em class="property">class </em><tt class="descclassname">massweb.mass_requests.mass_request.</tt><tt class="descname">MassRequest</tt><big>(</big><em>num_threads=10</em>, <em>time_per_url=10</em>, <em>request_timeout=10</em>, <em>proxy_list=None</em>, <em>hadoop_reporting=False</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.mass_requests.mass_request.</tt><tt class="descname">MassRequest</tt><big>(</big><em>num_threads=10, time_per_url=10, request_timeout=10, proxy_list=[{}], hadoop_reporting=False</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Mass Request class. Applies payloads to targets.</p>
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.add_to_finished">
-<tt class="descname">add_to_finished</tt><big>(</big><em>request</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.add_to_finished" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add finished requests to the list of finished requests</p>
-</dd></dl>
+<tt class="descname">add_to_finished</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.add_to_finished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.add_to_finished" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="massweb.mass_requests.mass_request.MassRequest.add_to_finished_targets">
+<tt class="descname">add_to_finished_targets</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.add_to_finished_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.add_to_finished_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.add_to_identified_post">
-<tt class="descname">add_to_identified_post</tt><big>(</big><em>requests</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.add_to_identified_post" title="Permalink to this definition">¶</a></dt>
-<dd><p>&#8221; Add targets that have post inputs to the list of Target objects.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.clear_lists">
-<tt class="descname">clear_lists</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.clear_lists" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set attempted, finished, and identified_post_requests to empty
-lists.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.collect_target_results">
-<tt class="descname">collect_target_results</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.collect_target_results" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collect results from processes.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.create_process">
-<tt class="descname">create_process</tt><big>(</big><em>target</em>, <em>action</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.create_process" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new process to process a Target.</p>
-<p>target      Target object.
-action      See handle_targets for details.</p>
-</dd></dl>
+<tt class="descname">add_to_identified_post</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.add_to_identified_post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.add_to_identified_post" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.get_post_requests_from_targets">
-<tt class="descname">get_post_requests_from_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_post_requests_from_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find targets that have post inputs for later use.</p>
-</dd></dl>
+<tt class="descname">get_post_requests_from_targets</tt><big>(</big><em>targets</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.get_post_requests_from_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_post_requests_from_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.get_targets">
-<tt class="descname">get_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try to send GET requests to all the listed targets.</p>
-</dd></dl>
+<tt class="descname">get_targets</tt><big>(</big><em>targets</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.get_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.get_urls">
-<tt class="descname">get_urls</tt><big>(</big><em>urls</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_urls" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try to send GET requests to all the listed urls.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.get_urls_from_file">
-<tt class="descname">get_urls_from_file</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_urls_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try to send GET requests to all the urls listed in a file.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.handle_targets">
-<tt class="descname">handle_targets</tt><big>(</big><em>targets=None</em>, <em>action=None</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.handle_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Handle targets. For internal use.</p>
-<p>targets     list of Target objects.
-action      Indicator for what HTTP request type to use.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p>Options for <cite>action</cite> in self.ttype_func_callback, currently:</p>
-<dl class="last docutils">
-<dt><tt class="docutils literal"><span class="pre">&quot;get&quot;</span></tt></dt>
-<dd>Process Targets with POST requests</dd>
-<dt><tt class="docutils literal"><span class="pre">&quot;post&quot;</span></tt></dt>
-<dd>Process Targets with POST requests</dd>
-<dt><tt class="docutils literal"><span class="pre">&quot;identify_post&quot;</span></tt></dt>
-<dd>Look for potential post request targets.</dd>
-</dl>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.list_diff">
-<tt class="descname">list_diff</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.list_diff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the Target objects that were attempted but not finished and
-set their respnse to __PNK_THREAD_TIMEOUT</p>
-</dd></dl>
+<tt class="descname">get_urls</tt><big>(</big><em>urls</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.get_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.get_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.post_targets">
-<tt class="descname">post_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.post_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try to send POST requests to all the listed targets.</p>
-</dd></dl>
+<tt class="descname">post_targets</tt><big>(</big><em>targets</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.post_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.post_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.post_urls">
-<tt class="descname">post_urls</tt><big>(</big><em>urls_and_data</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.post_urls" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try to send POST requests to all the listed (url, data) tuples.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.post_urls_from_file">
-<tt class="descname">post_urls_from_file</tt><big>(</big><em>filename</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.post_urls_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Try to send POST requests to all the urls listed in a file.</p>
-</dd></dl>
+<tt class="descname">post_urls</tt><big>(</big><em>urls_and_data</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.post_urls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.post_urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="massweb.mass_requests.mass_request.MassRequest.request_targets">
-<tt class="descname">request_targets</tt><big>(</big><em>targets</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.request_targets" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply the payloads of the provided targets.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="massweb.mass_requests.mass_request.MassRequest.targets_attempted">
-<tt class="descname">targets_attempted</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.targets_attempted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of Target objects that this has attempted to
-fuzz.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="massweb.mass_requests.mass_request.MassRequest.targets_finished">
-<tt class="descname">targets_finished</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.targets_finished" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of Target objects that this has finished fuzzing.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.terminate_pool">
-<tt class="descname">terminate_pool</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.terminate_pool" title="Permalink to this definition">¶</a></dt>
-<dd><p>Kill the processes in the pool.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.mass_requests.mass_request.MassRequest.to_target">
-<tt class="descname">to_target</tt><big>(</big><em>item</em>, <em>request_type</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.to_target" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert item into a Target object.</p>
-<p>item            URL as a unicode or str, a tuple/list containing a URL and parameters, or a Target object.
-request_type    lowercase get or post specifying the HTTP requast type</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="massweb.mass_requests.mass_request.MassRequest.urls_attempted">
-<tt class="descname">urls_attempted</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.urls_attempted" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of the URLs attempted.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="massweb.mass_requests.mass_request.MassRequest.urls_finished">
-<tt class="descname">urls_finished</tt><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.urls_finished" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of URLs that have finished being processed.</p>
-</dd></dl>
+<tt class="descname">request_targets</tt><big>(</big><em>targets</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/mass_request.html#MassRequest.request_targets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.mass_request.MassRequest.request_targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -221,15 +118,8 @@ request_type    lowercase get or post specifying the HTTP requast type</p>
 <span id="response-analysis"></span><h2>response_analysis<a class="headerlink" href="#module-massweb.mass_requests.response_analysis" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="massweb.mass_requests.response_analysis.parse_worthy">
-<tt class="descclassname">massweb.mass_requests.response_analysis.</tt><tt class="descname">parse_worthy</tt><big>(</big><em>response</em>, <em>max_parse_size=5000000</em>, <em>content_type_match='text'</em>, <em>hadoop_reporting=False</em><big>)</big><a class="headerlink" href="#massweb.mass_requests.response_analysis.parse_worthy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determine if it&#8217;s worth parsing a Response object.</p>
-<p>response            requests.Response object.
-max_parse_size      Maximum length of content in characters. Default 5000000.
-content_type_match  content-type MIME prefix. Default &#8220;text&#8221; (as in text/html or text/plain).
-hadoop_reporting    Turn on hadoop reporting if True. Default False.</p>
-<p>returns             True if it&#8217;s worth parsing, False if not.
-raises              TypeError if response is not a requests.Response.</p>
-</dd></dl>
+<tt class="descclassname">massweb.mass_requests.response_analysis.</tt><tt class="descname">parse_worthy</tt><big>(</big><em>response</em>, <em>max_parse_size=5000000</em>, <em>content_type_match='text'</em>, <em>hadoop_reporting=False</em><big>)</big><a class="reference internal" href="_modules/massweb/mass_requests/response_analysis.html#parse_worthy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.mass_requests.response_analysis.parse_worthy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 </div>

@@ -62,73 +62,41 @@
 <h1>payloads<a class="headerlink" href="#payloads" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-massweb.payloads.bsqli_payload">
 <span id="bsqli-payload"></span><h2>bsqli_payload<a class="headerlink" href="#module-massweb.payloads.bsqli_payload" title="Permalink to this headline">¶</a></h2>
-<p>Blind SQL Injection (BSQLI) Payload type</p>
 <dl class="class">
 <dt id="massweb.payloads.bsqli_payload.BSQLIPayload">
-<em class="property">class </em><tt class="descclassname">massweb.payloads.bsqli_payload.</tt><tt class="descname">BSQLIPayload</tt><big>(</big><em>payload_str, payload_attributes, check_type_list=['bsqli']</em><big>)</big><a class="headerlink" href="#massweb.payloads.bsqli_payload.BSQLIPayload" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.payloads.bsqli_payload.</tt><tt class="descname">BSQLIPayload</tt><big>(</big><em>payload_str, payload_attributes, check_type_list=['bsqli']</em><big>)</big><a class="reference internal" href="_modules/massweb/payloads/bsqli_payload.html#BSQLIPayload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.payloads.bsqli_payload.BSQLIPayload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.payloads.payload.Payload" title="massweb.payloads.payload.Payload"><tt class="xref py py-class docutils literal"><span class="pre">massweb.payloads.payload.Payload</span></tt></a></p>
-<p>Blind SQL Injection Payload class</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.payloads.bsqli_payload_group">
 <span id="bsqli-payload-group"></span><h2>bsqli_payload_group<a class="headerlink" href="#module-massweb.payloads.bsqli_payload_group" title="Permalink to this headline">¶</a></h2>
-<p>Blind SQL Injection (BSQLI) PayloadGroup type</p>
 <dl class="class">
 <dt id="massweb.payloads.bsqli_payload_group.BSQLIPayloadGroup">
-<em class="property">class </em><tt class="descclassname">massweb.payloads.bsqli_payload_group.</tt><tt class="descname">BSQLIPayloadGroup</tt><big>(</big><em>true_payload</em>, <em>false_payload</em><big>)</big><a class="headerlink" href="#massweb.payloads.bsqli_payload_group.BSQLIPayloadGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.payloads.bsqli_payload_group.</tt><tt class="descname">BSQLIPayloadGroup</tt><big>(</big><em>true_payload</em>, <em>false_payload</em><big>)</big><a class="reference internal" href="_modules/massweb/payloads/bsqli_payload_group.html#BSQLIPayloadGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.payloads.bsqli_payload_group.BSQLIPayloadGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.payloads.payload_group.PayloadGroup" title="massweb.payloads.payload_group.PayloadGroup"><tt class="xref py py-class docutils literal"><span class="pre">massweb.payloads.payload_group.PayloadGroup</span></tt></a></p>
-<p>Blind SQL Injection Payload type:
-contains multiple pairs of BSQLIPayloads</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.payloads.payload">
 <span id="payload"></span><h2>payload<a class="headerlink" href="#module-massweb.payloads.payload" title="Permalink to this headline">¶</a></h2>
-<p>Payload object type/prototype</p>
 <dl class="class">
 <dt id="massweb.payloads.payload.Payload">
-<em class="property">class </em><tt class="descclassname">massweb.payloads.payload.</tt><tt class="descname">Payload</tt><big>(</big><em>payload_str</em>, <em>check_type_list=[]</em>, <em>payload_attributes={}</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.payloads.payload.</tt><tt class="descname">Payload</tt><big>(</big><em>payload_str</em>, <em>check_type_list=[]</em>, <em>payload_attributes={}</em><big>)</big><a class="reference internal" href="_modules/massweb/payloads/payload.html#Payload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.payloads.payload.Payload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Payload Object Protoype:</p>
-<p>This provides a common interface for various payloads.</p>
-<dl class="method">
-<dt id="massweb.payloads.payload.Payload.__eq__">
-<tt class="descname">__eq__</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload.__eq__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if this Payload is equal to another,
-based on the payload string and the type of checks to be run.</p>
-<p>other is the Payload object to be compared to this Payload object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.payloads.payload.Payload.__hash__">
-<tt class="descname">__hash__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload.__hash__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provides a hash of the payload and check types</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.payloads.payload.Payload.__str__">
-<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.payloads.payload.Payload.__str__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns just the payload string</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.payloads.payload_group">
 <span id="payload-group"></span><h2>payload_group<a class="headerlink" href="#module-massweb.payloads.payload_group" title="Permalink to this headline">¶</a></h2>
-<p>PayloadGroup type/prototype containing multiple Payload objects</p>
 <dl class="class">
 <dt id="massweb.payloads.payload_group.PayloadGroup">
-<em class="property">class </em><tt class="descclassname">massweb.payloads.payload_group.</tt><tt class="descname">PayloadGroup</tt><big>(</big><em>payloads</em>, <em>check_type_list=[]</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload_group.PayloadGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.payloads.payload_group.</tt><tt class="descname">PayloadGroup</tt><big>(</big><em>payloads</em>, <em>check_type_list=[]</em><big>)</big><a class="reference internal" href="_modules/massweb/payloads/payload_group.html#PayloadGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.payloads.payload_group.PayloadGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>PayloadGroup Class: groups of individual Payload objects.</p>
 <dl class="method">
 <dt id="massweb.payloads.payload_group.PayloadGroup.add_payload">
-<tt class="descname">add_payload</tt><big>(</big><em>payload</em><big>)</big><a class="headerlink" href="#massweb.payloads.payload_group.PayloadGroup.add_payload" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a Payloadobject to this group.</p>
-<p>payload Payload object</p>
-</dd></dl>
+<tt class="descname">add_payload</tt><big>(</big><em>payload</em><big>)</big><a class="reference internal" href="_modules/massweb/payloads/payload_group.html#PayloadGroup.add_payload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.payloads.payload_group.PayloadGroup.add_payload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

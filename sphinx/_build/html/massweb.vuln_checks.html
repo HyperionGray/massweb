@@ -58,15 +58,13 @@
 <h1>vuln_checks<a class="headerlink" href="#vuln-checks" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-massweb.vuln_checks.check">
 <span id="check"></span><h2>check<a class="headerlink" href="#module-massweb.vuln_checks.check" title="Permalink to this headline">¶</a></h2>
-<p>Check class prototype</p>
 <dl class="class">
 <dt id="massweb.vuln_checks.check.Check">
-<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.check.</tt><tt class="descname">Check</tt><a class="headerlink" href="#massweb.vuln_checks.check.Check" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.check.</tt><tt class="descname">Check</tt><a class="reference internal" href="_modules/massweb/vuln_checks/check.html#Check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.check.Check" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Check class prototype</p>
 <dl class="method">
 <dt id="massweb.vuln_checks.check.Check.check">
-<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.check.Check.check" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/check.html#Check.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.check.Check.check" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -74,150 +72,102 @@
 </div>
 <div class="section" id="module-massweb.vuln_checks.match">
 <span id="match"></span><h2>match<a class="headerlink" href="#module-massweb.vuln_checks.match" title="Permalink to this headline">¶</a></h2>
-<p>Helper functions for matching parts of strings</p>
 <dl class="function">
 <dt id="massweb.vuln_checks.match.match_string">
-<tt class="descclassname">massweb.vuln_checks.match.</tt><tt class="descname">match_string</tt><big>(</big><em>str_in</em>, <em>match</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.match.match_string" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if a string is found in another string.</p>
-<p>str_in  Input string.
-match   String to find in str_in.</p>
-<p>returns True if a match is found and False if no match is found.</p>
-</dd></dl>
+<tt class="descclassname">massweb.vuln_checks.match.</tt><tt class="descname">match_string</tt><big>(</big><em>_input</em>, <em>match</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/match.html#match_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.match.match_string" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="massweb.vuln_checks.match.match_strings">
-<tt class="descclassname">massweb.vuln_checks.match.</tt><tt class="descname">match_strings</tt><big>(</big><em>str_in</em>, <em>match_list</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.match.match_strings" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if any of a list of strings is found in another string.</p>
-<p>str_in      input string.
-match_list  list of strings to find in str_in.</p>
-<p>returns     True if a match is found and False if no match is found.</p>
-</dd></dl>
+<tt class="descclassname">massweb.vuln_checks.match.</tt><tt class="descname">match_strings</tt><big>(</big><em>_input</em>, <em>match_list</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/match.html#match_strings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.match.match_strings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="massweb.vuln_checks.match.parse_match">
-<tt class="descclassname">massweb.vuln_checks.match.</tt><tt class="descname">parse_match</tt><big>(</big><em>str_in</em>, <em>tag</em>, <em>match</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.match.parse_match" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Parse HTML string for a particular tag and attempt to find a matching</dt>
-<dd>string in the contents of that tag.</dd>
-</dl>
-<p>Currently is hardcoded for &#8216;script&#8217; tags.</p>
-<p>str_in  input string.
-tag     html tag to parse for.
-match   string to match against the contents of the tags.</p>
-<p>returns True if a match is found and False if no match is found.</p>
-</dd></dl>
+<tt class="descclassname">massweb.vuln_checks.match.</tt><tt class="descname">parse_match</tt><big>(</big><em>_input</em>, <em>tag</em>, <em>match</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/match.html#parse_match"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.match.parse_match" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </div>
 <div class="section" id="module-massweb.vuln_checks.mxi">
 <span id="mxi"></span><h2>mxi<a class="headerlink" href="#module-massweb.vuln_checks.mxi" title="Permalink to this headline">¶</a></h2>
-<p>Mail Form Injection Checker</p>
 <dl class="class">
 <dt id="massweb.vuln_checks.mxi.MXICheck">
-<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.mxi.</tt><tt class="descname">MXICheck</tt><a class="headerlink" href="#massweb.vuln_checks.mxi.MXICheck" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.mxi.</tt><tt class="descname">MXICheck</tt><a class="reference internal" href="_modules/massweb/vuln_checks/mxi.html#MXICheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.mxi.MXICheck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.vuln_checks.check.Check" title="massweb.vuln_checks.check.Check"><tt class="xref py py-class docutils literal"><span class="pre">massweb.vuln_checks.check.Check</span></tt></a></p>
-<p>Mail Form Injection Checker: Checks for evidence of successful mail
-form injection in result from fuzzers.</p>
 <dl class="method">
 <dt id="massweb.vuln_checks.mxi.MXICheck.check">
-<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.mxi.MXICheck.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the string returned by the fuzzer (content) against the list
-of strings indicating vulnerability.</p>
-</dd></dl>
+<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/mxi.html#MXICheck.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.mxi.MXICheck.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.vuln_checks.osci">
 <span id="osci"></span><h2>osci<a class="headerlink" href="#module-massweb.vuln_checks.osci" title="Permalink to this headline">¶</a></h2>
-<p>OS Command Injection Checker</p>
 <dl class="class">
 <dt id="massweb.vuln_checks.osci.OSCICheck">
-<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.osci.</tt><tt class="descname">OSCICheck</tt><a class="headerlink" href="#massweb.vuln_checks.osci.OSCICheck" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.osci.</tt><tt class="descname">OSCICheck</tt><a class="reference internal" href="_modules/massweb/vuln_checks/osci.html#OSCICheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.osci.OSCICheck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.vuln_checks.check.Check" title="massweb.vuln_checks.check.Check"><tt class="xref py py-class docutils literal"><span class="pre">massweb.vuln_checks.check.Check</span></tt></a></p>
-<p>OS Command Injection Checker: Checks for evidence of successful OS
-command injection in result from fuzzers.</p>
 <dl class="method">
 <dt id="massweb.vuln_checks.osci.OSCICheck.check">
-<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.osci.OSCICheck.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the string returned by the fuzzer (content) against the list
-of strings indicating vulnerability.</p>
-</dd></dl>
+<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/osci.html#OSCICheck.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.osci.OSCICheck.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.vuln_checks.sqli">
 <span id="sqli"></span><h2>sqli<a class="headerlink" href="#module-massweb.vuln_checks.sqli" title="Permalink to this headline">¶</a></h2>
-<p>SQL Injection Checker</p>
 <dl class="class">
 <dt id="massweb.vuln_checks.sqli.SQLICheck">
-<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.sqli.</tt><tt class="descname">SQLICheck</tt><a class="headerlink" href="#massweb.vuln_checks.sqli.SQLICheck" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.sqli.</tt><tt class="descname">SQLICheck</tt><a class="reference internal" href="_modules/massweb/vuln_checks/sqli.html#SQLICheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.sqli.SQLICheck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.vuln_checks.check.Check" title="massweb.vuln_checks.check.Check"><tt class="xref py py-class docutils literal"><span class="pre">massweb.vuln_checks.check.Check</span></tt></a></p>
-<p>SQL Injection Checker: Checks for evidence of successful SQL injection in result from fuzzers.</p>
 <dl class="method">
 <dt id="massweb.vuln_checks.sqli.SQLICheck.check">
-<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.sqli.SQLICheck.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the string returned by the fuzzer (content) against the list
-of strings indicating vulnerability.</p>
-</dd></dl>
+<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/sqli.html#SQLICheck.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.sqli.SQLICheck.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.vuln_checks.trav">
 <span id="trav"></span><h2>trav<a class="headerlink" href="#module-massweb.vuln_checks.trav" title="Permalink to this headline">¶</a></h2>
-<p>Directory Traversal Checker</p>
 <dl class="class">
 <dt id="massweb.vuln_checks.trav.TravCheck">
-<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.trav.</tt><tt class="descname">TravCheck</tt><a class="headerlink" href="#massweb.vuln_checks.trav.TravCheck" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.trav.</tt><tt class="descname">TravCheck</tt><a class="reference internal" href="_modules/massweb/vuln_checks/trav.html#TravCheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.trav.TravCheck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.vuln_checks.check.Check" title="massweb.vuln_checks.check.Check"><tt class="xref py py-class docutils literal"><span class="pre">massweb.vuln_checks.check.Check</span></tt></a></p>
-<p>Directory Traversal Checker: Checks for evidence of successful
-directory traversal in result from fuzzers.</p>
 <dl class="method">
 <dt id="massweb.vuln_checks.trav.TravCheck.check">
-<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.trav.TravCheck.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the string returned by the fuzzer (content) against the list
-of strings indicating vulnerability.</p>
-</dd></dl>
+<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/trav.html#TravCheck.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.trav.TravCheck.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.vuln_checks.xpathi">
 <span id="xpathi"></span><h2>xpathi<a class="headerlink" href="#module-massweb.vuln_checks.xpathi" title="Permalink to this headline">¶</a></h2>
-<p>XPath Injection Checker</p>
 <dl class="class">
 <dt id="massweb.vuln_checks.xpathi.XPathICheck">
-<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.xpathi.</tt><tt class="descname">XPathICheck</tt><a class="headerlink" href="#massweb.vuln_checks.xpathi.XPathICheck" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.xpathi.</tt><tt class="descname">XPathICheck</tt><a class="reference internal" href="_modules/massweb/vuln_checks/xpathi.html#XPathICheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.xpathi.XPathICheck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>XPath Injection Checker:
-Checks for evidence of successful XPath injection in result from
-fuzzers.</p>
 <dl class="method">
 <dt id="massweb.vuln_checks.xpathi.XPathICheck.check">
-<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.xpathi.XPathICheck.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the string returned by the fuzzer (content) against the list
-of strings indicating vulnerability.</p>
-</dd></dl>
+<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/xpathi.html#XPathICheck.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.xpathi.XPathICheck.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.vuln_checks.xss">
 <span id="xss"></span><h2>xss<a class="headerlink" href="#module-massweb.vuln_checks.xss" title="Permalink to this headline">¶</a></h2>
-<p>Cross (X) Site Scripting Checker</p>
 <dl class="class">
 <dt id="massweb.vuln_checks.xss.XSSCheck">
-<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.xss.</tt><tt class="descname">XSSCheck</tt><a class="headerlink" href="#massweb.vuln_checks.xss.XSSCheck" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.vuln_checks.xss.</tt><tt class="descname">XSSCheck</tt><a class="reference internal" href="_modules/massweb/vuln_checks/xss.html#XSSCheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.xss.XSSCheck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.vuln_checks.check.Check" title="massweb.vuln_checks.check.Check"><tt class="xref py py-class docutils literal"><span class="pre">massweb.vuln_checks.check.Check</span></tt></a></p>
-<p>Cross (X) Site Scripting Checker: Checks for evidence of successful
-cross site scripting in result from fuzzers.</p>
 <dl class="method">
 <dt id="massweb.vuln_checks.xss.XSSCheck.check">
-<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="headerlink" href="#massweb.vuln_checks.xss.XSSCheck.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check the string returned by the fuzzer (content) against the list
-of strings indicating vulnerability.</p>
-</dd></dl>
+<tt class="descname">check</tt><big>(</big><em>content</em><big>)</big><a class="reference internal" href="_modules/massweb/vuln_checks/xss.html#XSSCheck.check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.vuln_checks.xss.XSSCheck.check" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

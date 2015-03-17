@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>massweb.fuzzers.ifuzzer &mdash; MassWeb 0.3.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="MassWeb 0.3.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">MassWeb 0.3.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for massweb.fuzzers.ifuzzer</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">massweb.payloads.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
+<span class="kn">from</span> <span class="nn">massweb.targets.target</span> <span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">parse_qs</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlunparse</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">urlencode</span>
+
+<div class="viewcode-block" id="iFuzzer"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer">[docs]</a><span class="k">class</span> <span class="nc">iFuzzer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="iFuzzer.add_payload"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.add_payload">[docs]</a>    <span class="k">def</span> <span class="nf">add_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Payload</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;payload must be of type Payload&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">payloads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="iFuzzer.add_payload_from_string"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.add_payload_from_string">[docs]</a>    <span class="k">def</span> <span class="nf">add_payload_from_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">payload_str</span><span class="p">,</span> <span class="n">check_type_list</span><span class="p">):</span>
+
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="n">payload_str</span><span class="p">,</span> <span class="n">check_type_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payloads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="iFuzzer.add_target_from_url"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.add_target_from_url">[docs]</a>    <span class="k">def</span> <span class="nf">add_target_from_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+
+        <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="iFuzzer.add_target"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.add_target">[docs]</a>    <span class="k">def</span> <span class="nf">add_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">target</span><span class="p">)</span> <span class="o">!=</span> <span class="n">Target</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;target must be of type Target&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="iFuzzer.generate_fuzzy_targets"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.generate_fuzzy_targets">[docs]</a>    <span class="k">def</span> <span class="nf">generate_fuzzy_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="iFuzzer.replace_param_value"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.replace_param_value">[docs]</a>    <span class="k">def</span> <span class="nf">replace_param_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">replacement_string</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Replace a parameter in a url with another string. Returns</span>
+<span class="sd">        a fully reassembled url as a string.&#39;&#39;&#39;</span>
+
+        <span class="n">url_parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">query_dic</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">url_parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="c">#!potential bug here? This expects a list, but seems to work        </span>
+        <span class="n">query_dic</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">replacement_string</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">query_dic</span><span class="p">[</span><span class="n">param</span><span class="p">]]</span>
+
+        <span class="c">#this incidentally will also automatically url-encode the payload (thanks urlencode!)</span>
+        <span class="c">#!might cause some incorrect query params and keys with utf-8, needs more testing</span>
+        <span class="n">str_query_dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">query_dic</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">str_query_dic</span><span class="p">[</span><span class="nb">unicode</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">,</span> <span class="s">&#39;replace&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">,</span> <span class="s">&#39;replace&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+
+        <span class="n">query_reassembled</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">str_query_dic</span><span class="p">,</span> <span class="n">doseq</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+        <span class="c">#3rd element is always the query, replace query with our own</span>
+        <span class="n">url_list_parsed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">url_parsed</span><span class="p">)</span>
+        <span class="n">url_list_parsed</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_reassembled</span>
+        <span class="n">url_parsed_q_replaced</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">url_list_parsed</span><span class="p">)</span>
+        <span class="n">url_reassembled</span> <span class="o">=</span> <span class="n">urlunparse</span><span class="p">(</span><span class="n">url_parsed_q_replaced</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">url_reassembled</span>
+    </div>
+<div class="viewcode-block" id="iFuzzer.append_to_param"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.append_to_param">[docs]</a>    <span class="k">def</span> <span class="nf">append_to_param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">append_string</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Append a value to a parameter&#39;&#39;&#39;</span>
+
+        <span class="n">url_parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">query_dic</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">url_parsed</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
+        <span class="c">#!potential bug here? This expects a list, but seems to work        </span>
+        <span class="n">query_dic</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="n">append_string</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">query_dic</span><span class="p">[</span><span class="n">param</span><span class="p">]]</span>
+
+        <span class="c">#this incidentally will also automatically url-encode the payload (thanks urlencode!)</span>
+        <span class="c">#!might cause some incorrect query params and keys with utf-8, needs more testing</span>
+        <span class="n">str_query_dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">query_dic</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">str_query_dic</span><span class="p">[</span><span class="nb">unicode</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">,</span> <span class="s">&#39;replace&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">,</span> <span class="s">&#39;replace&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
+
+        <span class="n">query_reassembled</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span><span class="n">str_query_dic</span><span class="p">,</span> <span class="n">doseq</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+
+        <span class="c">#3rd element is always the query, replace query with our own</span>
+        <span class="n">url_list_parsed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">url_parsed</span><span class="p">)</span>
+        <span class="n">url_list_parsed</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_reassembled</span>
+        <span class="n">url_parsed_q_replaced</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">url_list_parsed</span><span class="p">)</span>
+        <span class="n">url_reassembled</span> <span class="o">=</span> <span class="n">urlunparse</span><span class="p">(</span><span class="n">url_parsed_q_replaced</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">url_reassembled</span>
+</div>
+<div class="viewcode-block" id="iFuzzer.determine_posts_from_targets"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.determine_posts_from_targets">[docs]</a>    <span class="k">def</span> <span class="nf">determine_posts_from_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dedupe</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mreq</span><span class="o">.</span><span class="n">get_post_requests_from_targets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">)</span>
+        <span class="n">identified_posts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mreq</span><span class="o">.</span><span class="n">identified_post_requests</span>            
+
+        <span class="c">#dedupe posts if relevant</span>
+        <span class="n">identified_posts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">identified_posts</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">identified_posts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ip</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">targets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="iFuzzer.fuzz"><a class="viewcode-back" href="../../../massweb.fuzzers.html#massweb.fuzzers.ifuzzer.iFuzzer.fuzz">[docs]</a>    <span class="k">def</span> <span class="nf">fuzz</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Not Implemented Error&quot;</span><span class="p">)</span>
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s">&quot;http://www.hyperiongray.com/?q=3234&amp;&amp;q=55555&amp;x=33&quot;</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="s">&quot;q&quot;</span>
+    <span class="n">append_string</span><span class="o">=</span> <span class="s">&quot; AND 1=1&quot;</span>
+    <span class="n">ifuz</span> <span class="o">=</span> <span class="n">iFuzzer</span><span class="p">()</span>
+    <span class="k">print</span> <span class="n">ifuz</span><span class="o">.</span><span class="n">append_to_param</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">append_string</span><span class="p">)</span>
+
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">MassWeb</a></h1>
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/intro.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_static/usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../massweb.html">massweb</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Alejandro Caceres, Chris Koepke.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

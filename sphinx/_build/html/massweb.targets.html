@@ -62,107 +62,42 @@
 <h1>targets<a class="headerlink" href="#targets" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-massweb.targets.crawl_target">
 <span id="crawl-target"></span><h2>crawl_target<a class="headerlink" href="#module-massweb.targets.crawl_target" title="Permalink to this headline">¶</a></h2>
-<p>CrawlTarget: MassCrawl adapted Target type</p>
 <dl class="class">
 <dt id="massweb.targets.crawl_target.CrawlTarget">
-<em class="property">class </em><tt class="descclassname">massweb.targets.crawl_target.</tt><tt class="descname">CrawlTarget</tt><big>(</big><em>url</em>, <em>data=None</em>, <em>ttype='get'</em>, <em>status='unfetched'</em><big>)</big><a class="headerlink" href="#massweb.targets.crawl_target.CrawlTarget" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.targets.crawl_target.</tt><tt class="descname">CrawlTarget</tt><big>(</big><em>url</em>, <em>data=None</em>, <em>ttype='get'</em>, <em>status='unfetched'</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/crawl_target.html#CrawlTarget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.crawl_target.CrawlTarget" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.targets.target.Target" title="massweb.targets.target.Target"><tt class="xref py py-class docutils literal"><span class="pre">massweb.targets.target.Target</span></tt></a></p>
-<p>Target type which addes the status property to allow MassCrawl to keep
-track of it&#8217;s state.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.targets.fuzzy_target">
 <span id="fuzzy-target"></span><h2>fuzzy_target<a class="headerlink" href="#module-massweb.targets.fuzzy_target" title="Permalink to this headline">¶</a></h2>
-<p>FuzzyTarget type/prototype</p>
 <dl class="class">
 <dt id="massweb.targets.fuzzy_target.FuzzyTarget">
-<em class="property">class </em><tt class="descclassname">massweb.targets.fuzzy_target.</tt><tt class="descname">FuzzyTarget</tt><big>(</big><em>url</em>, <em>unfuzzed_url</em>, <em>fuzzy_param</em>, <em>ttype='get'</em>, <em>data=None</em>, <em>payload=None</em>, <em>unfuzzed_data=None</em><big>)</big><a class="headerlink" href="#massweb.targets.fuzzy_target.FuzzyTarget" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.targets.fuzzy_target.</tt><tt class="descname">FuzzyTarget</tt><big>(</big><em>url</em>, <em>unfuzzed_url</em>, <em>fuzzy_param</em>, <em>ttype='get'</em>, <em>data=None</em>, <em>payload=None</em>, <em>unfuzzed_data=None</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/fuzzy_target.html#FuzzyTarget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.fuzzy_target.FuzzyTarget" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#massweb.targets.target.Target" title="massweb.targets.target.Target"><tt class="xref py py-class docutils literal"><span class="pre">massweb.targets.target.Target</span></tt></a></p>
-<p>Target type for targets with their fuzzing precursors.</p>
-<dl class="method">
-<dt id="massweb.targets.fuzzy_target.FuzzyTarget.__eq__">
-<tt class="descname">__eq__</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#massweb.targets.fuzzy_target.FuzzyTarget.__eq__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Test whether this object and another FuzzyTarget object are equal
-based on the URL, payload, and request type.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.targets.fuzzy_target.FuzzyTarget.__hash__">
-<tt class="descname">__hash__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.targets.fuzzy_target.FuzzyTarget.__hash__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a has of the URL, payload, request type, and ?data?.</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.targets.fuzzy_target_group">
 <span id="fuzzy-target-group"></span><h2>fuzzy_target_group<a class="headerlink" href="#module-massweb.targets.fuzzy_target_group" title="Permalink to this headline">¶</a></h2>
-<p>FuzzyTargetGroup: a group of FuzzyTarget objects</p>
 <dl class="class">
 <dt id="massweb.targets.fuzzy_target_group.FuzzyTargetGroup">
-<em class="property">class </em><tt class="descclassname">massweb.targets.fuzzy_target_group.</tt><tt class="descname">FuzzyTargetGroup</tt><big>(</big><em>fuzzy_targets=None</em><big>)</big><a class="headerlink" href="#massweb.targets.fuzzy_target_group.FuzzyTargetGroup" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.targets.fuzzy_target_group.</tt><tt class="descname">FuzzyTargetGroup</tt><big>(</big><em>fuzzy_targets=None</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/fuzzy_target_group.html#FuzzyTargetGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.fuzzy_target_group.FuzzyTargetGroup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>FuzzyTargetGroup type</p>
 <dl class="method">
 <dt id="massweb.targets.fuzzy_target_group.FuzzyTargetGroup.add_target">
-<tt class="descname">add_target</tt><big>(</big><em>fuzzy_target</em><big>)</big><a class="headerlink" href="#massweb.targets.fuzzy_target_group.FuzzyTargetGroup.add_target" title="Permalink to this definition">¶</a></dt>
-<dd><p>add FuzzyTarget to the group
-fuzzy_target    ... guess ...</p>
-</dd></dl>
+<tt class="descname">add_target</tt><big>(</big><em>fuzzy_target</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/fuzzy_target_group.html#FuzzyTargetGroup.add_target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.fuzzy_target_group.FuzzyTargetGroup.add_target" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-massweb.targets.target">
 <span id="target"></span><h2>target<a class="headerlink" href="#module-massweb.targets.target" title="Permalink to this headline">¶</a></h2>
-<p>Target type/prototype</p>
 <dl class="class">
 <dt id="massweb.targets.target.Target">
-<em class="property">class </em><tt class="descclassname">massweb.targets.target.</tt><tt class="descname">Target</tt><big>(</big><em>url</em>, <em>data=None</em>, <em>ttype='get'</em><big>)</big><a class="headerlink" href="#massweb.targets.target.Target" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">massweb.targets.target.</tt><tt class="descname">Target</tt><big>(</big><em>url</em>, <em>data=None</em>, <em>ttype='get'</em><big>)</big><a class="reference internal" href="_modules/massweb/targets/target.html#Target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#massweb.targets.target.Target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<p>Target prototype:
-contains the url, request type, and data (POST request payload as dict)</p>
-<dl class="method">
-<dt id="massweb.targets.target.Target.__eq__">
-<tt class="descname">__eq__</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#massweb.targets.target.Target.__eq__" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Test whether this object and another Target object are equal based</dt>
-<dd>on the url, request type, and data contents.</dd>
-</dl>
-<p>other   Target object to compare to this object.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.targets.target.Target.__hash__">
-<tt class="descname">__hash__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.targets.target.Target.__hash__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a hash of the url, request type, and data</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.targets.target.Target.__str__">
-<tt class="descname">__str__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.targets.target.Target.__str__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the URL as a UTF-8 str.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="massweb.targets.target.Target.__unicode__">
-<tt class="descname">__unicode__</tt><big>(</big><big>)</big><a class="headerlink" href="#massweb.targets.target.Target.__unicode__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the URL as a unicode object</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="massweb.targets.target.Target.domain">
-<tt class="descname">domain</tt><a class="headerlink" href="#massweb.targets.target.Target.domain" title="Permalink to this definition">¶</a></dt>
-<dd><p>The domain part of the URL of this Target.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="massweb.targets.target.Target.path">
-<tt class="descname">path</tt><a class="headerlink" href="#massweb.targets.target.Target.path" title="Permalink to this definition">¶</a></dt>
-<dd><p>return the path portion of the URL of this Target.</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>
