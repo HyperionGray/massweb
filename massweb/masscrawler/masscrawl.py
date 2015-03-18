@@ -178,7 +178,7 @@ class MassCrawl(object):
               request_timeout=10,
               proxy_list=None,
               stay_in_scope=True,
-              max_links=10, dedupe=True):
+              max_links=20, dedupe=True):
 
         for _ in range(depth):
             logger.info("Entering the fetch phase at depth %d", depth)
