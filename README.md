@@ -1,20 +1,24 @@
-===Author===
+# Author
 
 Hyperion Gray, LLC
 http://www.hyperiongray.com
 
-===Purpose===
+# Purpose
 
 MassWeb is a simple, scalable and super-fast web app fuzzer. It can also be used for mass requests of HTTP resources.
 
-===Documentation===
+# Documentation
 
 https://hyperiongray.atlassian.net/wiki/display/PUB/MassWeb
 
-===License===
+# License
 
 MassWeb is released under the Apache 2.0 License.
 
-===Issues===
+# Issues
 
 MassWeb is currently beta software, all issues should be directed to our BitBucket repo: https://bitbucket.org/acaceres/massweb/issues
+
+---
+
+[![define hyperion gray](https://hyperiongray.s3.amazonaws.com/define-hg.svg)](https://hyperiongray.com/?pk_campaign=github&pk_kwd=massweb "Hyperion Gray")
