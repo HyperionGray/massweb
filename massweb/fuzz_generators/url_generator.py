@@ -1,7 +1,6 @@
 """ Some helpers to generate URLs for fuzzing. """
 
-from urlparse import parse_qs, urlparse, urlunparse
-from urllib import urlencode
+from urllib.parse import parse_qs, urlparse, urlunparse, urlencode
 
 import logging
 logger = logging.getLogger("url_generator")
@@ -59,8 +58,8 @@ def _update_query(url, param, value, append=False):
 def _convert_query_to_utf8(query_dic):
     """ Convert items in dict to utf-8 encoded str. """
     utf8_query_dic = {}
-    for k, v in query_dic.iteritems():
-        utf8_query_dic[unicode(k).encode('utf-8', 'replace')] = [x.encode('utf-8', 'replace') for x in v]
+    for k, v in query_dic.items():
+        utf8_query_dic[str(k).encode('utf-8', 'replace')] = [x.encode('utf-8', 'replace') for x in v]
     return utf8_query_dic
 
 

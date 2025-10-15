@@ -4,7 +4,7 @@ from __future__ import division
 import sys
 import codecs
 import logging
-from urlparse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs
 
 from requests import Response
 from requests.exceptions import HTTPError
@@ -24,8 +24,11 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
 logger = logging.getLogger('BSQLIFuzzer')
 logger.setLevel(logging.INFO)
 
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+# force stdin and stderr to use utf-8
+# In Python 3, sys.stdin/stderr are already text streams with encoding
+if hasattr(sys.stdin, 'buffer'):
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 
 class BSQLiFuzzer(iFuzzer):
@@ -176,7 +179,7 @@ class BSQLiFuzzer(iFuzzer):
         #FIXME: Investigate this -> i have no idea why an empty list has to be
         #    called to reinstantiate this object properly?
         fuzzy_target_groups = []
-        for query_param, _ in url_q_dic.iteritems():
+        for query_param, _ in url_q_dic.items():
             ftg = FuzzyTargetGroup()
             true_fuzzy_url = self.append_to_param(url, query_param, str(bsqli_payload_group.true_payload))
             true_fuzzy_target = FuzzyTarget(true_fuzzy_url, url, query_param, "get", payload=bsqli_payload_group.true_payload)

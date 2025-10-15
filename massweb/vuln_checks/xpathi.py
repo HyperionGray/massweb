@@ -21,7 +21,7 @@ class XPathICheck(object):
             'Cannot convert expression to a number',
             'Document Axis does not allow any context Location Steps',
             'Empty Path Expression',
-            'DOMXPath::'
+            'DOMXPath::',
             'Empty Relative Location Path',
             'Empty Union Expression',
             "Expected ')' in",

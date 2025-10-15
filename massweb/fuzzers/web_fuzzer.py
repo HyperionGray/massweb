@@ -3,7 +3,7 @@
 import codecs
 import logging
 import sys
-from urlparse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse
 
 from massweb.fuzzers.ifuzzer import iFuzzer
 
@@ -28,8 +28,10 @@ logger = logging.getLogger('WebFuzzer')
 logger.setLevel(logging.DEBUG)
 
 # force stdin and stderr to use utf-8
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+# In Python 3, sys.stdin/stderr are already text streams with encoding
+if hasattr(sys.stdin, 'buffer'):
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 GET = "get"
 POST = "post"
@@ -92,7 +94,7 @@ class WebFuzzer(iFuzzer):
         parsed_url_query = parsed_url.query
         url_q_dic = parse_qs(parsed_url_query)
         fuzzy_targets = []
-        for query_param, _ in url_q_dic.iteritems():
+        for query_param, _ in url_q_dic.items():
             for payload in self.payloads:
                 fuzzy_url = (self.replace_param_value(url, query_param,
                                                       str(payload)))

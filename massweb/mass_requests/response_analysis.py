@@ -10,8 +10,10 @@ from requests import Response
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('response_analysis.parse_worthy')
 logger.setLevel(logging.INFO)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+# In Python 3, sys.stdin/stderr are already text streams with encoding
+if hasattr(sys.stdin, 'buffer'):
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 
 def parse_worthy(response, max_parse_size=5000000, content_type_match="text",
@@ -102,7 +104,7 @@ def _is_correct_content_length(response, max_parse_size, hadoop_reporting):
 if __name__ == "__main__":
  
     r = requests.get("http://www.ada.gov/hospcombrprt.pdf")
-    print parse_worthy(r)
+    print(parse_worthy(r))
 
 
 
