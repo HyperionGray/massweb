@@ -4,7 +4,6 @@ import logging
 import sys
 
 from multiprocessing import Pool
-from sets import Set
 
 from massweb.pnk_net.pnk_request import pnk_request_raw
 from massweb.pnk_net.find_post import find_post_requests
@@ -14,8 +13,10 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassRequest')
 logger.setLevel(logging.DEBUG)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+# In Python 3, sys.stdin/stderr are already text streams with encoding
+if hasattr(sys.stdin, 'buffer'):
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 
 IDENTIFY_POSTS = 'identify_post'
@@ -236,7 +237,7 @@ class MassRequest(object):
             set their respnse to __PNK_THREAD_TIMEOUT
         """
         logger.debug("In MassRequest.list_diff")
-        list_diff = Set(self.attempted).difference(Set(self.finished))
+        list_diff = set(self.attempted).difference(set(self.finished))
         self.clear_lists()
         for url in list_diff:
             logger.debug("failed target of type: %s", url.__class__.__name__)
@@ -262,8 +263,8 @@ class MassRequest(object):
         """
         if isinstance(item, Target):
             return item
-        elif isinstance(item, basestring):
-            return Target(unicode(item), request_type)
+        elif isinstance(item, str):
+            return Target(str(item), request_type)
         elif isinstance(item, list) or isinstance(item, tuple):
             url, data = item
             return Target(url, request_type, data)
@@ -283,13 +284,13 @@ class MassRequest(object):
             if not isinstance(item, item_type):
                 return TypeError("%s of type %s is required for %s." % (type_desc, item_type.__name__, arg_name))
 
-    def _check_method_input_single(self, arg, arg_name, item_type=basestring, type_desc="string"):
+    def _check_method_input_single(self, arg, arg_name, item_type=str, type_desc="string"):
         """ Helper that checks the input of a method to ensure the correct
             type and value.
 
         arg         Argument passed to the parent method.
         arg_name    Name of argument passed as arg for error output.
-        item_type   Expected type of arg. Default basestring.
+        item_type   Expected type of arg. Default str.
         type_desc   Label for the type of the object passed as arg. Default "string".
         """
         if not arg:
