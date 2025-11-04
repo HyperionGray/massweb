@@ -1,6 +1,6 @@
 """ Target type/prototype """
 
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 class Target(object):
     """ Target prototype:

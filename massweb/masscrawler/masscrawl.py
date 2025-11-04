@@ -2,7 +2,7 @@
 """ MassCrawl is the crawler/spider part of MassWeb """
 
 import sys
-from urlparse import urlparse
+from urllib.parse import urlparse
 import codecs
 import logging
 
@@ -20,8 +20,10 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassCrawlLogger')
 logger.setLevel(logging.DEBUG)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+# In Python 3, sys.stdin/stderr are already text streams with encoding
+if hasattr(sys.stdin, 'buffer'):
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 
 class MassCrawl(object):

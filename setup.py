@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-print "Executing setup!!"
+print("Executing setup!!")
 setup(
     name = 'massweb',
     version = '0.3.0',
@@ -16,6 +16,12 @@ setup(
     install_requires = ['requests', 'beautifulsoup4', 'html5lib', 'alabaster', 'sphinxcontrib-napoleon'],
     classifiers = [ "Development Status :: 4 - Beta",
                     'Intended Audience :: Developers',
-                    'Programming Language :: Python :: 2.7',
+                    'Programming Language :: Python :: 3',
+                    'Programming Language :: Python :: 3.7',
+                    'Programming Language :: Python :: 3.8',
+                    'Programming Language :: Python :: 3.9',
+                    'Programming Language :: Python :: 3.10',
+                    'Programming Language :: Python :: 3.11',
+                    'Programming Language :: Python :: 3.12',
                     'Programming Language :: Python']
 )

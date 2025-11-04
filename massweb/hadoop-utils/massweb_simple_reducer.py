@@ -1,12 +1,12 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 
 import json
 import sys
-import urlparse
+import urllib.parse
 import traceback
 
 for line in sys.stdin:
 
     line = line.strip()
     domain_in, result_dic_in = line.split("\t")
-    print domain_in + "\t" + result_dic_in
+    print(domain_in + "\t" + result_dic_in)

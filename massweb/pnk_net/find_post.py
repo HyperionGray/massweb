@@ -1,15 +1,16 @@
 import os 
 from bs4 import BeautifulSoup, SoupStrainer
 import sys
-from urlparse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse, urljoin
 import traceback
 from requests.exceptions import ConnectionError
-import urllib
+import urllib.request
+import urllib.parse
+import urllib.error
 import requests
 from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.targets.target import Target
 from massweb.pnk_net.pnk_request import pnk_request_raw
-from urlparse import urljoin
 import codecs
 import logging
 from logging import StreamHandler
@@ -17,7 +18,9 @@ from bs4.element import Tag
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('find_post')
 logger.setLevel(logging.INFO)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+# In Python 3, sys.stdin/stderr are already text streams with encoding
+if hasattr(sys.stdin, 'buffer'):
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
 sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 GET = "get"
@@ -69,7 +72,7 @@ def find_post_requests(**kwargs):
             except:
                 continue
             try:
-                value = urllib.quote_plus(elem["value"])
+                value = urllib.parse.quote_plus(elem["value"])
             except:
                 if hadoop_reporting:
                     logger.warn("Handled exception: ", exc_info=True)

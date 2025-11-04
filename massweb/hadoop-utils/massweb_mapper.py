@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from urlparse import urlparse
+from urllib.parse import urlparse
 import sys
 from massweb.fuzzers.get_fuzzer import GetFuzzer
 
@@ -30,7 +30,7 @@ def fuzz_and_print_results(gf):
 
         try:
             if True in r.result_dic.values():
-                print urlparse(r.fuzzy_target.url).netloc + "\t" + str(r)
+                print(urlparse(r.fuzzy_target.url).netloc + "\t" + str(r))
         except:
             sys.stderr.write("Failed to fuzz a target!\n")
 

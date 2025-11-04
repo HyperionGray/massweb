@@ -19,23 +19,23 @@
     wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=1")
     wf.add_target_from_url(u"http://www.dobrevsource.org/index.php?id=1")
 
-    print "Targets list pre post determination:"
+    print("Targets list pre post determination:")
     for target in wf.targets:
-        print target
+        print(target)
 
-    print "Targets list after additional injection points have been found:"
+    print("Targets list after additional injection points have been found:")
     wf.determine_posts_from_targets()
     for target in wf.targets:
-        print target.url, target.data
+        print(target.url, target.data)
 
-    print "FuzzyTargets list:"
+    print("FuzzyTargets list:")
     wf.generate_fuzzy_targets()
     for ft in wf.fuzzy_targets:
-        print ft, ft.ttype, ft.data
+        print(ft, ft.ttype, ft.data)
 
-    print "Results of our fuzzing:"
+    print("Results of our fuzzing:")
     for r in wf.fuzz():
-        print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
+        print(r, r.fuzzy_target.ttype, r.fuzzy_target.payload)
 """
 
 from massweb.fuzzers.web_fuzzer import WebFuzzer
@@ -58,22 +58,22 @@ wf.add_target_from_url(u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;amp
 wf.add_target_from_url(u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;amp;typeofsite=snippetdetail&amp;amp;ID=1368&amp;amp;Sectionid=1")
 wf.add_target_from_url(u"http://www.dobrevsource.org/index.php?id=1")
 
-print "Targets list pre post determination:"
+print("Targets list pre post determination:")
 for target in wf.targets:
-    print target
+    print(target)
 
-print "Targets list after additional injection points have been found:"
+print("Targets list after additional injection points have been found:")
 wf.determine_posts_from_targets()
 for target in wf.targets:
-    print target.url, target.data
+    print(target.url, target.data)
 
-print "FuzzyTargets list:"
+print("FuzzyTargets list:")
 wf.generate_fuzzy_targets()
 for ft in wf.fuzzy_targets:
-    print ft, ft.ttype, ft.data
+    print(ft, ft.ttype, ft.data)
 
-print "Results of our fuzzing:"
+print("Results of our fuzzing:")
 for r in wf.fuzz():
-    print r, r.fuzzy_target.ttype, r.fuzzy_target.payload
+    print(r, r.fuzzy_target.ttype, r.fuzzy_target.payload)
 
 

@@ -11,8 +11,10 @@ from massweb.proxy_rotator.proxy_rotate import get_random_proxy
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('pnknet')
 logger.setLevel(logging.DEBUG)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+# In Python 3, sys.stdin/stderr are already text streams with encoding
+if hasattr(sys.stdin, 'buffer'):
+    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 #FIXME: define in central const module
 IDENTIFY_POSTS = 'identify_post'
@@ -28,7 +30,7 @@ def pnk_request_raw(target, request_type=GET, data=None, req_timeout=5,
         proxy = {}
     logger.debug("pnk_request_raw input target type: %s", target.__class__.__name__)
     try:
-        if isinstance(target, basestring):
+        if isinstance(target, str):
             url = target.strip()
         elif isinstance(target, Target):
             url = target.url
@@ -37,7 +39,7 @@ def pnk_request_raw(target, request_type=GET, data=None, req_timeout=5,
                 logger.debug("%s.data %s; data: %s", target.__class__.__name__, target.data, data)
             data = target.data or data
         else:
-            raise TypeError("target must be an instance of Target or basestring not: %s", target.__class__.__name__)
+            raise TypeError("target must be an instance of Target or str not: %s", target.__class__.__name__)
         if request_type == GET:
             if hadoop_reporting:
                 logger.info("GET requesting %s", target)

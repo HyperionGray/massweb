@@ -2,7 +2,7 @@
 
 import json
 import sys
-import urlparse
+import urllib.parse
 import traceback
 
 previous_domain  = None
@@ -26,7 +26,7 @@ for line in sys.stdin:
             previous_domain_vuln_list.append(previous_result_dic)
         else:
             previous_domain_vuln_list.append(previous_result_dic)
-            print previous_domain + "\t" +  json.dumps(previous_domain_vuln_list)
+            print(previous_domain + "\t" +  json.dumps(previous_domain_vuln_list))
             previous_domain_vuln_list = []
 
         previous_domain = domain_in
@@ -40,7 +40,7 @@ try:
 
     if previous_domain == domain_in:
         previous_domain_vuln_list.append(previous_result_dic)
-        print previous_domain + "\t" + json.dumps(previous_domain_vuln_list)
+        print(previous_domain + "\t" + json.dumps(previous_domain_vuln_list))
 except:
     if not previous_domain:
         sys.stderr.write("No results found!")
