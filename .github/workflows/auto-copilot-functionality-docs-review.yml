@@ -212,7 +212,7 @@ jobs:
           cat /tmp/doc-analysis.md
 
       - name: GitHub Copilot Documentation Review
-        uses: github/copilot-cli-action@main
+        uses: github/copilot-cli-actions@v1
         with:
           query: |
             Review the documentation for this repository:
