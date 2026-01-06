@@ -228,7 +228,7 @@ jobs:
               const url = `${baseUrl.replace(/\\/$/, "")}/chat/completions`;
               const payload = { model, messages };
 
-              const isGpt5ish = /gpt-?5/i.test(model) || /^o\\d/i.test(model) || /^o1/i.test(model);
+              const isGpt5ish = /gpt-?5/i.test(model) || /^o\d/i.test(model) || /^o1/i.test(model);
               if (isGpt5ish) {
                 payload.max_completion_tokens = 2048;
               } else {
