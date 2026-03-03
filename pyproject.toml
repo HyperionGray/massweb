@@ -7,7 +7,7 @@ name = "massweb"
 version = "0.3.0"
 description = "Fast Web Fuzzing and Scanning"
 readme = "README.txt"
-license = {text = "Apache 2.0"}
+license = {text = "Apache-2.0"}
 authors = [
     {name = "Alejandro Caceres", email = "contact@hyperiongray.com"},
     {name = "Chris Koepke", email = "me@haxwithaxe.net"}
