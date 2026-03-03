@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "massweb"
+version = "0.3.0"
+description = "Fast Web Fuzzing and Scanning"
+readme = "README.txt"
+license = {text = "Apache 2.0"}
+authors = [
+    {name = "Alejandro Caceres", email = "contact@hyperiongray.com"},
+    {name = "Chris Koepke", email = "me@haxwithaxe.net"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python"
+]
+dependencies = [
+    "requests",
+    "beautifulsoup4",
+    "html5lib",
+    "alabaster",
+    "sphinxcontrib-napoleon"
+]
+
+[project.urls]
+Homepage = "https://bitbucket.org/acaceres/massweb"
