@@ -30,7 +30,10 @@ jobs:
     
     - name: Run tests
       run: |
-        python -m unittest discover -s test -p "test_*.py" -v
+        # Run test files directly (test directory is not a package)
+        for test in test/vuln_checks/test_*.py; do
+          python "$test" || exit 1
+        done
 
   package:
     name: Build and verify package
