@@ -67,7 +67,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 ## Gemini-Specific Information
 
 ### Default Model
-- `gemini-1.5-pro` (if not specified)
+- `gemini-1.5-pro` (used when no specific model is specified in the label)
 
 ### Available Models
 - `gemini-1.5-pro` - Most capable, balanced
