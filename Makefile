@@ -10,7 +10,7 @@ env:
 
 install: env
 
-test:
+test: env
 	PYTHON_BIN="$(VENV_DIR)/bin/python" VENV_DIR="$(VENV_DIR)" ./test/run.sh
 
 docs-html: env
