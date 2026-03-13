@@ -9,7 +9,11 @@ VENV_DIR=${VENV_DIR:-"$REPO_ROOT/env"}
 PYTHON_BIN=${PYTHON_BIN:-python3}
 
 rm -rf "$VENV_DIR"
-"$PYTHON_BIN" -m venv "$VENV_DIR"
+
+if ! "$PYTHON_BIN" -m venv "$VENV_DIR"; then
+    "$PYTHON_BIN" -m pip install --user virtualenv
+    "$PYTHON_BIN" -m virtualenv "$VENV_DIR"
+fi
 
 "$VENV_DIR/bin/python" -m pip install --upgrade pip setuptools wheel
 "$VENV_DIR/bin/pip" install -r "$REPO_ROOT/requirements.txt"

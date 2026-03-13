@@ -34,14 +34,9 @@ steps to start building and testing.
 
 #. Clone the git `massweb_repo`_.
 
-#. Create a virtual environment in your copy of the repository::
+#. Create and install into a clean virtual environment::
 
    $ cd massweb
-   $ python3 -m venv env
-
-#. Activate the virtualenv and run the ``refresh.sh`` script::
-
-   $ source env/bin/activate
    $ ./test/refresh.sh
 
 .. note:: If you are working on the documentation, export ``REFRESH_SPHINX=true`` before running ``refresh.sh`` to install the Sphinx dependencies as well.

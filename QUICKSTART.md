@@ -3,8 +3,6 @@
 ## Set up the development environment
 
 ```bash
-python3 -m venv env
-source env/bin/activate
 ./test/refresh.sh
 ```
 

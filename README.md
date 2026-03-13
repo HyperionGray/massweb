@@ -15,8 +15,6 @@ coding agents.
 ## Quick start
 
 ```bash
-python3 -m venv env
-source env/bin/activate
 ./test/refresh.sh
 ./test/run.sh
 ```
