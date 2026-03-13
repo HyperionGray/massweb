@@ -10,7 +10,9 @@ PYTHON_BIN=${PYTHON_BIN:-python3}
 
 rm -rf "$VENV_DIR"
 
-if ! "$PYTHON_BIN" -m venv "$VENV_DIR"; then
+if "$PYTHON_BIN" -c "import ensurepip" >/dev/null 2>&1; then
+    "$PYTHON_BIN" -m venv "$VENV_DIR"
+else
     "$PYTHON_BIN" -m pip install --user virtualenv
     "$PYTHON_BIN" -m virtualenv "$VENV_DIR"
 fi

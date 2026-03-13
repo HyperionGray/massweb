@@ -7,4 +7,4 @@ REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 PYTHON_BIN=${PYTHON_BIN:-"$REPO_ROOT/env/bin/python"}
 
 cd "$REPO_ROOT/test"
-"$PYTHON_BIN" -m unittest discover -t "$REPO_ROOT"
+"$PYTHON_BIN" -m unittest discover
