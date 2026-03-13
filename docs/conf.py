@@ -127,7 +127,21 @@ html_theme_options = {"github_button": False}
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
-html_theme_path = [alabaster.get_path(), '../env/lib/python2.7/site-packages/alabaster']
+html_theme_path = [alabaster.get_path()]
+
+venv_alabaster = os.path.abspath(
+    os.path.join(
+        os.path.dirname(__file__),
+        '..',
+        'env',
+        'lib',
+        'python%s.%s' % sys.version_info[:2],
+        'site-packages',
+        'alabaster',
+    )
+)
+if os.path.isdir(venv_alabaster):
+    html_theme_path.append(venv_alabaster)
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

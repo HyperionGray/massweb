@@ -21,8 +21,8 @@ class Result(object):
         return to_ret
 
     def __str__(self):
-        """ Return a utf-8 encoded string. """
-        return unicode(self).encode('utf-8', 'replace')
+        """ Return this object as text. """
+        return self.__unicode__()
 
     def __init__(self, fuzzy_target, result_dic=None):
         """ Initialize a Result object.

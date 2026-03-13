@@ -1,8 +1,9 @@
 #!/bin/sh
 
-cd $(dirname $0)
-python=../env/bin/python
+set -eu
 
-$python -m unittest discover -t .
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
+REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+PYTHON_BIN=${PYTHON_BIN:-"$REPO_ROOT/env/bin/python"}
 
-cd -
+"$PYTHON_BIN" -m unittest discover -s "$REPO_ROOT/test" -t "$REPO_ROOT"
