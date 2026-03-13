@@ -1,5 +1,4 @@
 
-import codecs
 import logging
 import sys
 
@@ -11,10 +10,7 @@ from massweb.proxy_rotator.proxy_rotate import get_random_proxy
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('pnknet')
 logger.setLevel(logging.DEBUG)
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 #FIXME: define in central const module
 IDENTIFY_POSTS = 'identify_post'
