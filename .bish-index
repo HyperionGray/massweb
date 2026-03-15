@@ -1,0 +1,11 @@
+./setup.py
+./AGENTS.md
+./massweb/__init__.py
+./docs/conf.py
+./test/util.py
+./test/massweb_tourture.py
+./test/refresh.sh
+./test/test_fuzzers.py
+./test/run.sh
+./test/masscrawl_utils.py
+./test/masscrawl.py
