@@ -135,7 +135,7 @@ venv_alabaster = os.path.abspath(
         '..',
         'env',
         'lib',
-        'python%s.%s' % sys.version_info[:2],
+        'python{}.{}'.format(sys.version_info.major, sys.version_info.minor),
         'site-packages',
         'alabaster',
     )
