@@ -6,4 +6,5 @@ env
 *.log
 *.log.*
 *.diff
+*~
 sphinx/_build/doctrees/
