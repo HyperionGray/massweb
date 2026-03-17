@@ -2,7 +2,9 @@
 
 ## Overview
 
-This repository includes several GitHub Actions workflows that integrate with Large Language Model (LLM) providers for automated code review, issue analysis, and development assistance.
+This repository includes GitHub Actions workflows that integrate with Large Language Model (LLM) providers for automated code review, issue analysis, and development assistance.
+
+This guide focuses on the **3 primary label-triggered workflows** for issue and PR review. Additional AI-powered workflows exist for specialized use cases (e.g., tag-based reviews, automated CI/CD reviews).
 
 ## Supported LLM Providers
 
@@ -151,6 +153,30 @@ claude-3.5-sonnet
 **Important:** The provided workflows (`auto-llm-issue-review.yml` and `auto-llm-pr-review.yml`) use `concurrency.cancel-in-progress: true` per issue/PR. If you add multiple labels in quick succession, earlier runs will usually be cancelled, so you will typically only see the _latest_ provider’s review comment. To get separate comments from multiple providers, either:
 - Add and process one label at a time (wait for each workflow run to finish before adding the next label), or
 - Fork/adjust the workflows to change the `concurrency` settings so multiple provider runs can complete in parallel.
+
+## Additional AI Workflows
+
+Beyond the 3 primary label-triggered workflows documented above, this repository includes additional AI-powered automation:
+
+### Tag-based Code Review (`auto-tag-based-review.yml`)
+- **Trigger**: Push of specific Git tags (`e2eweekly`, `weeklyreview`, `e2e-*`, `review-*`) or manual dispatch
+- **Purpose**: Scheduled or tag-triggered comprehensive code reviews
+- **AI Models**: Supports manual selection via workflow dispatch (GPT-5, Gemini, AmazonQ, etc.)
+- **Use Case**: Periodic comprehensive reviews or milestone-based analysis
+
+### AmazonQ Review (`auto-amazonq-review.yml`)
+- **Trigger**: After specific GitHub Copilot workflows complete, on push to main branches, or manual dispatch
+- **Purpose**: Secondary AI review using Amazon Q
+- **AI Models**: Defaults to AmazonQ, supports Gemini, GPT-5, Codex via manual dispatch
+- **Use Case**: Complementary review perspective after initial Copilot analysis
+
+### Complete CI/CD Review (`auto-complete-cicd-review.yml`)
+- **Trigger**: Scheduled (every 12 hours), on push/PR, or manual dispatch
+- **Purpose**: Multi-stage review pipeline (cleanliness → tests → docs → functionality)
+- **Use Case**: Comprehensive automated quality assurance
+- **Note**: Uses GitHub Copilot agents for different review stages
+
+These workflows use AI models but are triggered differently than the label-based workflows and serve specialized automation purposes.
 
 <!--
 Summary of changes:
