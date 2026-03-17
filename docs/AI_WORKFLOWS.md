@@ -13,7 +13,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 ### 2. Gemini (Google AI)
 - Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash, etc.
-- Trigger labels: `gemini:*`, `gemini-*`, `llm:gemini:*`
+- Trigger labels: `gemini`, `gemini:*`, `gemini-*`, `llm:gemini`, `llm:gemini:*`
 - Environment: Requires `GEMINI_API_KEY` secret
 
 ### 3. Anthropic (Claude)
@@ -33,6 +33,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 **Label Formats**:
 - Provider-specific: `openai:gpt-4`, `gemini:gemini-1.5-pro`, `anthropic:claude-3`
+- Provider-only (uses defaults): `openai`, `gemini`, `anthropic`, `llm:openai`, `llm:gemini`, `llm:anthropic`
 - Short format: `gpt-4`, `claude-3.5-sonnet`
 - Generic: `llm:<provider>:<model>`
 
@@ -53,6 +54,8 @@ This repository includes several GitHub Actions workflows that integrate with La
 - Analyzes code changes in the PR
 - Provides suggestions and identifies issues
 - Posts review as PR comment
+- Supports provider-only labels with default model fallback
+- Supports generic review label (`ai-review` by default) using repo defaults
 
 ### Advance Ball (`auto-advance-ball.yml`)
 
@@ -68,6 +71,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 ### Default Model
 - `gemini-1.5-pro` (recommended default model for most use cases)
+- Labels `gemini` and `llm:gemini` resolve to this default model
 
 ### Available Models
 - `gemini-1.5-pro` - Most capable, balanced
@@ -88,6 +92,8 @@ gemini:gemini-1.5-pro          # Recommended default model label
 gemini:gemini-1.5-flash        # Specific model
 gemini-2.0-flash               # Direct model name label
 llm:gemini:gemini-1.5-pro      # Explicit format
+gemini                         # Provider-only label, uses default model
+llm:gemini                     # Provider-only explicit format, uses default model
 ```
 
 ## Setup Requirements
@@ -105,8 +111,17 @@ ANTHROPIC_API_KEY   # For Anthropic/Claude
 ```
 LLM_PROVIDER        # Default provider
 LLM_MODEL           # Default model
+LLM_REVIEW_LABEL    # Generic review label (default: ai-review)
 OPENAI_BASE_URL     # Custom OpenAI endpoint
 ```
+
+### Built-in Provider Defaults
+
+When provider-only labels are used (for example `gemini`, `openai`, `anthropic`), workflows fall back to these default models unless `LLM_MODEL` is set:
+
+- OpenAI: `gpt-5`
+- Gemini: `gemini-1.5-pro`
+- Anthropic: `claude-3-5-sonnet-latest`
 
 ## Testing
 

@@ -67,9 +67,12 @@ for page in pages:
 
 ### Available AI Labels
 
-- `gemini` - Google Gemini (default model)
+- `gemini` - Google Gemini (defaults to `gemini-1.5-pro`)
 - `gpt-4` - OpenAI GPT-4
 - `claude-3.5-sonnet` - Anthropic Claude
+- `openai` - OpenAI with default model (`gpt-5`)
+- `anthropic` - Anthropic with default model (`claude-3-5-sonnet-latest`)
+- `ai-review` - Generic review label (uses configured `LLM_PROVIDER` and `LLM_MODEL` defaults)
 
 For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 

@@ -103,6 +103,11 @@ jobs:
             const providerFromEnv = (process.env.LLM_PROVIDER || "openai").trim().toLowerCase();
             const modelOverride = (process.env.LLM_MODEL || "").trim();
             const marker = "<!-- llm-pr-review -->";
+            const DEFAULT_MODELS = {
+              openai: "gpt-5",
+              gemini: "gemini-1.5-pro",
+              anthropic: "claude-3-5-sonnet-latest",
+            };
 
             const prResp = await github.rest.pulls.get({
               owner,
@@ -116,6 +121,7 @@ jobs:
             function parseProviderModelFromLabel(label) {
               const raw = String(label || "").trim();
               if (!raw) return null;
+              const lowered = raw.toLowerCase();
 
               // Explicit formats:
               // - llm:<provider>:<model>
@@ -123,8 +129,17 @@ jobs:
               let m = raw.match(/^llm:([^:]+):(.+)$/i);
               if (m) return { provider: m[1].toLowerCase(), model: m[2].trim(), raw };
 
+              // Provider-only explicit format:
+              // - llm:<provider>
+              m = raw.match(/^llm:(openai|gemini|anthropic)$/i);
+              if (m) return { provider: m[1].toLowerCase(), model: "", raw };
+
               m = raw.match(/^(openai|gemini|anthropic):(.+)$/i);
               if (m) return { provider: m[1].toLowerCase(), model: m[2].trim(), raw };
+
+              if (lowered === "openai" || lowered === "gemini" || lowered === "anthropic") {
+                return { provider: lowered, model: "", raw };
+              }
 
               // Short formats based on common model prefixes
               if (/^gpt-/i.test(raw) || /^o\d/i.test(raw) || /^o1/i.test(raw)) {
@@ -132,7 +147,13 @@ jobs:
               }
               if (/^gemini/i.test(raw)) {
                 const model = raw.toLowerCase() === "gemini3" ? "gemini-3" : raw;
+                if (model.toLowerCase() === "gemini") {
+                  return { provider: "gemini", model: "", raw };
+                }
                 return { provider: "gemini", model, raw };
+              }
+              if (/^claude$/i.test(raw)) {
+                return { provider: "anthropic", model: "", raw };
               }
               if (/^claude-/i.test(raw)) {
                 return { provider: "anthropic", model: raw, raw };
@@ -333,12 +354,17 @@ jobs:
 
             if (labelParsed) {
               provider = labelParsed.provider;
-              chosenModel = labelParsed.model;
+              chosenModel = labelParsed.model || chosenModel;
               chosenLabel = labelParsed.raw;
             }
 
+            chosenModel = chosenModel || DEFAULT_MODELS[provider] || "";
+            if (!chosenModel) {
+              core.setFailed(`Unable to determine model for provider '${provider}'.`);
+              return;
+            }
+
             if (provider === "openai") {
-              chosenModel = chosenModel || "gpt-5";
               reviewText = await callOpenAI({
                 apiKey: process.env.OPENAI_API_KEY,
                 baseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
@@ -349,14 +375,12 @@ jobs:
                 ],
               });
             } else if (provider === "gemini") {
-              chosenModel = chosenModel || "gemini-1.5-pro";
               reviewText = await callGemini({
                 apiKey: process.env.GEMINI_API_KEY,
                 model: chosenModel,
                 prompt: `${systemPrompt}\n\n${userPrompt}`,
               });
             } else if (provider === "anthropic") {
-              chosenModel = chosenModel || "claude-3-5-sonnet-latest";
               reviewText = await callAnthropic({
                 apiKey: process.env.ANTHROPIC_API_KEY,
                 model: chosenModel,
