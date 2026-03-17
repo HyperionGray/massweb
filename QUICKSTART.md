@@ -57,7 +57,7 @@ for page in pages:
 
 1. **Test Gemini on an Issue**:
    - Create or open any issue in this repository
-   - Add the label: `gemini`
+   - Add the label: `gemini:gemini-1.5-pro`
    - Wait for the automated review comment
 
 2. **Test Gemini on a Pull Request**:
@@ -67,7 +67,8 @@ for page in pages:
 
 ### Available AI Labels
 
-- `gemini` - Google Gemini (default model)
+- `gemini:gemini-1.5-pro` - Google Gemini 1.5 Pro (recommended default)
+- `gemini:gemini-1.5-flash` - Google Gemini 1.5 Flash (faster, cheaper)
 - `gpt-4` - OpenAI GPT-4
 - `claude-3.5-sonnet` - Anthropic Claude
 
