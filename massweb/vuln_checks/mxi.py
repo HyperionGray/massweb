@@ -6,7 +6,6 @@ from massweb.vuln_checks.check import Check
 class MXICheck(Check):
     """ Mail Form Injection Checker: Checks for evidence of successful mail
         form injection in result from fuzzers. """
-        #FIXME: Add brief description of attack
 
     def __init__(self):
         """ Initialize the object and normalize the strings used to check for

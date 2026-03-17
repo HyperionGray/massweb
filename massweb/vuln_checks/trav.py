@@ -7,7 +7,6 @@ from massweb.vuln_checks.check import Check
 class TravCheck(Check):
     """ Directory Traversal Checker: Checks for evidence of successful
         directory traversal in result from fuzzers."""
-    #FIXME: Add brief description of the attack
 
     def __init__(self):
         """ Initialize the object and normalize the strings used to check for

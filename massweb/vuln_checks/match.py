@@ -47,14 +47,13 @@ def parse_match(str_in, tag, match):
 
     returns True if a match is found and False if no match is found.
     """
-    #FIXME: tag is unused should it be used in place of 'script'? PNKTHR-52
     # Use html.parser instead of html5lib because html5lib strips script content
     for script in BeautifulSoup(str_in, 'html.parser').find_all(tag):
         try:
             script_text = script.get_text()
             if match_string(script_text, match):
                 return True
-        except: #FIXME: specify exception types
+        except Exception:
             logger.debug("Failed while parsing response content for tag '%s'",
                          tag, exc_info=True)
             continue

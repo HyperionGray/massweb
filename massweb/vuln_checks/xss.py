@@ -6,7 +6,6 @@ from massweb.vuln_checks.check import Check
 class XSSCheck(Check):
     """ Cross (X) Site Scripting Checker: Checks for evidence of successful
         cross site scripting in result from fuzzers. """
-        #FIXME: Add brief description of the attack
 
     def __init__(self):
         """ Initialize the object and normalize the strings used to check for

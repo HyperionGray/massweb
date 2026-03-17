@@ -5,7 +5,6 @@ from massweb.vuln_checks.check import Check
 
 class SQLICheck(Check):
     """ SQL Injection Checker: Checks for evidence of successful SQL injection in result from fuzzers."""
-    #FIXME: Add breif description of the attack
 
     def __init__(self):
         """ Initialize the object and normalize the strings used to check for
