@@ -36,14 +36,14 @@ for result in results:
 ### Mass Crawling
 
 ```python
-from massweb.masscrawler import MassCrawler
+from massweb.masscrawler.masscrawl import MassCrawl
 from massweb.targets import CrawlTarget
 
 # Create crawl target
-target = CrawlTarget("http://example.com", max_depth=3)
+target = CrawlTarget("http://example.com")
 
 # Run crawler
-crawler = MassCrawler(target)
+crawler = MassCrawl(target)
 pages = crawler.crawl()
 
 # View discovered pages
