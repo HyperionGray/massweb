@@ -61,6 +61,21 @@ for page in pages:
     print(page.url)
 ```
 
+### Build BSQLI Paired Target Groups
+
+Use `FuzzyTargetGroup.add_targets()` when you need to add a true/false pair
+of fuzzed targets in one step:
+
+```python
+from massweb.targets.fuzzy_target_group import FuzzyTargetGroup
+
+group = FuzzyTargetGroup()
+group.add_targets([true_fuzzy_target, false_fuzzy_target])
+```
+
+This keeps paired payload targets grouped together consistently and simplifies
+fuzzer setup code.
+
 ## Using AI-Powered Workflows (Gemini & Others)
 
 ### Quick Test

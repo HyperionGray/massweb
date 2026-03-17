@@ -178,10 +178,9 @@ class BSQLiFuzzer(iFuzzer):
             ftg = FuzzyTargetGroup()
             true_fuzzy_url = self.append_to_param(url, query_param, str(bsqli_payload_group.true_payload))
             true_fuzzy_target = FuzzyTarget(true_fuzzy_url, url, query_param, "get", payload=bsqli_payload_group.true_payload)
-            ftg.add_target(true_fuzzy_target)
             false_fuzzy_url = (self.append_to_param(url, query_param, str(bsqli_payload_group.false_payload)))
             false_fuzzy_target = FuzzyTarget(false_fuzzy_url, url, query_param, "get", payload=bsqli_payload_group.false_payload)
-            ftg.add_target(false_fuzzy_target)
+            ftg.add_targets([true_fuzzy_target, false_fuzzy_target])
             fuzzy_target_groups.append(ftg)
         return fuzzy_target_groups
 
@@ -203,19 +202,18 @@ class BSQLiFuzzer(iFuzzer):
             true_payload = bsqli_payload_group.true_payload
             data_copy = target.data.copy()
             data_copy[key] = data_copy[key] + str(true_payload)
-            fuzzy_target = FuzzyTarget(url, url, key, "post",
-                                       data=data_copy.copy(),
-                                       payload=true_payload,
-                                       unfuzzed_data=target.data)
-            ftg.add_target(fuzzy_target)
+            true_fuzzy_target = FuzzyTarget(url, url, key, "post",
+                                            data=data_copy.copy(),
+                                            payload=true_payload,
+                                            unfuzzed_data=target.data)
             false_payload = bsqli_payload_group.false_payload
             data_copy = target.data.copy()
             data_copy[key] = data_copy[key] + str(false_payload)
-            fuzzy_target = FuzzyTarget(url, url, key, "post",
-                                       data=data_copy.copy(),
-                                       payload=false_payload,
-                                       unfuzzed_data=target.data)
-            ftg.add_target(fuzzy_target)
+            false_fuzzy_target = FuzzyTarget(url, url, key, "post",
+                                             data=data_copy.copy(),
+                                             payload=false_payload,
+                                             unfuzzed_data=target.data)
+            ftg.add_targets([true_fuzzy_target, false_fuzzy_target])
             fuzzy_target_groups.append(ftg)
         return fuzzy_target_groups
 
