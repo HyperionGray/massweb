@@ -33,7 +33,8 @@ This repository supports automated AI-powered code reviews using multiple LLM pr
 
 To trigger a Gemini-powered review on issues or pull requests, add one of these labels:
 
-- `gemini-1.5-pro` - Recommended default Gemini model (direct model name)
+- `gemini` - Provider-only label; uses the configured default Gemini model (`gemini-1.5-pro` unless overridden)
+- `gemini-1.5-pro` - Direct model label
 - `gemini:<model-name>` - Uses a specific Gemini model (e.g., `gemini:gemini-1.5-flash`)
 - Other valid Gemini model names such as `gemini-2.0-flash` - Direct model names supported by your Gemini provider configuration
 
@@ -50,6 +51,8 @@ The Gemini integration works through GitHub Actions workflows:
 You can also manually trigger workflows via GitHub Actions UI and select:
 - Provider: `gemini`
 - Model: Your preferred Gemini model name
+
+Provider-only labels (`openai`, `gemini`, `anthropic`) resolve to defaults from repository variables when set (`LLM_OPENAI_DEFAULT_MODEL`, `LLM_GEMINI_DEFAULT_MODEL`, `LLM_ANTHROPIC_DEFAULT_MODEL`).
 
 ## License
 

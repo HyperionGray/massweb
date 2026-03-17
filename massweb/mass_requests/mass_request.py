@@ -40,7 +40,6 @@ class MassRequest(object):
         self.request_timeout = request_timeout
         self.proxy_list = proxy_list or [{}]
         self.results = []
-        #FIXME: empty fixme #! PNKTHR-54
         self.finished = []
         self.attempted = []
         self.identified_post_requests = []
@@ -200,7 +199,7 @@ class MassRequest(object):
         for result in self.proc_results:
             try:
                 result.get(timeout=self.time_per_url)
-            except: #FIXME: Add exception types
+            except Exception:
                 if self.hadoop_reporting:
                     logger.info("Thread timed out or threw exception, killing"
                                 " it and replacing it", exc_info=True)

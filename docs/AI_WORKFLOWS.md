@@ -8,17 +8,17 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 ### 1. OpenAI (GPT Models)
 - Models: GPT-4, GPT-5, o1, o3, etc.
-- Trigger labels: `gpt-*`, `openai:*`
+- Trigger labels: `openai`, `openai:*`, `gpt-*`, `o1`, `o3`, etc.
 - Environment: Requires `OPENAI_API_KEY` secret
 
 ### 2. Gemini (Google AI)
 - Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash, etc.
-- Trigger labels: `gemini:*`, `gemini-*`, `llm:gemini:*`
+- Trigger labels: `gemini`, `gemini:*`, `gemini-*`, `llm:gemini`, `llm:gemini:*`
 - Environment: Requires `GEMINI_API_KEY` secret
 
 ### 3. Anthropic (Claude)
 - Models: claude-3, claude-3.5-sonnet, etc.
-- Trigger labels: `claude-*`, `anthropic:*`
+- Trigger labels: `anthropic`, `anthropic:*`, `claude-*`, `llm:anthropic`, `llm:anthropic:*`
 - Environment: Requires `ANTHROPIC_API_KEY` secret
 
 ## Workflows
@@ -33,12 +33,13 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 **Label Formats**:
 - Provider-specific: `openai:gpt-4`, `gemini:gemini-1.5-pro`, `anthropic:claude-3`
+- Provider-only: `openai`, `gemini`, `anthropic` (uses workflow defaults)
 - Short format: `gpt-4`, `claude-3.5-sonnet`
-- Generic: `llm:<provider>:<model>`
+- Generic: `llm:<provider>` or `llm:<provider>:<model>`
 
 **Example Usage**:
 1. Create or open an issue
-2. Add label: `gemini:gemini-1.5-pro` or `gemini:gemini-2.0-flash`
+2. Add label: `gemini` (default model) or `gemini:gemini-2.0-flash`
 3. Workflow automatically triggers and posts AI analysis as comment
 
 ### LLM PR Review (`auto-llm-pr-review.yml`)
@@ -84,6 +85,7 @@ Requires: GEMINI_API_KEY secret
 
 ### Label Examples
 ```
+gemini                           # Provider-only label, uses default Gemini model
 gemini:gemini-1.5-pro          # Recommended default model label
 gemini:gemini-1.5-flash        # Specific model
 gemini-2.0-flash               # Direct model name label
@@ -106,6 +108,9 @@ ANTHROPIC_API_KEY   # For Anthropic/Claude
 LLM_PROVIDER        # Default provider
 LLM_MODEL           # Default model
 OPENAI_BASE_URL     # Custom OpenAI endpoint
+LLM_OPENAI_DEFAULT_MODEL      # Optional OpenAI default override (for provider-only labels)
+LLM_GEMINI_DEFAULT_MODEL      # Optional Gemini default override (for provider-only labels)
+LLM_ANTHROPIC_DEFAULT_MODEL   # Optional Anthropic default override (for provider-only labels)
 ```
 
 ## Testing
@@ -121,7 +126,7 @@ To test if Gemini is working:
 ### Gemini Not Responding
 
 1. Check that `GEMINI_API_KEY` secret is set
-2. Verify label format is correct (`gemini`, `gemini:model-name`)
+2. Verify label format is correct (`gemini`, `gemini:model-name`, `llm:gemini:model-name`)
 3. Check workflow runs in Actions tab for errors
 4. Ensure self-hosted runner is available and healthy
 
@@ -141,7 +146,7 @@ llm_model: gemini-2.0-flash
 ```
 
 ### Parallel Provider Testing
-To compare providers, you can use different labels (one provider/model per label):
+To compare providers, use different labels (one provider/model per label):
 ```
 gemini:gemini-1.5-pro
 gpt-4
@@ -152,12 +157,13 @@ claude-3.5-sonnet
 - Add and process one label at a time (wait for each workflow run to finish before adding the next label), or
 - Fork/adjust the workflows to change the `concurrency` settings so multiple provider runs can complete in parallel.
 
-<!--
-Summary of changes:
-- Clarified that concurrency.cancel-in-progress prevents guaranteed parallel comments for multiple providers.
-- Updated wording so expectations match the actual workflow behavior.
+Example concurrency adjustment:
+```yaml
+concurrency:
+  group: llm-pr-review-${{ github.repository }}-${{ github.event.pull_request.number }}-${{ github.event.label.name }}
+  cancel-in-progress: false
+```
 
-TODO checklist:
-- [ ] Consider adding a docs snippet showing an example concurrency configuration that allows true parallel provider runs.
-- [ ] Optionally document recommended timing (e.g., how to confirm a run is finished before adding another label).
--->
+Recommended timing when keeping current settings:
+- Wait until the current workflow run is `completed` in the Actions tab.
+- Add the next provider label only after that run finishes.

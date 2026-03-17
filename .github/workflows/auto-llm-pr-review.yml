@@ -50,6 +50,8 @@ jobs:
               github.event.action == 'labeled' &&
               (
                 github.event.label.name == (vars.LLM_REVIEW_LABEL || 'ai-review') ||
+                github.event.label.name == 'openai' ||
+                github.event.label.name == 'anthropic' ||
                 startsWith(github.event.label.name, 'gpt-') ||
                 startsWith(github.event.label.name, 'claude-') ||
                 startsWith(github.event.label.name, 'gemini') ||
@@ -63,6 +65,8 @@ jobs:
               github.event.action == 'synchronize' &&
               (
                 contains(github.event.pull_request.labels.*.name, (vars.LLM_REVIEW_LABEL || 'ai-review')) ||
+                contains(github.event.pull_request.labels.*.name, 'openai') ||
+                contains(github.event.pull_request.labels.*.name, 'anthropic') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'gpt-') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'claude-') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'gemini') ||
@@ -84,6 +88,9 @@ jobs:
           LLM_PROVIDER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.llm_provider || vars.LLM_PROVIDER || 'openai' }}
           LLM_MODEL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.llm_model || vars.LLM_MODEL || '' }}
           OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL || 'https://api.openai.com/v1' }}
+          DEFAULT_OPENAI_MODEL: ${{ vars.LLM_OPENAI_DEFAULT_MODEL || vars.LLM_MODEL || 'gpt-5' }}
+          DEFAULT_GEMINI_MODEL: ${{ vars.LLM_GEMINI_DEFAULT_MODEL || 'gemini-1.5-pro' }}
+          DEFAULT_ANTHROPIC_MODEL: ${{ vars.LLM_ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-latest' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -102,6 +109,11 @@ jobs:
             const reviewLabel = (process.env.REVIEW_LABEL || "ai-review").trim();
             const providerFromEnv = (process.env.LLM_PROVIDER || "openai").trim().toLowerCase();
             const modelOverride = (process.env.LLM_MODEL || "").trim();
+            const defaultModels = {
+              openai: (process.env.DEFAULT_OPENAI_MODEL || "gpt-5").trim(),
+              gemini: (process.env.DEFAULT_GEMINI_MODEL || "gemini-1.5-pro").trim(),
+              anthropic: (process.env.DEFAULT_ANTHROPIC_MODEL || "claude-3-5-sonnet-latest").trim(),
+            };
             const marker = "<!-- llm-pr-review -->";
 
             const prResp = await github.rest.pulls.get({
@@ -113,38 +125,46 @@ jobs:
             const pr = prResp.data;
             const prLabels = (pr.labels || []).map(l => l.name);
 
-            function parseProviderModelFromLabel(label) {
+            function parseProviderModelFromLabel(label, defaults) {
               const raw = String(label || "").trim();
               if (!raw) return null;
+              const lower = raw.toLowerCase();
 
               // Explicit formats:
               // - llm:<provider>:<model>
               // - <provider>:<model> (provider in {openai, gemini, anthropic})
               let m = raw.match(/^llm:([^:]+):(.+)$/i);
               if (m) return { provider: m[1].toLowerCase(), model: m[2].trim(), raw };
+              m = raw.match(/^llm:(openai|gemini|anthropic)$/i);
+              if (m) return { provider: m[1].toLowerCase(), model: defaults[m[1].toLowerCase()], raw };
 
               m = raw.match(/^(openai|gemini|anthropic):(.+)$/i);
               if (m) return { provider: m[1].toLowerCase(), model: m[2].trim(), raw };
+              m = raw.match(/^(openai|gemini|anthropic)$/i);
+              if (m) return { provider: m[1].toLowerCase(), model: defaults[m[1].toLowerCase()], raw };
 
               // Short formats based on common model prefixes
               if (/^gpt-/i.test(raw) || /^o\d/i.test(raw) || /^o1/i.test(raw)) {
                 return { provider: "openai", model: raw, raw };
               }
               if (/^gemini/i.test(raw)) {
-                const model = raw.toLowerCase() === "gemini3" ? "gemini-3" : raw;
+                const model = lower === "gemini" ? defaults.gemini : (lower === "gemini3" ? "gemini-3" : raw);
                 return { provider: "gemini", model, raw };
               }
               if (/^claude-/i.test(raw)) {
                 return { provider: "anthropic", model: raw, raw };
               }
+              if (lower === "claude") {
+                return { provider: "anthropic", model: defaults.anthropic, raw };
+              }
               return null;
             }
 
             const triggeredLabel = String(context?.payload?.label?.name || "").trim();
-            let labelParsed = parseProviderModelFromLabel(triggeredLabel);
+            let labelParsed = parseProviderModelFromLabel(triggeredLabel, defaultModels);
             if (!labelParsed) {
               for (const l of prLabels) {
-                const parsed = parseProviderModelFromLabel(l);
+                const parsed = parseProviderModelFromLabel(l, defaultModels);
                 if (parsed) {
                   labelParsed = parsed;
                   break;

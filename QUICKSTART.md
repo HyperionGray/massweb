@@ -47,17 +47,15 @@ for result in results:
 
 ```python
 from massweb.masscrawler.masscrawl import MassCrawl
-from massweb.targets import CrawlTarget
 
-# Create crawl target
-target = CrawlTarget("http://example.com")
+# Initialize crawler with one or more seed URLs
+crawler = MassCrawl(seeds=["http://example.com"])
 
-# Run crawler
-crawler = MassCrawl(target)
-pages = crawler.crawl()
+# Run crawler (updates crawler.targets in place)
+crawler.crawl(depth=2)
 
 # View discovered pages
-for page in pages:
+for page in crawler.targets:
     print(page.url)
 ```
 
@@ -77,8 +75,11 @@ for page in pages:
 
 ### Available AI Labels
 
-- `gemini:gemini-1.5-pro` - Google Gemini 1.5 Pro (recommended default)
+- `gemini` - Google Gemini using default model (`gemini-1.5-pro` unless overridden)
+- `gemini:gemini-1.5-pro` - Google Gemini 1.5 Pro (explicit model label)
 - `gemini:gemini-1.5-flash` - Google Gemini 1.5 Flash (faster, cheaper)
+- `openai` - OpenAI using default model (repository-configured)
+- `anthropic` - Anthropic using default model (repository-configured)
 - `gpt-4` - OpenAI GPT-4
 - `claude-3.5-sonnet` - Anthropic Claude
 
@@ -89,21 +90,37 @@ For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 ### Proxy Settings
 
 ```python
-from massweb.fuzzers import WebFuzzer
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.targets.target import Target
+from massweb.payloads.payload import Payload
 
-# Provide a list of proxies directly to the fuzzer
-proxies = ['proxy1.com:8080', 'proxy2.com:8080']
-fuzzer = WebFuzzer(target, proxy_list=proxies)
+target = Target("http://example.com/page?param=FUZZ")
+payloads = [Payload("FUZZ", ["xss"])]
+
+# Provide proxies directly to the fuzzer as requests-compatible proxy dicts
+proxies = [
+    {"http": "http://proxy1.com:8080", "https": "http://proxy1.com:8080"},
+    {"http": "http://proxy2.com:8080", "https": "http://proxy2.com:8080"},
+]
+fuzzer = WebFuzzer(targets=[target], payloads=payloads, proxy_list=proxies)
 ```
 
 ### Payload Customization
 
 ```python
-from massweb.payloads import PayloadGenerator
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.payloads.payload import Payload
+from massweb.targets.target import Target
 
-# Load custom payloads
-payloads = PayloadGenerator.from_file('custom_payloads.txt')
-fuzzer = WebFuzzer(target, payloads=payloads)
+target = Target("http://example.com/page?param=FUZZ")
+
+# Create custom payload objects
+payloads = [
+    Payload("' OR '1'='1", ["sqli"]),
+    Payload("<script>alert(1)</script>", ["xss"]),
+]
+
+fuzzer = WebFuzzer(targets=[target], payloads=payloads)
 ```
 
 ## Running Tests
