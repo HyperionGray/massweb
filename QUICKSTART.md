@@ -19,46 +19,40 @@ pip install -e .
 
 ```python
 from massweb.fuzzers.web_fuzzer import WebFuzzer
-from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.payloads.payload import Payload
+from massweb.targets.target import Target
 
-# Create a target
-target = FuzzyTarget(
-    url="http://example.com/page?param=FUZZ",
-    method="GET",
-    name="example-param-fuzz",
-)
+# Build base targets and payloads
+targets = [Target("http://example.com/page?param=1", ttype="get")]
+payloads = [
+    Payload("' OR '1'='1", ["sqli"]),
+    Payload("<script>alert(1)</script>", ["xss"]),
+]
 
-# Define payloads to fuzz with
-payloads = ["FUZZ1", "FUZZ2", "FUZZ3"]
-
-# Create fuzzer with targets and payloads
-fuzzer = WebFuzzer(targets=[target], payloads=payloads)
-
-# Generate concrete fuzzy targets, then run the fuzzing process
+fuzzer = WebFuzzer(targets=targets, payloads=payloads, num_threads=10)
 fuzzer.generate_fuzzy_targets()
 results = fuzzer.fuzz()
 
-# Process results
+# Process vulnerability hits
 for result in results:
-    print(f"Status: {result.status_code}, URL: {result.url}")
+    if any(result.result_dic.values()):
+        print(result.fuzzy_target.url, result.result_dic)
 ```
 
 ### Mass Crawling
 
 ```python
 from massweb.masscrawler.masscrawl import MassCrawl
-from massweb.targets import CrawlTarget
 
-# Create crawl target
-target = CrawlTarget("http://example.com")
+# Start from one or more seed URLs
+crawler = MassCrawl(seeds=["http://example.com"])
 
-# Run crawler
-crawler = MassCrawl(target)
-pages = crawler.crawl()
+# Crawl two levels deep and stay in-scope
+crawler.crawl(depth=2, stay_in_scope=True, max_links=20)
 
-# View discovered pages
-for page in pages:
-    print(page.url)
+# Inspect discovered targets
+for target in crawler.targets:
+    print(target.url, target.status)
 ```
 
 ## Using AI-Powered Workflows (Gemini & Others)
@@ -67,7 +61,7 @@ for page in pages:
 
 1. **Test Gemini on an Issue**:
    - Create or open any issue in this repository
-   - Add the label: `gemini:gemini-1.5-pro`
+   - Add the label: `gemini` (alias for the default model) or `gemini:gemini-1.5-pro`
    - Wait for the automated review comment
 
 2. **Test Gemini on a Pull Request**:
@@ -77,7 +71,8 @@ for page in pages:
 
 ### Available AI Labels
 
-- `gemini:gemini-1.5-pro` - Google Gemini 1.5 Pro (recommended default)
+- `gemini` - Google Gemini default model (`gemini-1.5-pro`)
+- `gemini:gemini-1.5-pro` - Google Gemini 1.5 Pro (explicit default)
 - `gemini:gemini-1.5-flash` - Google Gemini 1.5 Flash (faster, cheaper)
 - `gpt-4` - OpenAI GPT-4
 - `claude-3.5-sonnet` - Anthropic Claude
@@ -89,21 +84,27 @@ For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 ### Proxy Settings
 
 ```python
-from massweb.fuzzers import WebFuzzer
+from massweb.fuzzers.web_fuzzer import WebFuzzer
 
-# Provide a list of proxies directly to the fuzzer
-proxies = ['proxy1.com:8080', 'proxy2.com:8080']
-fuzzer = WebFuzzer(target, proxy_list=proxies)
+# Provide proxies as request dictionaries
+proxies = [
+    {"http": "http://proxy1.com:8080", "https": "http://proxy1.com:8080"},
+    {"http": "http://proxy2.com:8080", "https": "http://proxy2.com:8080"},
+]
+fuzzer = WebFuzzer(targets=targets, payloads=payloads, proxy_list=proxies)
 ```
 
 ### Payload Customization
 
 ```python
-from massweb.payloads import PayloadGenerator
+from massweb.payloads.payload import Payload
 
-# Load custom payloads
-payloads = PayloadGenerator.from_file('custom_payloads.txt')
-fuzzer = WebFuzzer(target, payloads=payloads)
+# Define custom payload objects with the checks they should trigger
+custom_payloads = [
+    Payload("' OR 1=1--", ["sqli"]),
+    Payload("../../../../etc/passwd", ["trav"]),
+]
+fuzzer = WebFuzzer(targets=targets, payloads=custom_payloads)
 ```
 
 ## Running Tests
@@ -134,16 +135,18 @@ python -m pytest test/test_fuzzers.py
 ```python
 from massweb.vuln_checks.sqli import SQLICheck
 
-check = SQLICheck(target)
-vulnerabilities = check.scan()
+check = SQLICheck()
+if check.check(response_text):
+    print("Possible SQL injection signal found")
 ```
 
 ### Directory Traversal Check
 ```python
 from massweb.vuln_checks.trav import TravCheck
 
-check = TravCheck(target)
-results = check.scan()
+check = TravCheck()
+if check.check(response_text):
+    print("Possible traversal signal found")
 ```
 
 ## Next Steps
