@@ -21,7 +21,8 @@ logger.setLevel(logging.INFO)
 # In Python 3, sys.stdin/stderr are already text streams with encoding
 if hasattr(sys.stdin, 'buffer'):
     sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+if hasattr(sys.stderr, 'buffer'):
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 GET = "get"
 POST = "post"
