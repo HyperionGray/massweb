@@ -84,6 +84,11 @@ jobs:
               m = raw.match(/^(openai|gemini|anthropic):(.+)$/i);
               if (m) return { provider: m[1].toLowerCase(), model: m[2].trim(), raw };
 
+              // Bare provider labels use provider defaults.
+              if (/^(openai|gemini|anthropic)$/i.test(raw)) {
+                return { provider: raw.toLowerCase(), model: "", raw };
+              }
+
               // Short formats based on common model prefixes
               if (/^gpt-/i.test(raw) || /^o\d/i.test(raw) || /^o1/i.test(raw)) {
                 return { provider: "openai", model: raw, raw };
@@ -105,8 +110,17 @@ jobs:
               return;
             }
 
+            const defaultModels = {
+              openai: "gpt-5",
+              gemini: "gemini-1.5-pro",
+              anthropic: "claude-3-5-sonnet-latest",
+            };
+
             const provider = (process.env.LLM_PROVIDER || labelParsed.provider || "").trim().toLowerCase();
-            const model = (process.env.LLM_MODEL || labelParsed.model || "").trim();
+            let model = (process.env.LLM_MODEL || labelParsed.model || "").trim();
+            if (provider && !model) {
+              model = defaultModels[provider] || "";
+            }
             if (!provider || !model) {
               core.setFailed(`Unable to determine provider/model from label '${triggerLabel}'.`);
               return;

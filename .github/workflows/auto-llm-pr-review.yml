@@ -50,6 +50,9 @@ jobs:
               github.event.action == 'labeled' &&
               (
                 github.event.label.name == (vars.LLM_REVIEW_LABEL || 'ai-review') ||
+                github.event.label.name == 'openai' ||
+                github.event.label.name == 'gemini' ||
+                github.event.label.name == 'anthropic' ||
                 startsWith(github.event.label.name, 'gpt-') ||
                 startsWith(github.event.label.name, 'claude-') ||
                 startsWith(github.event.label.name, 'gemini') ||
@@ -63,6 +66,9 @@ jobs:
               github.event.action == 'synchronize' &&
               (
                 contains(github.event.pull_request.labels.*.name, (vars.LLM_REVIEW_LABEL || 'ai-review')) ||
+                contains(github.event.pull_request.labels.*.name, 'openai') ||
+                contains(github.event.pull_request.labels.*.name, 'gemini') ||
+                contains(github.event.pull_request.labels.*.name, 'anthropic') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'gpt-') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'claude-') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'gemini') ||
@@ -125,6 +131,11 @@ jobs:
 
               m = raw.match(/^(openai|gemini|anthropic):(.+)$/i);
               if (m) return { provider: m[1].toLowerCase(), model: m[2].trim(), raw };
+
+              // Bare provider labels use provider defaults.
+              if (/^(openai|gemini|anthropic)$/i.test(raw)) {
+                return { provider: raw.toLowerCase(), model: "", raw };
+              }
 
               // Short formats based on common model prefixes
               if (/^gpt-/i.test(raw) || /^o\d/i.test(raw) || /^o1/i.test(raw)) {

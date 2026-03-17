@@ -2,150 +2,125 @@
 
 ## Overview
 
-This repository includes several GitHub Actions workflows that integrate with Large Language Model (LLM) providers for automated code review, issue analysis, and development assistance.
+This document covers the repository's core label-driven LLM workflows:
+
+- `auto-llm-issue-review.yml`
+- `auto-llm-pr-review.yml`
+- `auto-advance-ball.yml`
+
+Other AI workflows also exist (for example `auto-tag-based-review.yml` and `auto-amazonq-review.yml`), but they use different trigger and execution patterns.
 
 ## Supported LLM Providers
 
-### 1. OpenAI (GPT Models)
-- Models: GPT-4, GPT-5, o1, o3, etc.
-- Trigger labels: `gpt-*`, `openai:*`
-- Environment: Requires `OPENAI_API_KEY` secret
+### OpenAI (GPT Models)
+- Labels: `gpt-*`, `openai`, `openai:*`, `llm:openai:*`
+- Default model for bare provider label: `gpt-5`
+- Secret required: `OPENAI_API_KEY`
 
-### 2. Gemini (Google AI)
-- Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash, etc.
-- Trigger labels: `gemini:*`, `gemini-*`, `llm:gemini:*`
-- Environment: Requires `GEMINI_API_KEY` secret
+### Gemini (Google AI)
+- Labels: `gemini`, `gemini-*`, `gemini:*`, `llm:gemini:*`
+- Default model for bare provider label: `gemini-1.5-pro`
+- Secret required: `GEMINI_API_KEY`
 
-### 3. Anthropic (Claude)
-- Models: claude-3, claude-3.5-sonnet, etc.
-- Trigger labels: `claude-*`, `anthropic:*`
-- Environment: Requires `ANTHROPIC_API_KEY` secret
+### Anthropic (Claude)
+- Labels: `claude-*`, `anthropic`, `anthropic:*`, `llm:anthropic:*`
+- Default model for bare provider label: `claude-3-5-sonnet-latest`
+- Secret required: `ANTHROPIC_API_KEY`
+
+## Label Parsing Rules
+
+The LLM review workflows accept:
+
+1. Explicit provider labels, for example:
+   - `gemini:gemini-1.5-flash`
+   - `openai:gpt-5`
+   - `anthropic:claude-3-5-sonnet-latest`
+2. Generic form:
+   - `llm:<provider>:<model>`
+3. Short model labels:
+   - `gpt-5`
+   - `gemini-2.0-flash`
+   - `claude-3.5-sonnet`
+4. Bare provider labels:
+   - `openai`, `gemini`, `anthropic`
+   - These map to provider defaults listed above.
 
 ## Workflows
 
 ### LLM Issue Review (`auto-llm-issue-review.yml`)
 
-**Purpose**: Automatically reviews issues using AI when specific labels are added.
+**Purpose**: Review issue content and post an AI analysis comment.
 
 **Triggers**:
-- Issue labeled with LLM-specific labels
+- Issue labeled with a supported LLM/model label
 - Manual workflow dispatch
-
-**Label Formats**:
-- Provider-specific: `openai:gpt-4`, `gemini:gemini-1.5-pro`, `anthropic:claude-3`
-- Short format: `gpt-4`, `claude-3.5-sonnet`
-- Generic: `llm:<provider>:<model>`
-
-**Example Usage**:
-1. Create or open an issue
-2. Add label: `gemini:gemini-1.5-pro` or `gemini:gemini-2.0-flash`
-3. Workflow automatically triggers and posts AI analysis as comment
 
 ### LLM PR Review (`auto-llm-pr-review.yml`)
 
-**Purpose**: Reviews pull requests using AI for code quality, bugs, and suggestions.
+**Purpose**: Review PR diffs and post/update a structured review comment.
 
 **Triggers**:
-- PR labeled with LLM-specific labels
+- PR labeled with a supported LLM/model label (or review label)
+- PR synchronize events while a matching label is present
 - Manual workflow dispatch
-
-**Features**:
-- Analyzes code changes in the PR
-- Provides suggestions and identifies issues
-- Posts review as PR comment
 
 ### Advance Ball (`auto-advance-ball.yml`)
 
-**Purpose**: Autonomous AI agent that advances work on issues/tasks.
+**Purpose**: Autonomous implementation loop for issue/task progression.
 
-**Features**:
-- Reads issue content and context
-- Makes decisions on next steps
-- Can create commits and push changes
-- Iteratively works toward issue resolution
-
-## Gemini-Specific Information
-
-### Default Model
-- `gemini-1.5-pro` (recommended default model for most use cases)
-
-### Available Models
-- `gemini-1.5-pro` - Most capable, balanced
-- `gemini-1.5-flash` - Faster, lighter
-- `gemini-2.0-flash` - Latest version
-- Other Gemini variants
-
-### API Configuration
-Gemini uses the Google AI API:
-```
-Base URL: https://generativelanguage.googleapis.com/v1beta/
-Requires: GEMINI_API_KEY secret
-```
-
-### Label Examples
-```
-gemini:gemini-1.5-pro          # Recommended default model label
-gemini:gemini-1.5-flash        # Specific model
-gemini-2.0-flash               # Direct model name label
-llm:gemini:gemini-1.5-pro      # Explicit format
-```
+**Capabilities**:
+- Reads issue context
+- Executes code changes
+- Commits and pushes updates
 
 ## Setup Requirements
 
 ### Repository Secrets
-Add these secrets in GitHub Settings > Secrets and variables > Actions:
+
+Add these in GitHub Settings -> Secrets and variables -> Actions:
 
 ```
-OPENAI_API_KEY      # For OpenAI/GPT
-GEMINI_API_KEY      # For Google Gemini
-ANTHROPIC_API_KEY   # For Anthropic/Claude
+OPENAI_API_KEY
+GEMINI_API_KEY
+ANTHROPIC_API_KEY
 ```
 
-### Repository Variables (Optional)
+### Optional Repository Variables
+
 ```
-LLM_PROVIDER        # Default provider
-LLM_MODEL           # Default model
-OPENAI_BASE_URL     # Custom OpenAI endpoint
+LLM_PROVIDER
+LLM_MODEL
+OPENAI_BASE_URL
 ```
 
 ## Testing
 
-To test if Gemini is working:
-
-1. **Issue Test**: Create an issue and add label `gemini`
-2. **PR Test**: Create a PR and add label `gemini:gemini-1.5-flash`
-3. **Manual Test**: Go to Actions > Select workflow > Run workflow manually
+1. **Issue test**:
+   - Create/open an issue
+   - Add label `gemini` (or `gemini:gemini-1.5-flash`)
+2. **PR test**:
+   - Create/open a PR
+   - Add label `gemini` (or any supported provider/model label)
+3. **Manual test**:
+   - Run either workflow from the Actions UI with explicit provider/model inputs
 
 ## Troubleshooting
 
-### Gemini Not Responding
+### Gemini not responding
 
-1. Check that `GEMINI_API_KEY` secret is set
-2. Verify label format is correct (`gemini`, `gemini:model-name`)
-3. Check workflow runs in Actions tab for errors
-4. Ensure self-hosted runner is available and healthy
+1. Verify `GEMINI_API_KEY` is set.
+2. Verify the label is supported (`gemini`, `gemini:<model>`, `gemini-*`, or `llm:gemini:<model>`).
+3. Review the Actions run logs for provider/model resolution and API errors.
+4. Confirm the self-hosted runner is available.
 
-### API Errors
+### Multiple provider labels and concurrency
 
-- **401 Unauthorized**: Invalid or missing API key
-- **429 Rate Limited**: Too many requests, wait and retry
-- **400 Bad Request**: Invalid model name or parameters
+`auto-llm-issue-review.yml` and `auto-llm-pr-review.yml` run with `concurrency.cancel-in-progress: true` per issue/PR. If you add multiple labels quickly, newer runs can cancel older runs.
 
-## Advanced Usage
+For provider comparison, run tests sequentially (wait for one run to finish before applying the next label).
 
-### Custom Model Selection
-```yaml
-# Workflow dispatch inputs
-llm_provider: gemini
-llm_model: gemini-2.0-flash
-```
+### Common API failures
 
-### Parallel Provider Testing
-Add multiple labels to compare responses:
-```
-gemini:gemini-1.5-pro
-gpt-4
-claude-3.5-sonnet
-```
-
-Each provider will post a separate review comment.
+- **401 Unauthorized**: Missing/invalid API key
+- **429 Too Many Requests**: Rate limit
+- **400 Bad Request**: Invalid model name/parameters

@@ -18,129 +18,124 @@ pip install -e .
 ### Web Fuzzing
 
 ```python
-from massweb.fuzzers import WebFuzzer
-from massweb.targets import FuzzyTarget
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.payloads.payload import Payload
 
-# Create a target
-target = FuzzyTarget("http://example.com/page?param=FUZZ")
+wf = WebFuzzer(num_threads=10, time_per_url=10, request_timeout=10, proxy_list=[{}])
 
-# Create and run fuzzer
-fuzzer = WebFuzzer(target)
-results = fuzzer.fuzz()
+# Add payloads
+wf.add_payload(Payload("')--", check_type_list=["sqli", "xpathi"]))
+wf.add_payload(Payload('"><ScRipT>alert(1)</ScrIpT>', check_type_list=["xss"]))
 
-# Process results
-for result in results:
-    print(f"Status: {result.status_code}, URL: {result.url}")
+# Add targets (unicode strings are supported via u"...")
+wf.add_target_from_url(u"http://example.com/vuln.php?id=1")
+wf.add_target_from_url(u"http://example.com/search.php?q=test")
+
+# Optional: discover simple POST forms from GET targets
+wf.determine_posts_from_targets()
+
+# Build fuzz targets and execute
+wf.generate_fuzzy_targets()
+results = wf.fuzz()
+
+for result in results[:5]:
+    print(result)
 ```
 
 ### Mass Crawling
 
 ```python
-from massweb.masscrawler import MassCrawler
-from massweb.targets import CrawlTarget
+from massweb.masscrawler.masscrawl import MassCrawl
 
-# Create crawl target
-target = CrawlTarget("http://example.com", max_depth=3)
+seeds = [u"http://example.com"]
+crawler = MassCrawl(seeds=seeds)
+crawler.crawl(
+    depth=1,
+    num_threads=4,
+    time_per_url=5,
+    request_timeout=3,
+    proxy_list=[{}],
+    stay_in_scope=True,
+)
 
-# Run crawler
-crawler = MassCrawler(target)
-pages = crawler.crawl()
-
-# View discovered pages
-for page in pages:
-    print(page.url)
+for target in crawler.targets[:10]:
+    print(target.url, target.status)
 ```
 
-## Using AI-Powered Workflows (Gemini & Others)
+## Using AI-Powered Workflows (Gemini and Others)
 
 ### Quick Test
 
-1. **Test Gemini on an Issue**:
-   - Create or open any issue in this repository
-   - Add the label: `gemini`
-   - Wait for the automated review comment
+1. **Issue review**:
+   - Create/open an issue
+   - Add label `gemini` (default model) or `gemini:gemini-1.5-flash`
+2. **PR review**:
+   - Create/open a pull request
+   - Add label `gemini` (or another provider/model label)
 
-2. **Test Gemini on a Pull Request**:
-   - Create a PR with some code changes
-   - Add the label: `gemini:gemini-1.5-flash`
-   - Review the AI-generated feedback
-
-### Available AI Labels
-
-- `gemini` - Google Gemini (default model)
-- `gpt-4` - OpenAI GPT-4
-- `claude-3.5-sonnet` - Anthropic Claude
-
-For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
+For full label formats and troubleshooting, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md).
 
 ## Configuration
 
 ### Proxy Settings
 
-```python
-from massweb.proxy_rotator import ProxyRotator
+Pass proxies directly via `proxy_list`:
 
-proxy_rotator = ProxyRotator(['proxy1.com:8080', 'proxy2.com:8080'])
-fuzzer = WebFuzzer(target, proxy_rotator=proxy_rotator)
+```python
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+
+proxies = [
+    {"http": "http://proxy1.example:8080"},
+    {"http": "http://proxy2.example:8080"},
+]
+wf = WebFuzzer(proxy_list=proxies)
 ```
 
 ### Payload Customization
 
-```python
-from massweb.payloads import PayloadGenerator
+Use `Payload` objects and add them to a fuzzer:
 
-# Load custom payloads
-payloads = PayloadGenerator.from_file('custom_payloads.txt')
-fuzzer = WebFuzzer(target, payloads=payloads)
+```python
+from massweb.payloads.payload import Payload
+
+custom_payloads = [
+    Payload("../../../etc/passwd", check_type_list=["trav"]),
+    Payload("' OR 1=1--", check_type_list=["sqli"]),
+]
+
+for payload in custom_payloads:
+    wf.add_payload(payload)
+```
+
+## Common Checks
+
+### SQL Injection Pattern Check
+```python
+from massweb.vuln_checks.sqli import SQLICheck
+
+checker = SQLICheck()
+looks_vulnerable = checker.check(response_text)
+```
+
+### Directory Traversal Pattern Check
+```python
+from massweb.vuln_checks.trav import TravCheck
+
+checker = TravCheck()
+looks_vulnerable = checker.check(response_text)
 ```
 
 ## Running Tests
 
 ```bash
-# Run all tests
 python -m pytest test/
-
-# Run specific test module
-python -m pytest test/test_fuzzers.py
 ```
 
 ## Documentation
 
-- Full documentation: https://hyperiongray.atlassian.net/wiki/display/PUB/MassWeb
-- API documentation: Run `make html` in `docs/` directory
-- AI Workflows: [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
-
-## Getting Help
-
-- **Issues**: Open an issue on GitHub
-- **AI Review**: Add `gemini` label to get AI-powered assistance
-- **Documentation**: Check the `docs/` directory
-
-## Common Tasks
-
-### Scan for SQL Injection
-```python
-from massweb.vuln_checks.sqli import SQLInjectionCheck
-
-check = SQLInjectionCheck(target)
-vulnerabilities = check.scan()
-```
-
-### Directory Traversal Check
-```python
-from massweb.vuln_checks.trav import TraversalCheck
-
-check = TraversalCheck(target)
-results = check.scan()
-```
-
-## Next Steps
-
-1. Read the full documentation
-2. Explore example scripts in `examples/` (if available)
-3. Try the AI-powered workflows for code review
-4. Join discussions in GitHub Issues
+- Full project docs: https://hyperiongray.atlassian.net/wiki/display/PUB/MassWeb
+- AI workflow docs: [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 
 ## License
 
-Apache 2.0 - See LICENSE.txt for details
+Apache 2.0 - see `LICENSE.txt`.
