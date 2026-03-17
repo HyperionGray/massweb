@@ -88,6 +88,9 @@ jobs:
               if (/^gpt-/i.test(raw) || /^o\d/i.test(raw) || /^o1/i.test(raw)) {
                 return { provider: "openai", model: raw, raw };
               }
+              if (/^gemini$/i.test(raw)) {
+                return { provider: "gemini", model: "gemini-1.5-pro", raw };
+              }
               if (/^gemini/i.test(raw)) {
                 const model = raw.toLowerCase() === "gemini3" ? "gemini-3" : raw;
                 return { provider: "gemini", model, raw };

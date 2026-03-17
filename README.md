@@ -33,6 +33,7 @@ This repository supports automated AI-powered code reviews using multiple LLM pr
 
 To trigger a Gemini-powered review on issues or pull requests, add one of these labels:
 
+- `gemini` - Alias for `gemini:gemini-1.5-pro`
 - `gemini-1.5-pro` - Recommended default Gemini model (direct model name)
 - `gemini:<model-name>` - Uses a specific Gemini model (e.g., `gemini:gemini-1.5-flash`)
 - Other valid Gemini model names such as `gemini-2.0-flash` - Direct model names supported by your Gemini provider configuration

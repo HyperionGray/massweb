@@ -19,46 +19,35 @@ pip install -e .
 
 ```python
 from massweb.fuzzers.web_fuzzer import WebFuzzer
-from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.payloads.payload import Payload
+from massweb.targets.target import Target
 
-# Create a target
-target = FuzzyTarget(
-    url="http://example.com/page?param=FUZZ",
-    method="GET",
-    name="example-param-fuzz",
-)
+# Create scan targets and payloads
+targets = [Target(u"http://example.com/page?param=FUZZ", ttype="get")]
+payloads = [Payload(u"'><script>alert(1)</script>", check_type_list=["xss"])]
 
-# Define payloads to fuzz with
-payloads = ["FUZZ1", "FUZZ2", "FUZZ3"]
-
-# Create fuzzer with targets and payloads
-fuzzer = WebFuzzer(targets=[target], payloads=payloads)
-
-# Generate concrete fuzzy targets, then run the fuzzing process
+# Run fuzzing
+fuzzer = WebFuzzer(targets=targets, payloads=payloads)
 fuzzer.generate_fuzzy_targets()
 results = fuzzer.fuzz()
 
 # Process results
 for result in results:
-    print(f"Status: {result.status_code}, URL: {result.url}")
+    print(f"URL: {result.fuzzy_target.url}, Findings: {result.result_dic}")
 ```
 
 ### Mass Crawling
 
 ```python
 from massweb.masscrawler.masscrawl import MassCrawl
-from massweb.targets import CrawlTarget
-
-# Create crawl target
-target = CrawlTarget("http://example.com")
 
 # Run crawler
-crawler = MassCrawl(target)
-pages = crawler.crawl()
+crawler = MassCrawl(seeds=[u"http://example.com"])
+crawler.crawl(depth=2, stay_in_scope=True)
 
-# View discovered pages
-for page in pages:
-    print(page.url)
+# View discovered targets
+for target in crawler.targets:
+    print(target.url)
 ```
 
 ## Using AI-Powered Workflows (Gemini & Others)
@@ -89,21 +78,33 @@ For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 ### Proxy Settings
 
 ```python
-from massweb.fuzzers import WebFuzzer
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.payloads.payload import Payload
+from massweb.targets.target import Target
 
 # Provide a list of proxies directly to the fuzzer
-proxies = ['proxy1.com:8080', 'proxy2.com:8080']
-fuzzer = WebFuzzer(target, proxy_list=proxies)
+proxies = [
+    {"http": "http://proxy1.com:8080"},
+    {"http": "http://proxy2.com:8080"},
+]
+targets = [Target(u"http://example.com/page?param=FUZZ", ttype="get")]
+payloads = [Payload(u"test", check_type_list=["xss"])]
+fuzzer = WebFuzzer(targets=targets, payloads=payloads, proxy_list=proxies)
 ```
 
 ### Payload Customization
 
 ```python
-from massweb.payloads import PayloadGenerator
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.payloads.payload import Payload
+from massweb.targets.target import Target
 
-# Load custom payloads
-payloads = PayloadGenerator.from_file('custom_payloads.txt')
-fuzzer = WebFuzzer(target, payloads=payloads)
+targets = [Target(u"http://example.com/page?param=FUZZ", ttype="get")]
+payloads = [
+    Payload(u"'><script>alert(1)</script>", check_type_list=["xss"]),
+    Payload(u"')--", check_type_list=["sqli", "xpathi"]),
+]
+fuzzer = WebFuzzer(targets=targets, payloads=payloads)
 ```
 
 ## Running Tests
@@ -125,7 +126,7 @@ python -m pytest test/test_fuzzers.py
 ## Getting Help
 
 - **Issues**: Open an issue on GitHub
-- **AI Review**: Add `gemini` label to get AI-powered assistance
+- **AI Review**: Add `gemini:gemini-1.5-pro` (or bare `gemini`) label
 - **Documentation**: Check the `docs/` directory
 
 ## Common Tasks
@@ -134,16 +135,18 @@ python -m pytest test/test_fuzzers.py
 ```python
 from massweb.vuln_checks.sqli import SQLICheck
 
-check = SQLICheck(target)
-vulnerabilities = check.scan()
+response_text = "you have an error in your sql syntax"
+check = SQLICheck()
+is_vulnerable = check.check(response_text)
 ```
 
 ### Directory Traversal Check
 ```python
 from massweb.vuln_checks.trav import TravCheck
 
-check = TravCheck(target)
-results = check.scan()
+response_text = "root:x:0:0:root:/root:/bin/bash"
+check = TravCheck()
+is_vulnerable = check.check(response_text)
 ```
 
 ## Next Steps

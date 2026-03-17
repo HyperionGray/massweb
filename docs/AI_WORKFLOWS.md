@@ -13,7 +13,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 ### 2. Gemini (Google AI)
 - Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash, etc.
-- Trigger labels: `gemini:*`, `gemini-*`, `llm:gemini:*`
+- Trigger labels: `gemini`, `gemini:*`, `gemini-*`, `llm:gemini:*`
 - Environment: Requires `GEMINI_API_KEY` secret
 
 ### 3. Anthropic (Claude)
@@ -64,6 +64,17 @@ This repository includes several GitHub Actions workflows that integrate with La
 - Can create commits and push changes
 - Iteratively works toward issue resolution
 
+### Additional AI-related Workflows
+
+This repository also contains additional AI automation workflows in
+`.github/workflows/` (for example `auto-tag-based-review.yml` and
+`auto-amazonq-review.yml`). Those are provider/automation specific and are
+outside the scope of this model-label guide, which focuses on:
+
+- `auto-llm-issue-review.yml`
+- `auto-llm-pr-review.yml`
+- `auto-advance-ball.yml`
+
 ## Gemini-Specific Information
 
 ### Default Model
@@ -84,6 +95,7 @@ Requires: GEMINI_API_KEY secret
 
 ### Label Examples
 ```
+gemini                          # Alias for gemini:gemini-1.5-pro
 gemini:gemini-1.5-pro          # Recommended default model label
 gemini:gemini-1.5-flash        # Specific model
 gemini-2.0-flash               # Direct model name label
@@ -112,7 +124,7 @@ OPENAI_BASE_URL     # Custom OpenAI endpoint
 
 To test if Gemini is working:
 
-1. **Issue Test**: Create an issue and add label `gemini`
+1. **Issue Test**: Create an issue and add label `gemini` (alias) or `gemini:gemini-1.5-pro`
 2. **PR Test**: Create a PR and add label `gemini:gemini-1.5-flash`
 3. **Manual Test**: Go to Actions > Select workflow > Run workflow manually
 
@@ -121,7 +133,7 @@ To test if Gemini is working:
 ### Gemini Not Responding
 
 1. Check that `GEMINI_API_KEY` secret is set
-2. Verify label format is correct (`gemini`, `gemini:model-name`)
+2. Verify label format is correct (`gemini`, `gemini:model-name`, or direct `gemini-...` model labels)
 3. Check workflow runs in Actions tab for errors
 4. Ensure self-hosted runner is available and healthy
 
@@ -152,12 +164,15 @@ claude-3.5-sonnet
 - Add and process one label at a time (wait for each workflow run to finish before adding the next label), or
 - Fork/adjust the workflows to change the `concurrency` settings so multiple provider runs can complete in parallel.
 
-<!--
-Summary of changes:
-- Clarified that concurrency.cancel-in-progress prevents guaranteed parallel comments for multiple providers.
-- Updated wording so expectations match the actual workflow behavior.
+Example concurrency adjustment (if you want one run per provider/model):
 
-TODO checklist:
-- [ ] Consider adding a docs snippet showing an example concurrency configuration that allows true parallel provider runs.
-- [ ] Optionally document recommended timing (e.g., how to confirm a run is finished before adding another label).
--->
+```yaml
+concurrency:
+  group: llm-pr-review-${{ github.repository }}-${{ github.event.pull_request.number || github.event.inputs.pr_number }}-${{ github.event.label.name || github.event.inputs.llm_model }}
+  cancel-in-progress: false
+```
+
+Recommended timing for manual multi-provider comparisons:
+1. Add the first provider label.
+2. Wait until the workflow run completes in the Actions tab.
+3. Add the next provider label.
