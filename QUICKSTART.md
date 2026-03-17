@@ -18,14 +18,24 @@ pip install -e .
 ### Web Fuzzing
 
 ```python
-from massweb.fuzzers import WebFuzzer
-from massweb.targets import FuzzyTarget
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.targets.fuzzy_target import FuzzyTarget
 
 # Create a target
-target = FuzzyTarget("http://example.com/page?param=FUZZ")
+target = FuzzyTarget(
+    url="http://example.com/page?param=FUZZ",
+    method="GET",
+    name="example-param-fuzz",
+)
 
-# Create and run fuzzer
-fuzzer = WebFuzzer(target)
+# Define payloads to fuzz with
+payloads = ["FUZZ1", "FUZZ2", "FUZZ3"]
+
+# Create fuzzer with targets and payloads
+fuzzer = WebFuzzer(targets=[target], payloads=payloads)
+
+# Generate concrete fuzzy targets, then run the fuzzing process
+fuzzer.generate_fuzzy_targets()
 results = fuzzer.fuzz()
 
 # Process results
