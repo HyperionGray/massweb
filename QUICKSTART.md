@@ -120,17 +120,17 @@ python -m pytest test/test_fuzzers.py
 
 ### Scan for SQL Injection
 ```python
-from massweb.vuln_checks.sqli import SQLInjectionCheck
+from massweb.vuln_checks.sqli import SQLICheck
 
-check = SQLInjectionCheck(target)
+check = SQLICheck(target)
 vulnerabilities = check.scan()
 ```
 
 ### Directory Traversal Check
 ```python
-from massweb.vuln_checks.trav import TraversalCheck
+from massweb.vuln_checks.trav import TravCheck
 
-check = TraversalCheck(target)
+check = TravCheck(target)
 results = check.scan()
 ```
 
