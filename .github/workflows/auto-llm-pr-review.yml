@@ -50,6 +50,10 @@ jobs:
               github.event.action == 'labeled' &&
               (
                 github.event.label.name == (vars.LLM_REVIEW_LABEL || 'ai-review') ||
+                github.event.label.name == 'openai' ||
+                github.event.label.name == 'gemini' ||
+                github.event.label.name == 'anthropic' ||
+                github.event.label.name == 'claude' ||
                 startsWith(github.event.label.name, 'gpt-') ||
                 startsWith(github.event.label.name, 'claude-') ||
                 startsWith(github.event.label.name, 'gemini') ||
@@ -63,6 +67,10 @@ jobs:
               github.event.action == 'synchronize' &&
               (
                 contains(github.event.pull_request.labels.*.name, (vars.LLM_REVIEW_LABEL || 'ai-review')) ||
+                contains(github.event.pull_request.labels.*.name, 'openai') ||
+                contains(github.event.pull_request.labels.*.name, 'gemini') ||
+                contains(github.event.pull_request.labels.*.name, 'anthropic') ||
+                contains(github.event.pull_request.labels.*.name, 'claude') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'gpt-') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'claude-') ||
                 contains(join(github.event.pull_request.labels.*.name, ','), 'gemini') ||
@@ -83,6 +91,9 @@ jobs:
           REVIEW_LABEL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.review_label || vars.LLM_REVIEW_LABEL || 'ai-review' }}
           LLM_PROVIDER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.llm_provider || vars.LLM_PROVIDER || 'openai' }}
           LLM_MODEL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.llm_model || vars.LLM_MODEL || '' }}
+          DEFAULT_OPENAI_MODEL: ${{ vars.OPENAI_DEFAULT_MODEL || vars.LLM_MODEL || 'gpt-5' }}
+          DEFAULT_GEMINI_MODEL: ${{ vars.GEMINI_DEFAULT_MODEL || 'gemini-1.5-pro' }}
+          DEFAULT_ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-latest' }}
           OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL || 'https://api.openai.com/v1' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -102,6 +113,11 @@ jobs:
             const reviewLabel = (process.env.REVIEW_LABEL || "ai-review").trim();
             const providerFromEnv = (process.env.LLM_PROVIDER || "openai").trim().toLowerCase();
             const modelOverride = (process.env.LLM_MODEL || "").trim();
+            const defaultModels = {
+              openai: (process.env.DEFAULT_OPENAI_MODEL || "gpt-5").trim(),
+              gemini: (process.env.DEFAULT_GEMINI_MODEL || "gemini-1.5-pro").trim(),
+              anthropic: (process.env.DEFAULT_ANTHROPIC_MODEL || "claude-3-5-sonnet-latest").trim(),
+            };
             const marker = "<!-- llm-pr-review -->";
 
             const prResp = await github.rest.pulls.get({
@@ -116,6 +132,20 @@ jobs:
             function parseProviderModelFromLabel(label) {
               const raw = String(label || "").trim();
               if (!raw) return null;
+              const normalized = raw.toLowerCase();
+
+              // Bare provider aliases map to default models.
+              const providerAliasMap = {
+                openai: "openai",
+                gpt: "openai",
+                gemini: "gemini",
+                anthropic: "anthropic",
+                claude: "anthropic",
+              };
+              if (providerAliasMap[normalized]) {
+                const provider = providerAliasMap[normalized];
+                return { provider, model: defaultModels[provider], raw, alias: true };
+              }
 
               // Explicit formats:
               // - llm:<provider>:<model>
@@ -335,10 +365,13 @@ jobs:
               provider = labelParsed.provider;
               chosenModel = labelParsed.model;
               chosenLabel = labelParsed.raw;
+              if (labelParsed.alias) {
+                core.info(`Resolved alias label '${chosenLabel}' to ${provider}:${chosenModel}.`);
+              }
             }
 
             if (provider === "openai") {
-              chosenModel = chosenModel || "gpt-5";
+              chosenModel = chosenModel || defaultModels.openai;
               reviewText = await callOpenAI({
                 apiKey: process.env.OPENAI_API_KEY,
                 baseUrl: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
@@ -349,14 +382,14 @@ jobs:
                 ],
               });
             } else if (provider === "gemini") {
-              chosenModel = chosenModel || "gemini-1.5-pro";
+              chosenModel = chosenModel || defaultModels.gemini;
               reviewText = await callGemini({
                 apiKey: process.env.GEMINI_API_KEY,
                 model: chosenModel,
                 prompt: `${systemPrompt}\n\n${userPrompt}`,
               });
             } else if (provider === "anthropic") {
-              chosenModel = chosenModel || "claude-3-5-sonnet-latest";
+              chosenModel = chosenModel || defaultModels.anthropic;
               reviewText = await callAnthropic({
                 apiKey: process.env.ANTHROPIC_API_KEY,
                 model: chosenModel,

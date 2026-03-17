@@ -49,6 +49,9 @@ jobs:
           TRIGGER_LABEL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.trigger_label || github.event.label.name }}
           LLM_PROVIDER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.llm_provider || '' }}
           LLM_MODEL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.llm_model || '' }}
+          DEFAULT_OPENAI_MODEL: ${{ vars.OPENAI_DEFAULT_MODEL || 'gpt-5' }}
+          DEFAULT_GEMINI_MODEL: ${{ vars.GEMINI_DEFAULT_MODEL || 'gemini-1.5-pro' }}
+          DEFAULT_ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_DEFAULT_MODEL || 'claude-3-5-sonnet-latest' }}
           OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL || 'https://api.openai.com/v1' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -71,9 +74,29 @@ jobs:
               return;
             }
 
+            const defaultModels = {
+              openai: (process.env.DEFAULT_OPENAI_MODEL || "gpt-5").trim(),
+              gemini: (process.env.DEFAULT_GEMINI_MODEL || "gemini-1.5-pro").trim(),
+              anthropic: (process.env.DEFAULT_ANTHROPIC_MODEL || "claude-3-5-sonnet-latest").trim(),
+            };
+
             function parseProviderModelFromLabel(label) {
               const raw = String(label || "").trim();
               if (!raw) return null;
+              const normalized = raw.toLowerCase();
+
+              // Bare provider aliases map to default models.
+              const providerAliasMap = {
+                openai: "openai",
+                gpt: "openai",
+                gemini: "gemini",
+                anthropic: "anthropic",
+                claude: "anthropic",
+              };
+              if (providerAliasMap[normalized]) {
+                const provider = providerAliasMap[normalized];
+                return { provider, model: defaultModels[provider], raw, alias: true };
+              }
 
               // Explicit formats:
               // - llm:<provider>:<model>
@@ -106,10 +129,14 @@ jobs:
             }
 
             const provider = (process.env.LLM_PROVIDER || labelParsed.provider || "").trim().toLowerCase();
-            const model = (process.env.LLM_MODEL || labelParsed.model || "").trim();
+            const model =
+              (process.env.LLM_MODEL || labelParsed.model || defaultModels[provider] || "").trim();
             if (!provider || !model) {
               core.setFailed(`Unable to determine provider/model from label '${triggerLabel}'.`);
               return;
+            }
+            if (labelParsed.alias) {
+              core.info(`Resolved alias label '${triggerLabel}' to ${provider}:${model}.`);
             }
 
             const marker = `<!-- llm-issue-review:${triggerLabel} -->`;

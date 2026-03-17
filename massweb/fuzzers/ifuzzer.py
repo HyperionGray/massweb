@@ -69,7 +69,7 @@ class iFuzzer(object):
     #   interface. See PNKTHR-61
     def generate_fuzzy_targets(self):
         """ Prototype for the method that generates a list of targets with the fuzzing data added. """
-        pass
+        raise NotImplementedError("generate_fuzzy_targets() must be implemented in child classes.")
 
     def determine_posts_from_targets(self, depreciated=None):
         """ Add targets with POST requests to this Fuzzer's list of targets.
