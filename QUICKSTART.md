@@ -78,10 +78,11 @@ For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 ### Proxy Settings
 
 ```python
-from massweb.proxy_rotator import ProxyRotator
+from massweb.fuzzers import WebFuzzer
 
-proxy_rotator = ProxyRotator(['proxy1.com:8080', 'proxy2.com:8080'])
-fuzzer = WebFuzzer(target, proxy_rotator=proxy_rotator)
+# Provide a list of proxies directly to the fuzzer
+proxies = ['proxy1.com:8080', 'proxy2.com:8080']
+fuzzer = WebFuzzer(target, proxy_list=proxies)
 ```
 
 ### Payload Customization
