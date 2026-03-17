@@ -11,11 +11,18 @@ class FuzzyTargetGroup(object):
             fuzzy_targets = []
         self.fuzzy_targets = fuzzy_targets
         
-    #FIXME: create a method add_targets() that adds a list of Targets at once
-    #  See PNKTHR-59
-
     def add_target(self, fuzzy_target):
         """ add FuzzyTarget to the group
             fuzzy_target    ... guess ..."""
         self.fuzzy_targets.append(fuzzy_target)
-    
+
+    def add_targets(self, fuzzy_targets):
+        """Add a list/iterable of FuzzyTarget objects to this group."""
+        if fuzzy_targets is None:
+            return
+        try:
+            iterator = iter(fuzzy_targets)
+        except TypeError:
+            raise TypeError("fuzzy_targets must be an iterable")
+        for fuzzy_target in iterator:
+            self.add_target(fuzzy_target)

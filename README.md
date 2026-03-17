@@ -19,6 +19,11 @@ Full documentation: https://hyperiongray.atlassian.net/wiki/display/PUB/MassWeb
 pip install -e .
 ```
 
+## Recent Improvements
+
+- Added `FuzzyTargetGroup.add_targets()` for bulk target insertion.
+- Added public crawler exports so `from massweb.masscrawler import MassCrawler` works directly.
+
 ## AI-Powered Code Review
 
 This repository supports automated AI-powered code reviews using multiple LLM providers:

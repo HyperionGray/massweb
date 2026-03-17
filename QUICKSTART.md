@@ -37,18 +37,25 @@ for result in results:
 
 ```python
 from massweb.masscrawler import MassCrawler
-from massweb.targets import CrawlTarget
 
-# Create crawl target
-target = CrawlTarget("http://example.com", max_depth=3)
+# Configure crawler seeds and run
+crawler = MassCrawler(seeds=["http://example.com"])
+crawler.crawl(depth=2, num_threads=5, request_timeout=10)
 
-# Run crawler
-crawler = MassCrawler(target)
-pages = crawler.crawl()
+# View discovered targets
+for target in crawler.targets:
+    print(target.url, target.status)
+```
 
-# View discovered pages
-for page in pages:
-    print(page.url)
+### Bulk Add Fuzzy Targets
+
+`FuzzyTargetGroup` now supports adding a full iterable at once:
+
+```python
+from massweb.targets import FuzzyTargetGroup
+
+group = FuzzyTargetGroup()
+group.add_targets([fuzzy_target_1, fuzzy_target_2, fuzzy_target_3])
 ```
 
 ## Using AI-Powered Workflows (Gemini & Others)

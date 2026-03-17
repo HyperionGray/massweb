@@ -192,3 +192,7 @@ class MassCrawl(object):
                 self.dedupe_targets()
             if stay_in_scope:
                 self.filter_targets_by_scope()
+
+
+class MassCrawler(MassCrawl):
+    """Backward-compatible alias for MassCrawl."""
