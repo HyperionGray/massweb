@@ -116,6 +116,7 @@ jobs:
             function parseProviderModelFromLabel(label) {
               const raw = String(label || "").trim();
               if (!raw) return null;
+              const DEFAULT_GEMINI_MODEL = "gemini-1.5-pro";
 
               // Explicit formats:
               // - llm:<provider>:<model>
@@ -129,6 +130,10 @@ jobs:
               // Short formats based on common model prefixes
               if (/^gpt-/i.test(raw) || /^o\d/i.test(raw) || /^o1/i.test(raw)) {
                 return { provider: "openai", model: raw, raw };
+              }
+              if (/^gemini$/i.test(raw)) {
+                // Support bare `gemini` as an alias for the default Gemini model.
+                return { provider: "gemini", model: DEFAULT_GEMINI_MODEL, raw };
               }
               if (/^gemini/i.test(raw)) {
                 const model = raw.toLowerCase() === "gemini3" ? "gemini-3" : raw;

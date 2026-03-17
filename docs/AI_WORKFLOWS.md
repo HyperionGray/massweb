@@ -3,6 +3,7 @@
 ## Overview
 
 This repository includes several GitHub Actions workflows that integrate with Large Language Model (LLM) providers for automated code review, issue analysis, and development assistance.
+This guide focuses on the core model-label driven workflows (`auto-llm-issue-review.yml` and `auto-llm-pr-review.yml`) plus the automation direction workflow (`auto-advance-ball.yml`).
 
 ## Supported LLM Providers
 
@@ -13,7 +14,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 ### 2. Gemini (Google AI)
 - Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash, etc.
-- Trigger labels: `gemini:*`, `gemini-*`, `llm:gemini:*`
+- Trigger labels: `gemini`, `gemini:*`, `gemini-*`, `llm:gemini:*`
 - Environment: Requires `GEMINI_API_KEY` secret
 
 ### 3. Anthropic (Claude)
@@ -33,12 +34,12 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 **Label Formats**:
 - Provider-specific: `openai:gpt-4`, `gemini:gemini-1.5-pro`, `anthropic:claude-3`
-- Short format: `gpt-4`, `claude-3.5-sonnet`
+- Short format: `gpt-4`, `gemini`, `claude-3.5-sonnet`
 - Generic: `llm:<provider>:<model>`
 
 **Example Usage**:
 1. Create or open an issue
-2. Add label: `gemini:gemini-1.5-pro` or `gemini:gemini-2.0-flash`
+2. Add label: `gemini` (default alias), `gemini:gemini-1.5-pro`, or `gemini:gemini-2.0-flash`
 3. Workflow automatically triggers and posts AI analysis as comment
 
 ### LLM PR Review (`auto-llm-pr-review.yml`)
@@ -64,6 +65,15 @@ This repository includes several GitHub Actions workflows that integrate with La
 - Can create commits and push changes
 - Iteratively works toward issue resolution
 
+### Other AI-Assisted Workflows
+
+This repository also includes additional AI-related workflows in `.github/workflows/`, including:
+- `auto-tag-based-review.yml`
+- `auto-amazonq-review.yml`
+- `auto-gpt5-implementation.yml`
+
+Those workflows use different triggers and goals; this document does not attempt to be a full reference for every AI workflow file in the repository.
+
 ## Gemini-Specific Information
 
 ### Default Model
@@ -84,7 +94,8 @@ Requires: GEMINI_API_KEY secret
 
 ### Label Examples
 ```
-gemini:gemini-1.5-pro          # Recommended default model label
+gemini                         # Alias for gemini-1.5-pro
+gemini:gemini-1.5-pro          # Explicit default model label
 gemini:gemini-1.5-flash        # Specific model
 gemini-2.0-flash               # Direct model name label
 llm:gemini:gemini-1.5-pro      # Explicit format
@@ -112,7 +123,7 @@ OPENAI_BASE_URL     # Custom OpenAI endpoint
 
 To test if Gemini is working:
 
-1. **Issue Test**: Create an issue and add label `gemini`
+1. **Issue Test**: Create an issue and add label `gemini` or `gemini:gemini-1.5-pro`
 2. **PR Test**: Create a PR and add label `gemini:gemini-1.5-flash`
 3. **Manual Test**: Go to Actions > Select workflow > Run workflow manually
 
@@ -121,7 +132,7 @@ To test if Gemini is working:
 ### Gemini Not Responding
 
 1. Check that `GEMINI_API_KEY` secret is set
-2. Verify label format is correct (`gemini`, `gemini:model-name`)
+2. Verify label format is correct (`gemini`, `gemini:model-name`, or `llm:gemini:model-name`)
 3. Check workflow runs in Actions tab for errors
 4. Ensure self-hosted runner is available and healthy
 
@@ -152,12 +163,10 @@ claude-3.5-sonnet
 - Add and process one label at a time (wait for each workflow run to finish before adding the next label), or
 - Fork/adjust the workflows to change the `concurrency` settings so multiple provider runs can complete in parallel.
 
-<!--
-Summary of changes:
-- Clarified that concurrency.cancel-in-progress prevents guaranteed parallel comments for multiple providers.
-- Updated wording so expectations match the actual workflow behavior.
+Example concurrency change (if you want parallel provider runs for the same issue/PR):
 
-TODO checklist:
-- [ ] Consider adding a docs snippet showing an example concurrency configuration that allows true parallel provider runs.
-- [ ] Optionally document recommended timing (e.g., how to confirm a run is finished before adding another label).
--->
+```yaml
+concurrency:
+  group: llm-review-${{ github.repository }}-${{ github.event.pull_request.number || github.event.issue.number }}-${{ github.event.label.name }}
+  cancel-in-progress: false
+```
