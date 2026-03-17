@@ -28,8 +28,8 @@ class Target(object):
         return self.url
 
     def __str__(self):
-        """ Returns the URL as a UTF-8 str. """
-        return unicode(self).encode('utf-8', 'replace')
+        """ Returns the URL as text. """
+        return self.__unicode__()
 
     def __init__(self, url, data=None, ttype="get"):
         """ Initialize a Target object:

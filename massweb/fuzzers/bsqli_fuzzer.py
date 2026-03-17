@@ -2,7 +2,6 @@
 
 from __future__ import division
 import sys
-import codecs
 import logging
 from urllib.parse import urlparse, parse_qs
 
@@ -24,11 +23,7 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
 logger = logging.getLogger('BSQLIFuzzer')
 logger.setLevel(logging.INFO)
 
-# force stdin and stderr to use utf-8
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 
 class BSQLiFuzzer(iFuzzer):

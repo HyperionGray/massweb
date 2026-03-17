@@ -3,7 +3,6 @@
 
 import sys
 from urllib.parse import urlparse
-import codecs
 import logging
 
 from bs4 import BeautifulSoup, SoupStrainer
@@ -20,10 +19,7 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassCrawlLogger')
 logger.setLevel(logging.DEBUG)
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 
 class MassCrawl(object):
