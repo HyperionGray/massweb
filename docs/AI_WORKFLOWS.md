@@ -152,12 +152,23 @@ claude-3.5-sonnet
 - Add and process one label at a time (wait for each workflow run to finish before adding the next label), or
 - Fork/adjust the workflows to change the `concurrency` settings so multiple provider runs can complete in parallel.
 
-<!--
-Summary of changes:
-- Clarified that concurrency.cancel-in-progress prevents guaranteed parallel comments for multiple providers.
-- Updated wording so expectations match the actual workflow behavior.
+### Optional Concurrency Override Example
 
-TODO checklist:
-- [ ] Consider adding a docs snippet showing an example concurrency configuration that allows true parallel provider runs.
-- [ ] Optionally document recommended timing (e.g., how to confirm a run is finished before adding another label).
--->
+If you want multiple provider runs to complete independently for the same issue/PR, include the provider/model in the concurrency group:
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}-${{ inputs.llm_provider }}-${{ inputs.llm_model }}
+  cancel-in-progress: false
+```
+
+This allows one run per provider/model combination without cancelling earlier runs.
+
+### Recommended Timing for Sequential Labels
+
+When keeping the default `cancel-in-progress: true` behavior, use this cadence:
+
+1. Add one label (for example: `gemini:gemini-1.5-pro`).
+2. Wait for the workflow run to reach a terminal status (success/failure/cancelled) in the Actions tab.
+3. Confirm the review comment was posted on the issue/PR.
+4. Add the next provider label.

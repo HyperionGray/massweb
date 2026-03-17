@@ -116,7 +116,15 @@ Target objects represent what to scan:
 - **Target**: Base class (URL + request type + optional POST data)
 - **FuzzyTarget**: Target with an injected payload (tracks original URL, parameter, payload)
 - **CrawlTarget**: Target discovered during crawling
-- **FuzzyTargetGroup**: Collection of related fuzzy targets
+- **FuzzyTargetGroup**: Collection of related fuzzy targets, including bulk insertion via `add_targets(...)`
+
+**Bulk add example:**
+```python
+from massweb.targets.fuzzy_target_group import FuzzyTargetGroup
+
+group = FuzzyTargetGroup()
+group.add_targets([true_fuzzy_target, false_fuzzy_target])
+```
 
 #### 5. Payloads (`payloads/`)
 Payload objects contain attack strings:
