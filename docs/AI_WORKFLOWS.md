@@ -13,7 +13,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 ### 2. Gemini (Google AI)
 - Models: gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash, etc.
-- Trigger labels: `gemini`, `gemini:*`, `gemini-*`
+- Trigger labels: `gemini:*`, `gemini-*`, `llm:gemini:*`
 - Environment: Requires `GEMINI_API_KEY` secret
 
 ### 3. Anthropic (Claude)
@@ -33,12 +33,12 @@ This repository includes several GitHub Actions workflows that integrate with La
 
 **Label Formats**:
 - Provider-specific: `openai:gpt-4`, `gemini:gemini-1.5-pro`, `anthropic:claude-3`
-- Short format: `gpt-4`, `gemini`, `claude-3.5-sonnet`
+- Short format: `gpt-4`, `claude-3.5-sonnet`
 - Generic: `llm:<provider>:<model>`
 
 **Example Usage**:
 1. Create or open an issue
-2. Add label: `gemini` or `gemini:gemini-2.0-flash`
+2. Add label: `gemini:gemini-1.5-pro` or `gemini:gemini-2.0-flash`
 3. Workflow automatically triggers and posts AI analysis as comment
 
 ### LLM PR Review (`auto-llm-pr-review.yml`)
@@ -67,7 +67,7 @@ This repository includes several GitHub Actions workflows that integrate with La
 ## Gemini-Specific Information
 
 ### Default Model
-- `gemini-1.5-pro` (used when no specific model is specified in the label)
+- `gemini-1.5-pro` (recommended default model for most use cases)
 
 ### Available Models
 - `gemini-1.5-pro` - Most capable, balanced
@@ -84,9 +84,9 @@ Requires: GEMINI_API_KEY secret
 
 ### Label Examples
 ```
-gemini                          # Uses default model
+gemini:gemini-1.5-pro          # Recommended default model label
 gemini:gemini-1.5-flash        # Specific model
-gemini-2.0-flash               # Direct model name
+gemini-2.0-flash               # Direct model name label
 llm:gemini:gemini-1.5-pro      # Explicit format
 ```
 
