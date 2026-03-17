@@ -3,8 +3,7 @@
 from massweb.vuln_checks.match import match_strings
 from massweb.vuln_checks.check import Check
 
-#FIXME: isn't this supposed to be a subclass of Check?
-class XPathICheck(object):
+class XPathICheck(Check):
     """ XPath Injection Checker:
         Checks for evidence of successful XPath injection in result from
         fuzzers. """

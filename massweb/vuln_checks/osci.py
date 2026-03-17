@@ -6,7 +6,8 @@ from massweb.vuln_checks.check import Check
 class OSCICheck(Check):
     """ OS Command Injection Checker: Checks for evidence of successful OS
         command injection in result from fuzzers."""
-    #FIXME: add breif description of attack
+    # Command injection payloads may expose command output markers in responses.
+    # This checker scans for common filesystem/content signatures.
 
     def __init__(self):
         """ Initialize this object and the list of strings to check for in
