@@ -141,11 +141,23 @@ llm_model: gemini-2.0-flash
 ```
 
 ### Parallel Provider Testing
-Add multiple labels to compare responses:
+To compare providers, you can use different labels (one provider/model per label):
 ```
 gemini:gemini-1.5-pro
 gpt-4
 claude-3.5-sonnet
 ```
 
-Each provider will post a separate review comment.
+**Important:** The provided workflows (`auto-llm-issue-review.yml` and `auto-llm-pr-review.yml`) use `concurrency.cancel-in-progress: true` per issue/PR. If you add multiple labels in quick succession, earlier runs will usually be cancelled, so you will typically only see the _latest_ provider’s review comment. To get separate comments from multiple providers, either:
+- Add and process one label at a time (wait for each workflow run to finish before adding the next label), or
+- Fork/adjust the workflows to change the `concurrency` settings so multiple provider runs can complete in parallel.
+
+<!--
+Summary of changes:
+- Clarified that concurrency.cancel-in-progress prevents guaranteed parallel comments for multiple providers.
+- Updated wording so expectations match the actual workflow behavior.
+
+TODO checklist:
+- [ ] Consider adding a docs snippet showing an example concurrency configuration that allows true parallel provider runs.
+- [ ] Optionally document recommended timing (e.g., how to confirm a run is finished before adding another label).
+-->
