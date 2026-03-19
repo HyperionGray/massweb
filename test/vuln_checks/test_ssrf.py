@@ -6,16 +6,28 @@ class TestSSRFCheck(unittest.TestCase):
 
     def setUp(self):
         self.true = [
+            # AWS metadata service
             "ami-id",
             "instance-id",
             "instance-type",
             "local-hostname",
             "local-ipv4",
+            "ami-launch-index",
+            # GCP metadata service
             "computemetadata",
+            "metadata.google.internal",
+            # Azure metadata
+            "metadata/instance",
+            # Internal service banners
             "redis_version",
             "memcached stats",
+            # Error messages revealing internal host details
             "failed to connect to",
             "connection refused",
+            "no route to host",
+            "name or service not known",
+            "could not resolve host",
+            # Spring Boot actuator
             '"status":"up"',
             '"diskspace":{',
         ]
