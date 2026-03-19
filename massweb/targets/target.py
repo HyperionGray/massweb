@@ -24,21 +24,28 @@ class Target(object):
         return hash((self.url, self.ttype, str(self.data)))
 
     def __unicode__(self):
-        """ Returns the URL as a unicode object """
+        """Returns the URL as a string (Python 2 compatibility)."""
         return self.url
 
     def __str__(self):
-        """ Returns the URL as a UTF-8 str. """
-        return unicode(self).encode('utf-8', 'replace')
+        """Return the URL as a string."""
+        return self.url
+
+    def __bytes__(self):
+        """Return the URL as UTF-8 bytes."""
+        return self.url.encode("utf-8", "replace")
 
     def __init__(self, url, data=None, ttype="get"):
         """ Initialize a Target object:
-            url     unicode object containing the location of the target.
+            url     string containing the location of the target.
             data    POST request payload as a dict.
             ttype   HTTP request type (get,post). Default "get". """
-        # urlparse needs unicode. see PNKTHR-50
-        if not isinstance(url, unicode):
-            raise TypeError("URL input must be unicode, not string")
+        if url is None:
+            raise TypeError("URL input must be a string, not None")
+        if isinstance(url, bytes):
+            url = url.decode("utf-8", "replace")
+        if not isinstance(url, str):
+            raise TypeError("URL input must be a string")
         self.url = url
         self.ttype = ttype
         self.data = data
@@ -58,5 +65,4 @@ class Target(object):
         return self._parse().path
 
     def _parse(self):
-        return urlparse(unicode(self))
-
+        return urlparse(str(self))

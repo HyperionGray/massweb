@@ -1,27 +1,14 @@
-import os 
-from bs4 import BeautifulSoup, SoupStrainer
-import sys
-from urllib.parse import urlparse, urlunparse, urljoin
-import traceback
-from requests.exceptions import ConnectionError
-import urllib.request
-import urllib.parse
-import urllib.error
-import requests
-from massweb.targets.fuzzy_target import FuzzyTarget
-from massweb.targets.target import Target
-from massweb.pnk_net.pnk_request import pnk_request_raw
-import codecs
 import logging
-from logging import StreamHandler
-from bs4.element import Tag
+from urllib.parse import quote_plus, urljoin, urlparse
+
+from bs4 import BeautifulSoup, SoupStrainer
+
+from massweb.pnk_net.pnk_request import pnk_request_raw
+from massweb.targets.target import Target
+
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('find_post')
 logger.setLevel(logging.INFO)
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
 
 GET = "get"
 POST = "post"
@@ -49,11 +36,11 @@ def find_post_requests(**kwargs):
     if not response_text:
         response_text = pnk_request_raw(target)[1].text
     if strict_scope:
-        url_host = urlparse(unicode(target)).netloc
+        url_host = urlparse(str(target)).netloc
     post_requests = []
     for form in BeautifulSoup(response_text, 'html.parser', parse_only=SoupStrainer('form')):
         try:
-            norm_link_dic = normalize_link(form.get("action"), unicode(target))
+            norm_link_dic = normalize_link(form.get("action"), str(target))
         except ValueError:
             continue
         norm_url = norm_link_dic["norm_url"]
@@ -72,10 +59,10 @@ def find_post_requests(**kwargs):
             except:
                 continue
             try:
-                value = urllib.parse.quote_plus(elem["value"])
+                value = quote_plus(elem["value"])
             except:
                 if hadoop_reporting:
-                    logger.warn("Handled exception: ", exc_info=True)
+                    logger.warning("Handled exception", exc_info=True)
                 value = ""
             post_data[input_name] = value
         target_post = Target(norm_url, data=post_data, ttype=POST)

@@ -1,8 +1,6 @@
 """ Web Fuzzer Class. """
 
-import codecs
 import logging
-import sys
 from urllib.parse import parse_qs, urlparse
 
 from massweb.fuzzers.ifuzzer import iFuzzer
@@ -26,12 +24,6 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('WebFuzzer')
 logger.setLevel(logging.DEBUG)
-
-# force stdin and stderr to use utf-8
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 GET = "get"
 POST = "post"

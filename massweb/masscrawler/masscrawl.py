@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """ MassCrawl is the crawler/spider part of MassWeb """
 
-import sys
-from urllib.parse import urlparse
-import codecs
 import logging
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup, SoupStrainer
 
@@ -20,10 +18,6 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassCrawlLogger')
 logger.setLevel(logging.DEBUG)
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 
 class MassCrawl(object):
@@ -166,7 +160,7 @@ class MassCrawl(object):
             links = self.parse_response(response, stay_in_scope=stay_in_scope,
                                         max_links=max_links)
             for link in links:
-                ct_link = CrawlTarget(unicode(link))
+                ct_link = CrawlTarget(str(link))
                 self.add_target(ct_link)
             if stay_in_scope:
                 self.filter_targets_by_scope()

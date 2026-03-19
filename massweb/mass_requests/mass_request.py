@@ -1,7 +1,5 @@
 """ """
-import codecs
 import logging
-import sys
 
 from multiprocessing import Pool
 
@@ -13,10 +11,6 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassRequest')
 logger.setLevel(logging.DEBUG)
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 
 IDENTIFY_POSTS = 'identify_post'
@@ -117,10 +111,11 @@ class MassRequest(object):
 
     def post_urls(self, urls_and_data):
         """ Try to send POST requests to all the listed (url, data) tuples. """
-        ret = self._check_method_input_single(urls_and_data, 'urls_and_data', unicode)
-        if ret:
-            raise ret
-        targets = [self.to_target(x, "post") for x in urls_and_data]
+        if not urls_and_data:
+            raise ValueError("argument urls_and_data is required")
+        if not isinstance(urls_and_data, (list, tuple)):
+            raise TypeError("urls_and_data must be a list/tuple")
+        targets = [self.to_target(x, POST) for x in urls_and_data]
         self.handle_targets(targets=targets)
 
     def post_targets(self, targets):
@@ -144,18 +139,17 @@ class MassRequest(object):
 
     def get_urls(self, urls):
         """ Try to send GET requests to all the listed urls. """
-        ret = self._check_method_input(urls, "urls", unicode)
-        if ret:
-            raise ret
+        if not urls:
+            raise ValueError("argument urls is required")
+        if not isinstance(urls, (list, tuple)):
+            raise TypeError("urls must be a list/tuple")
         targets = [self.to_target(x, GET) for x in urls]
         self.handle_targets(targets=targets)
 
     def _urls_from_file(self, filename):
         """ """
-        url_file = open(filename, "rb")
-        urls = url_file.readlines()
-        url_file.close()
-        return [unicode(x.strip()) for x in urls]
+        with open(filename, "r", encoding="utf-8", errors="replace") as url_file:
+            return [line.strip() for line in url_file if line.strip()]
 
     def handle_targets(self, targets=None, action=None):
         """ Handle targets. For internal use.
@@ -257,17 +251,22 @@ class MassRequest(object):
     def to_target(self, item, request_type):
         """ Convert item into a Target object.
 
-        item            URL as a unicode or str, a tuple/list containing a URL and parameters, or a Target object.
+        item            URL as a str/bytes, a tuple/list containing a URL and parameters, or a Target object.
         request_type    lowercase get or post specifying the HTTP requast type
 
         """
         if isinstance(item, Target):
             return item
-        elif isinstance(item, str):
-            return Target(str(item), request_type)
-        elif isinstance(item, list) or isinstance(item, tuple):
+        if isinstance(item, bytes):
+            item = item.decode("utf-8", "replace")
+        if isinstance(item, str):
+            return Target(item, ttype=request_type)
+        if isinstance(item, (list, tuple)):
+            if len(item) != 2:
+                raise ValueError("Expected (url, data) tuple")
             url, data = item
-            return Target(url, request_type, data)
+            return Target(url, data=data, ttype=request_type)
+        raise TypeError("Unsupported target input type: %s" % (type(item).__name__,))
 
     def _check_method_input(self, arg, arg_name, item_type, type_desc="list"):
         """ Helper that checks the input of a method to ensure the correct

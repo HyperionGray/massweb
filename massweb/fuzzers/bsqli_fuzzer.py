@@ -1,8 +1,6 @@
 """  Blind SQL injection fuzzer. """
 
 from __future__ import division
-import sys
-import codecs
 import logging
 from urllib.parse import urlparse, parse_qs
 
@@ -23,12 +21,6 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('BSQLIFuzzer')
 logger.setLevel(logging.INFO)
-
-# force stdin and stderr to use utf-8
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
 
 
 class BSQLiFuzzer(iFuzzer):
@@ -79,15 +71,15 @@ class BSQLiFuzzer(iFuzzer):
                 if max_content_length_variance > self.allowed_variance:
                     if hadoop_reporting:
                         logger.info(u"Found unstable target %s",
-                                    unicode(target))
+                                    str(target))
                     self.unstable_targets.append(target)
                 else:
-                    logger.info(u"Found stable target %s", unicode(target))
+                    logger.info(u"Found stable target %s", str(target))
                     self.stable_targets.append(target)
             except: #FIXME: Exception type
                 if self.hadoop_reporting:
                     logger.info(u"Found unstable target %s due to exception:",
-                                unicode(target))
+                                str(target))
                 self.unstable_targets.append(target)
 
     def newmreq(self):
