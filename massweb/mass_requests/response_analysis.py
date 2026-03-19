@@ -1,6 +1,5 @@
 """  """
 
-import codecs
 import sys
 import logging
 
@@ -10,10 +9,7 @@ from requests import Response
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('response_analysis.parse_worthy')
 logger.setLevel(logging.INFO)
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 
 def parse_worthy(response, max_parse_size=5000000, content_type_match="text",

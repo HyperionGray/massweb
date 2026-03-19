@@ -11,17 +11,13 @@ import requests
 from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.targets.target import Target
 from massweb.pnk_net.pnk_request import pnk_request_raw
-import codecs
 import logging
 from logging import StreamHandler
 from bs4.element import Tag
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('find_post')
 logger.setLevel(logging.INFO)
-# In Python 3, sys.stdin/stderr are already text streams with encoding
-if hasattr(sys.stdin, 'buffer'):
-    sys.stdin = codecs.getreader('utf-8')(sys.stdin.buffer)
-sys.stderr = codecs.getwriter('utf-8')(sys.stderr)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 GET = "get"
 POST = "post"
