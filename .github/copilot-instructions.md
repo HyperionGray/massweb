@@ -1,32 +1,107 @@
-# Overall Instructions
+# MassWeb — Copilot Instructions
 
-- Don't leave any code with TODO items - instead put it into a TODO.md where the code would be and include it in the markup, explaining what there is todo
-- DO NOT exaggerate what is done and what is not, please be straightforward, if there was not time for something or it did not get done I need to know.
-- Please summarize your work in the comments and always leave behind a checklist of things that you see as left to do in the comments.
-- If I ask you to clean up, you may absolutely move files and folders to a bak/ folder in any directory. If it does not exist you can create one. Don't leave trash behind out of fear of not wanting to change my repo. I want my repo changed, that's why I'm coming to you for help.
-- Code *should not* exceed a few hundred lines. If it does, please split it up into logical files with includes. This is especially true of files with complex logic. It is NOT an excuse to say the "code is complex and therefore long", if it is complex that's even more reason to split it into logical pieces.
-- **DO NOT** duplicate filenames and directories, if you need a file or dir from somewhere else and it needs to be in both places, use a symlink.
-- Always use the last few minutes of your time to CLEAN UP, that means mark any TODO items as listed above (in a file called TODO.md) and do not leave any unfinished code silently behind.
-- please keep the repository logically organized, ALWAYS check where you are coding- does it make sense to be there? if not move it and work there.
-- The end state of a repo should be reasonable:
+## Project Overview
+
+**MassWeb** is a high-performance Python 3 library for massive-scale web application fuzzing and vulnerability scanning (SQL injection, XSS, path traversal, OS command injection, etc.). It was built by Hyperion Gray for the PunkSPIDER project and is capable of scanning hundreds of millions of URLs in days using multiprocessing and optional Hadoop integration.
+
+## Repository Structure
 
 ```
-include/
-build/
-src/
-QUICKSTART.md
-README.md
-docs/    <---- ALL OTHER DOCS GO HERE
-bak/
+massweb/               # Main library package
+  mass_requests/       # Core parallel HTTP request handling (multiprocessing)
+  fuzzers/             # Fuzzing engines (WebFuzzer)
+  masscrawler/         # Web crawler (BeautifulSoup-based)
+  targets/             # Target objects (Target, FuzzyTarget, CrawlTarget)
+  payloads/            # Attack payload definitions
+  vuln_checks/         # Vulnerability detectors (sqli, xss, trav, mxi, osci, xpathi)
+  proxy_rotator/       # Transparent proxy rotation
+  pnk_net/             # Low-level HTTP request utilities and form discovery
+  results/             # Result objects for findings
+  hadoop-utils/        # Hadoop MapReduce mapper/reducer scripts
+test/                  # Unit and integration tests (unittest)
+docs/                  # Sphinx documentation source
+QUICKSTART.md          # Quick start guide
+START_HERE.md          # Deep-dive architecture guide for new contributors
+rules.json             # Project-wide coding and workflow rules
 ```
 
-- You may add to the above but you must logically categorize it in a directory. For example having a src/python-lib and src/c-lib is reasonable, same for varoius topics or business logic like src/transfer  src/compute  for example are valid. But the repo should stay clean at absolutely all times. Otherwise the PR does not get merged in.
+## How to Build and Install
 
+```bash
+# Install in development mode (recommended)
+pip install -e .
 
+# Install dev dependencies (Sphinx, build, wheel)
+pip install -r requirements-dev.txt
 
-# Preferences
+# Build the package
+python -m build
+```
 
-- Podman over docker
-- python for anything that is not performance critical
-- C or Rust for anything performance critical
-- Typescript with React for any web UI stuff or if appropriate
+## How to Run Tests
+
+```bash
+# Run all tests via unittest discovery (preferred)
+python -m unittest discover test/
+
+# Run via the test script
+cd test && python -m unittest discover
+
+# Run a specific test file
+python test/vuln_checks/test_sqli.py
+
+# Run via Makefile (creates a local venv in env/)
+make test
+```
+
+Tests live in `test/` and use Python's built-in `unittest` framework. There is no pytest config; use `unittest` directly.
+
+## Key Architectural Patterns
+
+- **Target → FuzzyTarget pipeline**: Create `Target` objects, call `fuzzer.generate_fuzzy_targets()` to inject payloads into URL params/POST data, then `fuzzer.fuzz()` to execute and analyze.
+- **Multiprocessing, not threads**: `MassRequest` uses `multiprocessing.Pool` to avoid the GIL and enforce hard per-URL timeouts via `AsyncResult.get(timeout=...)`.
+- **Special error strings**: Failed requests return `__PNK_THREAD_TIMEOUT` or `__PNK_FAILED_RESPONSE` rather than raising exceptions.
+- **Vulnerability checks**: Each checker in `vuln_checks/` inherits from `Check` and implements `check(content) -> bool` using regex or string matching.
+
+## Coding Conventions
+
+- Python 3.7+ compatibility required; supports up to 3.12.
+- New vulnerability checks: create a file in `massweb/vuln_checks/`, inherit from `Check`, implement `check(content)`, and register in `WebFuzzer._run_checks()`.
+- No demo code mixed with production code. Demo code goes in `demo/` and must show a large `DEMO` banner.
+- All documentation goes in `docs/`. Do not scatter doc files in the root.
+- Code files should stay under a few hundred lines. Split complex logic into focused modules.
+- No duplicate filenames or directories — use symlinks if a file is needed in multiple places.
+- No TODOs left in code — capture them in a `TODO.md` file instead.
+
+## Repository Organization Rules
+
+The repo must stay clean. Acceptable top-level structure:
+
+```
+massweb/    QUICKSTART.md    README.md
+test/       docs/            bak/       (for cleanup/archiving)
+```
+
+Additional directories are allowed if logically categorized. Sub-directories should be equally organized.
+
+## Workflow Rules
+
+- Always check `rules.json`, `START_HERE.md`, and `QUICKSTART.md` for context before starting tasks.
+- First task in any task list: clean up the target directory.
+- Mark any unfinished items in `TODO.md`; do not leave silent dead-end code.
+- When asked to clean up: moving files to a `bak/` folder is acceptable and encouraged.
+- Summarize completed work in comments and leave a checklist of remaining items.
+
+## Tooling Preferences
+
+- **Container runtime**: Podman over Docker (never use Docker directly).
+- **Language choices**: Python for non-performance-critical code; C or Rust for performance-critical code; TypeScript + React for web UIs.
+- **Web testing**: Playwright scripts for automated web testing, including HTTP error detection.
+- **Security**: Always use TLS for secure communications. Good security practices are required.
+- **Key-value store** preferred over PostgreSQL for database needs.
+
+## Style Rules
+
+- NO emojis, NO color output in scripts/tools (ASCII skulls are OK).
+- Only production or real test code — no calculation-based emulations or placeholder stubs.
+- Be straightforward about what is done vs. not done; do not exaggerate completion.
