@@ -162,7 +162,7 @@ class MassCrawl(object):
             links = self.parse_response(response, stay_in_scope=stay_in_scope,
                                         max_links=max_links)
             for link in links:
-                ct_link = CrawlTarget(unicode(link))
+                ct_link = CrawlTarget(str(link))
                 self.add_target(ct_link)
             if stay_in_scope:
                 self.filter_targets_by_scope()

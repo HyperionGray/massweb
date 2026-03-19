@@ -77,12 +77,12 @@ class BSQLiFuzzer(iFuzzer):
                                     unicode(target))
                     self.unstable_targets.append(target)
                 else:
-                    logger.info(u"Found stable target %s", unicode(target))
+                    logger.info("Found stable target %s", str(target))
                     self.stable_targets.append(target)
-            except: #FIXME: Exception type
+            except Exception:
                 if self.hadoop_reporting:
-                    logger.info(u"Found unstable target %s due to exception:",
-                                unicode(target))
+                    logger.info("Found unstable target %s due to exception:",
+                                str(target), exc_info=True)
                 self.unstable_targets.append(target)
 
     def newmreq(self):
@@ -326,14 +326,14 @@ class BSQLiFuzzer(iFuzzer):
                     result_dic["bsqli"] = False
                 else:
                     # BSQLI check
-                    logger.debug("fuzzy_target_group: %", ftg)
+                    logger.debug("fuzzy_target_group: %s", ftg)
                     result_dic["bsqli"] = self.check_for_bsqli(ftg)
-            except:  #FIXME: Exception type
+            except Exception:
                 if self.hadoop_reporting:
                     logger.info("Caught exception trying to perform BSQLi"
                                 " check on %s :",
                                 ftg.fuzzy_targets[0].unfuzzed_target,
                                 exc_info=True)
-                    result_dic["bsqli"] = False
+                result_dic["bsqli"] = False
             results.append(Result(ftg.fuzzy_targets[0], result_dic))
         return results
