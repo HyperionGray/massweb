@@ -1,45 +1,60 @@
 # MassWeb
 
-MassWeb is a legacy Python web fuzzing and mass-request toolkit originally
-published by Hyperion Gray.
+## Author
 
-This repository now includes a standard Python 3 development environment setup
-so it can be bootstrapped consistently in local shells, CI jobs, and cloud
-coding agents.
+Hyperion Gray, LLC  
+http://www.hyperiongray.com
 
-## Requirements
+## Purpose
 
-- Python 3.11
-- `make` (optional, but convenient)
+MassWeb is a simple, scalable and super-fast web app fuzzer. It can also be used for mass requests of HTTP resources.
 
-## Quick start
+## Documentation
 
-```bash
-./test/refresh.sh
-./test/run.sh
-```
+Full documentation: https://hyperiongray.atlassian.net/wiki/display/PUB/MassWeb
 
-Or use the root Makefile:
+## Installation
 
 ```bash
-make env
-make test
+pip install -e .
 ```
 
-## Repository layout
+## AI-Powered Code Review
 
-- `massweb/` - package source
-- `test/` - bootstrap and test scripts plus unittest suites
-- `docs/` - Sphinx documentation
+This repository supports automated AI-powered code reviews using multiple LLM providers:
 
-## Environment files
+### Supported Providers
 
-- `.python-version` pins the expected interpreter version for tooling.
-- `requirements.txt` contains the base Python dependencies.
-- `requirements-dev.txt` adds documentation and build-time tooling.
-- `pyproject.toml` provides modern setuptools build metadata.
+- **OpenAI** (GPT models)
+- **Gemini** (Google's Gemini models)
+- **Anthropic** (Claude models)
 
-## Additional docs
+### Using Gemini for Code Review
 
-- `QUICKSTART.md` - shortest path to a working environment
-- `README.txt` - original upstream project notes
+To trigger a Gemini-powered review on issues or pull requests, add one of these labels:
+
+- `gemini-1.5-pro` - Recommended default Gemini model (direct model name)
+- `gemini:<model-name>` - Uses a specific Gemini model (e.g., `gemini:gemini-1.5-flash`)
+- Other valid Gemini model names such as `gemini-2.0-flash` - Direct model names supported by your Gemini provider configuration
+
+### Workflow Triggers
+
+The Gemini integration works through GitHub Actions workflows:
+
+1. **Issue Review** (`auto-llm-issue-review.yml`) - Reviews issues when labeled
+2. **PR Review** (`auto-llm-pr-review.yml`) - Reviews pull requests when labeled
+3. **Advance Ball** (`auto-advance-ball.yml`) - Automated progress on tasks
+
+### Manual Trigger
+
+You can also manually trigger workflows via GitHub Actions UI and select:
+- Provider: `gemini`
+- Model: Your preferred Gemini model name
+
+## License
+
+MassWeb is released under the Apache 2.0 License.
+
+## Issues
+
+MassWeb is currently beta software. All issues should be directed to our GitHub repo.
