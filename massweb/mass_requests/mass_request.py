@@ -1,5 +1,7 @@
 """ """
 import logging
+import sys
+import time
 
 from multiprocessing import Pool
 
@@ -23,7 +25,8 @@ class MassRequest(object):
     """ Mass Request class. Applies payloads to targets. """
 
     def __init__(self, num_threads=10, time_per_url=10, request_timeout=10,
-                 proxy_list=None, hadoop_reporting=False):
+                 proxy_list=None, hadoop_reporting=False,
+                 requests_per_second=None):
         """ Initialize this MassRequest object.
 
         num_threads         Number of threads to run in seconds. Default 10.
@@ -33,13 +36,17 @@ class MassRequest(object):
         proxy_list          List of proxies to cycle through. Default empty.
         hadoop_reporting    Turn reporting for hadoop on if True and off is
                                 False. Default False.
+        requests_per_second Maximum number of requests to dispatch per second.
+                                None disables rate limiting. Default None.
         """
         self.num_threads = num_threads
         self.time_per_url = time_per_url
         self.request_timeout = request_timeout
         self.proxy_list = proxy_list or [{}]
+        self.requests_per_second = requests_per_second
+        if requests_per_second is not None and requests_per_second <= 0:
+            raise ValueError("requests_per_second must be a positive number or None.")
         self.results = []
-        #FIXME: empty fixme #! PNKTHR-54
         self.finished = []
         self.attempted = []
         self.identified_post_requests = []
@@ -164,7 +171,7 @@ class MassRequest(object):
             Options for `action` in self.ttype_func_callback, currently:
 
             ``"get"``
-                Process Targets with POST requests
+                Process Targets with GET requests
             ``"post"``
                 Process Targets with POST requests
             ``"identify_post"``
@@ -179,12 +186,25 @@ class MassRequest(object):
         # Load up the process pool
         self.pool = Pool(processes=self.num_threads)
         self.proc_results = []
+        min_interval = (1.0 / self.requests_per_second
+                        if self.requests_per_second else None)
+        last_dispatch = None
         # for each target in targets ...
         for target in targets:
             if not action:
                 this_action = target.ttype
             else:
                 this_action = action
+            # Enforce rate limit between dispatches
+            if min_interval is not None:
+                now = time.monotonic()
+                if last_dispatch is not None:
+                    elapsed = now - last_dispatch
+                    if elapsed < min_interval:
+                        time.sleep(min_interval - elapsed)
+                # Use `now` (not post-sleep monotonic) as the reference point
+                # so that the intended interval is maintained without drift.
+                last_dispatch = now
             # Append it to the list of attempted urls
             self.attempted.append(target)
             proc = self.create_process(target, this_action)

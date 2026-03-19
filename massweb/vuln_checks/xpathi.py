@@ -3,14 +3,10 @@
 from massweb.vuln_checks.match import match_strings
 from massweb.vuln_checks.check import Check
 
-
 class XPathICheck(Check):
-    """ XPath Injection Checker: Checks for evidence of successful XPath
-        injection in result from fuzzers.
-
-        XPath injection occurs when user-supplied input is embedded in an
-        XPath query without proper sanitization. An attacker can alter query
-        logic to extract data from XML documents or bypass authentication. """
+    """ XPath Injection Checker:
+        Checks for evidence of successful XPath injection in result from
+        fuzzers. """
 
     def __init__(self):
         """ Initialize the object and normalize the strings used to check for
