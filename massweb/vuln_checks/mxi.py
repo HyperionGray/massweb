@@ -5,8 +5,12 @@ from massweb.vuln_checks.check import Check
 
 class MXICheck(Check):
     """ Mail Form Injection Checker: Checks for evidence of successful mail
-        form injection in result from fuzzers. """
-        #FIXME: Add brief description of attack
+        form injection in result from fuzzers.
+
+        Mail form injection (also called email header injection) occurs when
+        user-supplied input is embedded in email headers without sanitization.
+        An attacker can add extra headers (e.g. ``Bcc:``) to redirect messages,
+        send spam, or exfiltrate data through an email-sending form. """
 
     def __init__(self):
         """ Initialize the object and normalize the strings used to check for

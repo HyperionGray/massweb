@@ -151,7 +151,7 @@ class MassRequest(object):
         url_file = open(filename, "rb")
         urls = url_file.readlines()
         url_file.close()
-        return [unicode(x.strip()) for x in urls]
+        return [x.strip().decode("utf-8") for x in urls]
 
     def handle_targets(self, targets=None, action=None):
         """ Handle targets. For internal use.
@@ -200,7 +200,7 @@ class MassRequest(object):
         for result in self.proc_results:
             try:
                 result.get(timeout=self.time_per_url)
-            except: #FIXME: Add exception types
+            except Exception:
                 if self.hadoop_reporting:
                     logger.info("Thread timed out or threw exception, killing"
                                 " it and replacing it", exc_info=True)

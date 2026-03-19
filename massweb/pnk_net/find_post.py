@@ -45,11 +45,11 @@ def find_post_requests(**kwargs):
     if not response_text:
         response_text = pnk_request_raw(target)[1].text
     if strict_scope:
-        url_host = urlparse(unicode(target)).netloc
+        url_host = urlparse(str(target)).netloc
     post_requests = []
     for form in BeautifulSoup(response_text, 'html.parser', parse_only=SoupStrainer('form')):
         try:
-            norm_link_dic = normalize_link(form.get("action"), unicode(target))
+            norm_link_dic = normalize_link(form.get("action"), str(target))
         except ValueError:
             continue
         norm_url = norm_link_dic["norm_url"]

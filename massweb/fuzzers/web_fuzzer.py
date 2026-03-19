@@ -213,24 +213,16 @@ class WebFuzzer(iFuzzer):
         result_dic      dict with checker names as keys.
         check_type_list list of names of checkers to check with.
         """
-        #FIXME: Make me work on a dict of checker IDs and methods to call
-        #   instead of an if statement cascade
-        if "mxi" in check_type_list:
-            mxi_result = self.mxi_check.check(response.text)
-            result_dic["mxi"] = mxi_result
-        if "sqli" in check_type_list:
-            sqli_result = self.sqli_check.check(response.text)
-            result_dic["sqli"] = sqli_result
-        if "xpathi" in check_type_list:
-            xpathi_result = self.xpathi_check.check(response.text)
-            result_dic["xpathi"] = xpathi_result
-        if "trav" in check_type_list:
-            trav_result = self.trav_check.check(response.text)
-            result_dic["trav"] = trav_result
-        if "osci" in check_type_list:
-            osci_result = self.osci_check.check(response.text)
-            result_dic["osci"] = osci_result
-        if "xss" in check_type_list:
-            xss_result = self.xss_check.check(response.text)
-            result_dic["xss"] = xss_result
+        checker_map = {
+            "mxi": self.mxi_check,
+            "sqli": self.sqli_check,
+            "xpathi": self.xpathi_check,
+            "trav": self.trav_check,
+            "osci": self.osci_check,
+            "xss": self.xss_check,
+        }
+        for check_type in check_type_list:
+            checker = checker_map.get(check_type)
+            if checker is not None:
+                result_dic[check_type] = checker.check(response.text)
         return result_dic
