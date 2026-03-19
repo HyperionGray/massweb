@@ -16,6 +16,7 @@ from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.vuln_checks.mxi import MXICheck
 from massweb.vuln_checks.osci import OSCICheck
 from massweb.vuln_checks.sqli import SQLICheck
+from massweb.vuln_checks.ssrf import SSRFCheck
 from massweb.vuln_checks.trav import TravCheck
 from massweb.vuln_checks.xpathi import XPathICheck
 from massweb.vuln_checks.xss import XSSCheck
@@ -70,9 +71,19 @@ class WebFuzzer(iFuzzer):
         self.mxi_check = MXICheck()
         self.osci_check = OSCICheck()
         self.sqli_check = SQLICheck()
+        self.ssrf_check = SSRFCheck()
         self.trav_check = TravCheck()
         self.xpathi_check = XPathICheck()
         self.xss_check = XSSCheck()
+        self._check_dispatch = {
+            "mxi": self.mxi_check,
+            "osci": self.osci_check,
+            "sqli": self.sqli_check,
+            "ssrf": self.ssrf_check,
+            "trav": self.trav_check,
+            "xpathi": self.xpathi_check,
+            "xss": self.xss_check,
+        }
         self.hadoop_reporting = hadoop_reporting
         if self.hadoop_reporting:
             logger.info("Hadoop reporting set in fuzzer")
@@ -207,30 +218,16 @@ class WebFuzzer(iFuzzer):
         return Result(ftarget, result_dic)
 
     def _run_checks(self, response, result_dic, check_type_list):
-        """ Check reponse output with the specified checkers.
+        """ Check response output with the specified checkers.
 
         response        requests.Response object.
         result_dic      dict with checker names as keys.
         check_type_list list of names of checkers to check with.
         """
-        #FIXME: Make me work on a dict of checker IDs and methods to call
-        #   instead of an if statement cascade
-        if "mxi" in check_type_list:
-            mxi_result = self.mxi_check.check(response.text)
-            result_dic["mxi"] = mxi_result
-        if "sqli" in check_type_list:
-            sqli_result = self.sqli_check.check(response.text)
-            result_dic["sqli"] = sqli_result
-        if "xpathi" in check_type_list:
-            xpathi_result = self.xpathi_check.check(response.text)
-            result_dic["xpathi"] = xpathi_result
-        if "trav" in check_type_list:
-            trav_result = self.trav_check.check(response.text)
-            result_dic["trav"] = trav_result
-        if "osci" in check_type_list:
-            osci_result = self.osci_check.check(response.text)
-            result_dic["osci"] = osci_result
-        if "xss" in check_type_list:
-            xss_result = self.xss_check.check(response.text)
-            result_dic["xss"] = xss_result
+        for check_type in check_type_list:
+            checker = self._check_dispatch.get(check_type)
+            if checker is not None:
+                result_dic[check_type] = checker.check(response.text)
+            else:
+                logger.warning("Unknown check type '%s' requested.", check_type)
         return result_dic

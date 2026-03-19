@@ -29,7 +29,31 @@ class SQLICheck(Check):
             "ora-01722: invalid number",
             "ora-01858: a non-numeric character was found where a numeric was expected",
             "ora-00920: invalid relational operator",
-            "ora-00920: missing right parenthesis"]
+            "ora-00920: missing right parenthesis",
+            # Modern MySQL/MariaDB
+            "mysql_fetch_array() expects parameter 1 to be resource",
+            "mysqli_fetch_array() expects parameter 1 to be mysqli_result",
+            "warning: mysql_",
+            "function.mysql",
+            # Modern PostgreSQL
+            "pg_query(): query failed:",
+            "error: unterminated quoted string at or near",
+            "error: syntax error at end of input",
+            # SQLite
+            "sqlite_excl",
+            "sqlite error",
+            "sqlite3::query:",
+            # MSSQL modern
+            "must declare the scalar variable",
+            "conversion failed when converting",
+            "operand type clash",
+            # Generic ORM errors
+            "activerecord::statementinvalid",
+            "pdo::query()",
+            "pdo::exec()",
+            "pdostatement::execute()",
+            "django.db.utils.operationalerror",
+            "django.db.utils.programmingerror"]
         self.vuln_strings = [x.lower() for x in vuln_strings_raw]
 
     def check(self, content):
