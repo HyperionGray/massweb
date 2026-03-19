@@ -1,0 +1,16 @@
+./docs/conf.py
+./docs/AGENTS.md
+./setup.py
+./test/masscrawl.py
+./test/run.sh
+./test/refresh.sh
+./test/util.py
+./test/masscrawl_utils.py
+./test/test_webfuzzer_offline.py
+./test/massweb_tourture.py
+./test/AGENTS.md
+./test/test_fuzzers.py
+./.github/copilot-instructions.md
+./AGENTS.md
+./massweb/__init__.py
+./massweb/AGENTS.md

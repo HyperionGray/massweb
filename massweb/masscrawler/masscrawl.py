@@ -4,6 +4,7 @@
 import sys
 from urllib.parse import urlparse
 import logging
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup, SoupStrainer
 

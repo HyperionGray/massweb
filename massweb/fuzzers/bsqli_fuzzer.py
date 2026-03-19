@@ -74,7 +74,7 @@ class BSQLiFuzzer(iFuzzer):
                 if max_content_length_variance > self.allowed_variance:
                     if hadoop_reporting:
                         logger.info(u"Found unstable target %s",
-                                    unicode(target))
+                                    str(target))
                     self.unstable_targets.append(target)
                 else:
                     logger.info("Found stable target %s", str(target))

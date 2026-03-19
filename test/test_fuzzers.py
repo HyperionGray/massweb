@@ -1,6 +1,8 @@
 """ """
 
+import os
 import unittest
+
 from massweb.targets.target import Target
 from massweb.fuzzers.web_fuzzer import WebFuzzer
 from massweb.fuzzers.bsqli_fuzzer import BSQLiFuzzer
@@ -8,26 +10,26 @@ from massweb.payloads.bsqli_payload import BSQLIPayload
 from massweb.payloads.bsqli_payload_group import BSQLIPayloadGroup
 from massweb.payloads.payload import Payload
 
-proxy_cred = {'username':'hyperiongray', 'password':'cL93TgopPd'}
-proxies = {"http": "http://%(username)s:%(password)s@proxy.crawlera.com:8010" % proxy_cred}
-proxy_scan_list = [proxies]
+RUN_INTEGRATION_TESTS = os.environ.get("MASSWEB_RUN_INTEGRATION_TESTS") == "1"
+INTEGRATION_TARGETS = [
+    u.strip()
+    for u in os.environ.get("MASSWEB_INTEGRATION_TARGETS", "").split(",")
+    if u.strip()
+]
+HTTP_PROXY = os.environ.get("MASSWEB_HTTP_PROXY")
+proxy_scan_list = [{"http": HTTP_PROXY, "https": HTTP_PROXY}] if HTTP_PROXY else [{}]
 
-stargets = [u'course.hyperiongray.com/vuln1',
-    u"http://course.hyperiongray.com/vuln1",
-    u"http://course.hyperiongray.com/vuln2/898538a7335fd8e6bac310f079ba3fd1/",
-    u"http://www.wpsurfing.co.za/?feed=%22%3E%3CScRipT%3Ealert%2831337%29%3C%2FScrIpT%3E",
-    u"http://www.sfgcd.com/ProductsBuy.asp?ProNo=1%3E&amp;ProName=1",
-    u"http://www.gayoutdoors.com/page.cfm?snippetset=yes&amp;typeofsite=snippetdetail&amp;ID=1368&amp;Sectionid=1",
-    u"http://www.dobrevsource.org/index.php?id=1"]
-
-targets = [Target(x) for x in stargets]
+targets = [Target(x) for x in INTEGRATION_TARGETS]
 
 payloads = [Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list = ["xss"]),
     Payload('../../../../../../../../../../../../../../../../../../etc/passwd', check_type_list = ["trav"]),
     Payload("')--", check_type_list = ["sqli", "xpathi"])]
 
-xss_targets = sqli_targets = bsqli_targetes = trav_targets = xpath_targets = osci_targets = targets
-
+@unittest.skipUnless(
+    RUN_INTEGRATION_TESTS and INTEGRATION_TARGETS,
+    "Network integration tests are disabled by default. "
+    "Set MASSWEB_RUN_INTEGRATION_TESTS=1 and MASSWEB_INTEGRATION_TARGETS=url1,url2",
+)
 class TestFuzzers(unittest.TestCase):
     """ """
 
@@ -45,7 +47,7 @@ class TestFuzzers(unittest.TestCase):
         payload_groups = [generic_payload_group, dump_payload_group]
         bf = BSQLiFuzzer(targets, bsqli_payload_groups = payload_groups, hadoop_reporting=False, num_threads=10)
         result = bf.fuzz()
-        # assertions
+        self.assertIsInstance(result, list)
 
 
     def test_webfuzzer(self):
@@ -54,7 +56,7 @@ class TestFuzzers(unittest.TestCase):
             wf.add_payload(payload)
         wf.generate_fuzzy_targets()
         result = wf.fuzz()
-        # assertions
+        self.assertIsInstance(result, list)
         
 
 if __name__ == '__main__':

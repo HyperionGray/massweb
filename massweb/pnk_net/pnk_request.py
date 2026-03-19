@@ -1,6 +1,5 @@
 
 import logging
-import sys
 
 import requests
 
@@ -35,7 +34,7 @@ def pnk_request_raw(target, request_type=GET, data=None, req_timeout=5,
                 logger.debug("%s.data %s; data: %s", target.__class__.__name__, target.data, data)
             data = target.data or data
         else:
-            raise TypeError("target must be an instance of Target or str not: %s", target.__class__.__name__)
+            raise TypeError("target must be an instance of Target or str not: %s" % (target.__class__.__name__,))
         if request_type == GET:
             if hadoop_reporting:
                 logger.info("GET requesting %s", target)
@@ -50,7 +49,7 @@ def pnk_request_raw(target, request_type=GET, data=None, req_timeout=5,
                                      timeout=req_timeout,
                                      allow_redirects=False, **kwargs)
         else:
-            raise ValueError("request_type must be either %s or %s", GET, POST)
+            raise ValueError("request_type must be either %s or %s" % (GET, POST))
         logger.debug("pnk_request_raw output target type: %s", target.__class__.__name__)
         return (target, response)
     except:

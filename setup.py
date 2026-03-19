@@ -1,7 +1,6 @@
 import os
 from setuptools import setup, find_packages
 
-print("Executing setup!!")
 setup(
     name = 'massweb',
     version = '0.3.0',

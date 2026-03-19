@@ -12,8 +12,13 @@ from massweb.targets.fuzzy_target import FuzzyTarget
 from massweb.targets.target import Target
 from massweb.pnk_net.pnk_request import pnk_request_raw
 import logging
-from logging import StreamHandler
-from bs4.element import Tag
+from urllib.parse import quote_plus, urljoin, urlparse
+
+from bs4 import BeautifulSoup, SoupStrainer
+
+from massweb.pnk_net.pnk_request import pnk_request_raw
+from massweb.targets.target import Target
+
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('find_post')
 logger.setLevel(logging.INFO)
@@ -68,10 +73,10 @@ def find_post_requests(**kwargs):
             except:
                 continue
             try:
-                value = urllib.parse.quote_plus(elem["value"])
+                value = quote_plus(elem["value"])
             except:
                 if hadoop_reporting:
-                    logger.warn("Handled exception: ", exc_info=True)
+                    logger.warning("Handled exception", exc_info=True)
                 value = ""
             post_data[input_name] = value
         target_post = Target(norm_url, data=post_data, ttype=POST)

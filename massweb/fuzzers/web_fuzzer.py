@@ -1,7 +1,6 @@
 """ Web Fuzzer Class. """
 
 import logging
-import sys
 from urllib.parse import parse_qs, urlparse
 
 from massweb.fuzzers.ifuzzer import iFuzzer

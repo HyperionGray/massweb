@@ -42,8 +42,8 @@ def _is_response(response):
     raises              TypeError if response is not a requests.Response.
     """
     if not isinstance(response, Response):
-        logger.warn("Response is of type %s with content %s", type(response),
-                    response)
+        logger.warning("Response is of type %s with content %s", type(response),
+                       response)
         # Die immediately and in a useful way if it's not a response.
         raise TypeError("Response must be of type requests.Response")
 
@@ -101,6 +101,5 @@ if __name__ == "__main__":
  
     r = requests.get("http://www.ada.gov/hospcombrprt.pdf")
     print(parse_worthy(r))
-
 
 
