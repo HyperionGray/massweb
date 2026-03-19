@@ -1,6 +1,6 @@
 
 import unittest
-from util import expand_cases 
+from util import expand_cases
 from massweb.vuln_checks import sqli
 
 class TestSQLICheck(unittest.TestCase):
@@ -25,16 +25,40 @@ class TestSQLICheck(unittest.TestCase):
                 "ora-01722: invalid number",
                 "ora-01858: a non-numeric character was found where a numeric was expected",
                 "ora-00920: invalid relational operator",
-                "ora-00920: missing right parenthesis"]
+                "ora-00920: missing right parenthesis",
+                # Modern MySQL/MariaDB
+                "mysql_fetch_array() expects parameter 1 to be resource",
+                "mysqli_fetch_array() expects parameter 1 to be mysqli_result",
+                "warning: mysql_",
+                "function.mysql",
+                # Modern PostgreSQL
+                "pg_query(): query failed:",
+                "error: unterminated quoted string at or near",
+                "error: syntax error at end of input",
+                # SQLite
+                "sqlite_excl",
+                "sqlite error",
+                "sqlite3::query:",
+                # MSSQL modern
+                "must declare the scalar variable",
+                "conversion failed when converting",
+                "operand type clash",
+                # Generic ORM errors
+                "activerecord::statementinvalid",
+                "pdo::query()",
+                "pdo::exec()",
+                "pdostatement::execute()",
+                "django.db.utils.operationalerror",
+                "django.db.utils.programmingerror"]
         self.true = expand_cases([x.lower() for x in true])
         self.false = ['', "mary had a little lamb", "i want to be an edge case"]
 
     def test_sqli_check(self):
         s = sqli.SQLICheck()
         for t in self.true:
-            self.assertTrue(s.check(t))
+            self.assertTrue(s.check(t), msg=f"Expected SQLi match for: {t!r}")
         for f in self.false:
-            self.assertFalse(s.check(f))
+            self.assertFalse(s.check(f), msg=f"Expected no SQLi match for: {f!r}")
 
 
 

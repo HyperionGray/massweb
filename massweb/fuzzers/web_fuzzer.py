@@ -174,7 +174,7 @@ class WebFuzzer(iFuzzer):
                     result = self._make_failed_result(target, "__PNK_FAILED_RESPONSE")
                 except TypeError as err:
                     logger.debug("Failed to make a failed result for %s.", target)
-                    logger.warn(err.message, exc_info=True)
+                    logger.warning(str(err), exc_info=True)
                     continue
             results.append(result)
         return results
