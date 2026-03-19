@@ -1,3 +1,16 @@
+import os 
+from bs4 import BeautifulSoup, SoupStrainer
+import sys
+from urllib.parse import urlparse, urlunparse, urljoin
+import traceback
+from requests.exceptions import ConnectionError
+import urllib.request
+import urllib.parse
+import urllib.error
+import requests
+from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.targets.target import Target
+from massweb.pnk_net.pnk_request import pnk_request_raw
 import logging
 from urllib.parse import quote_plus, urljoin, urlparse
 
@@ -9,6 +22,7 @@ from massweb.targets.target import Target
 logging.basicConfig(format='%(asctime)s %(name)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('find_post')
 logger.setLevel(logging.INFO)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 GET = "get"
 POST = "post"

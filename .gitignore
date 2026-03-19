@@ -7,5 +7,6 @@ env
 *.log.*
 *.diff
 sphinx/_build/doctrees/
-**.bish**
-**/**.bish**
+**/.bish-index
+**/.bish.sqlite
+**/*.md~

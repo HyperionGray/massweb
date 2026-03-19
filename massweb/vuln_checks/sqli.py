@@ -4,8 +4,13 @@ from massweb.vuln_checks.match import match_strings
 from massweb.vuln_checks.check import Check
 
 class SQLICheck(Check):
-    """ SQL Injection Checker: Checks for evidence of successful SQL injection in result from fuzzers."""
-    #FIXME: Add breif description of the attack
+    """ SQL Injection Checker: Checks for evidence of successful SQL injection
+        in result from fuzzers.
+
+        SQL injection occurs when user-supplied input is embedded in a SQL
+        query without sanitization. An attacker can modify the query logic to
+        extract, modify, or delete data. Detection here is based on matching
+        well-known database error messages in the response. """
 
     def __init__(self):
         """ Initialize the object and normalize the strings used to check for

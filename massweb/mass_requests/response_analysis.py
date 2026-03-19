@@ -9,6 +9,7 @@ from requests import Response
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('response_analysis.parse_worthy')
 logger.setLevel(logging.INFO)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 
 def parse_worthy(response, max_parse_size=5000000, content_type_match="text",

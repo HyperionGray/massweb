@@ -9,8 +9,8 @@ class Result(object):
     """ Result type: encapsulates information relevant to the results
         of a test. """
 
-    def __unicode__(self):
-        """ Return this object in a json formatted string. """
+    def __str__(self):
+        """ Return this object as a json formatted string. """
         # Assuming: self.fuzzy_target.ttype == "get" or
         #  self.fuzzy_target.ttype == "post"
         to_ret = json.dumps({"url": str(self.fuzzy_target),
@@ -19,14 +19,6 @@ class Result(object):
                              "request_type": self.fuzzy_target.ttype,
                              "fuzzy_param": self.fuzzy_target.fuzzy_param})
         return to_ret
-
-    def __str__(self):
-        """Return a JSON formatted string."""
-        return self.__unicode__()
-
-    def __bytes__(self):
-        """Return the JSON formatted string as UTF-8 bytes."""
-        return str(self).encode("utf-8", "replace")
 
     def __init__(self, fuzzy_target, result_dic=None):
         """ Initialize a Result object.

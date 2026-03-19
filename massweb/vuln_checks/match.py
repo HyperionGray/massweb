@@ -39,22 +39,19 @@ def parse_match(str_in, tag, match):
     """ Parse HTML string for a particular tag and attempt to find a matching
         string in the contents of that tag.
 
-    Currently is hardcoded for 'script' tags.
-
     str_in  input string.
     tag     html tag to parse for.
     match   string to match against the contents of the tags.
 
     returns True if a match is found and False if no match is found.
     """
-    #FIXME: tag is unused should it be used in place of 'script'? PNKTHR-52
     # Use html.parser instead of html5lib because html5lib strips script content
-    for script in BeautifulSoup(str_in, 'html.parser').find_all(tag):
+    for element in BeautifulSoup(str_in, 'html.parser').find_all(tag):
         try:
-            script_text = script.get_text()
-            if match_string(script_text, match):
+            element_text = element.get_text()
+            if match_string(element_text, match):
                 return True
-        except: #FIXME: specify exception types
+        except Exception:
             logger.debug("Failed while parsing response content for tag '%s'",
                          tag, exc_info=True)
             continue

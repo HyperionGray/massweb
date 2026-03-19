@@ -11,6 +11,7 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassRequest')
 logger.setLevel(logging.DEBUG)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 
 IDENTIFY_POSTS = 'identify_post'
@@ -148,8 +149,10 @@ class MassRequest(object):
 
     def _urls_from_file(self, filename):
         """ """
-        with open(filename, "r", encoding="utf-8", errors="replace") as url_file:
-            return [line.strip() for line in url_file if line.strip()]
+        url_file = open(filename, "rb")
+        urls = url_file.readlines()
+        url_file.close()
+        return [x.strip().decode("utf-8") for x in urls]
 
     def handle_targets(self, targets=None, action=None):
         """ Handle targets. For internal use.
@@ -198,7 +201,7 @@ class MassRequest(object):
         for result in self.proc_results:
             try:
                 result.get(timeout=self.time_per_url)
-            except: #FIXME: Add exception types
+            except Exception:
                 if self.hadoop_reporting:
                     logger.info("Thread timed out or threw exception, killing"
                                 " it and replacing it", exc_info=True)

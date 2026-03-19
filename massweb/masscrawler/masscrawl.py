@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """ MassCrawl is the crawler/spider part of MassWeb """
 
+import sys
+from urllib.parse import urlparse
 import logging
 from urllib.parse import urlparse
 
@@ -18,6 +20,7 @@ logging.basicConfig(format='%(asctime)s %(name)s: %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('MassCrawlLogger')
 logger.setLevel(logging.DEBUG)
+# Python 3 already provides text stdin/stderr streams with encoding support.
 
 
 class MassCrawl(object):

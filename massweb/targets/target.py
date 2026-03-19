@@ -23,27 +23,15 @@ class Target(object):
         """ Returns a hash of the url, request type, and data """
         return hash((self.url, self.ttype, str(self.data)))
 
-    def __unicode__(self):
-        """Returns the URL as a string (Python 2 compatibility)."""
-        return self.url
-
     def __str__(self):
-        """Return the URL as a string."""
+        """ Returns the URL as text. """
         return self.url
-
-    def __bytes__(self):
-        """Return the URL as UTF-8 bytes."""
-        return self.url.encode("utf-8", "replace")
 
     def __init__(self, url, data=None, ttype="get"):
         """ Initialize a Target object:
-            url     string containing the location of the target.
+            url     str containing the location of the target.
             data    POST request payload as a dict.
             ttype   HTTP request type (get,post). Default "get". """
-        if url is None:
-            raise TypeError("URL input must be a string, not None")
-        if isinstance(url, bytes):
-            url = url.decode("utf-8", "replace")
         if not isinstance(url, str):
             raise TypeError("URL input must be a string")
         self.url = url
@@ -66,3 +54,4 @@ class Target(object):
 
     def _parse(self):
         return urlparse(str(self))
+
