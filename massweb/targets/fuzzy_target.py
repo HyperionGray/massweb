@@ -36,8 +36,8 @@ class FuzzyTarget(Target):
         """
         if not isinstance(payload, Payload):
             raise TypeError("payload must be of type Payload")
-        if not isinstance(unfuzzed_url, unicode):
-            raise TypeError("Unfuzzed URL input must be unicode, not string")
+        if not isinstance(unfuzzed_url, str):
+            raise TypeError("Unfuzzed URL input must be a string")
         super(FuzzyTarget, self).__init__(url, data=data, ttype=ttype)
         self.payload = payload
         self.fuzzy_param = fuzzy_param

@@ -157,7 +157,7 @@ class MassRequest(object):
         url_file = open(filename, "rb")
         urls = url_file.readlines()
         url_file.close()
-        return [unicode(x.strip()) for x in urls]
+        return [x.strip().decode("utf-8") for x in urls]
 
     def handle_targets(self, targets=None, action=None):
         """ Handle targets. For internal use.

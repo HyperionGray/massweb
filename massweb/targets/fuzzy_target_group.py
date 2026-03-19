@@ -11,11 +11,15 @@ class FuzzyTargetGroup(object):
             fuzzy_targets = []
         self.fuzzy_targets = fuzzy_targets
         
-    #FIXME: create a method add_targets() that adds a list of Targets at once
-    #  See PNKTHR-59
-
     def add_target(self, fuzzy_target):
         """ add FuzzyTarget to the group
             fuzzy_target    ... guess ..."""
         self.fuzzy_targets.append(fuzzy_target)
+
+    def add_targets(self, fuzzy_target_list):
+        """ Add a list of FuzzyTarget objects to the group.
+
+        fuzzy_target_list   list of FuzzyTarget objects to add.
+        """
+        self.fuzzy_targets.extend(fuzzy_target_list)
     

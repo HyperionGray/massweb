@@ -23,22 +23,17 @@ class Target(object):
         """ Returns a hash of the url, request type, and data """
         return hash((self.url, self.ttype, str(self.data)))
 
-    def __unicode__(self):
-        """ Returns the URL as a unicode object """
-        return self.url
-
     def __str__(self):
         """ Returns the URL as text. """
-        return self.__unicode__()
+        return self.url
 
     def __init__(self, url, data=None, ttype="get"):
         """ Initialize a Target object:
-            url     unicode object containing the location of the target.
+            url     str containing the location of the target.
             data    POST request payload as a dict.
             ttype   HTTP request type (get,post). Default "get". """
-        # urlparse needs unicode. see PNKTHR-50
-        if not isinstance(url, unicode):
-            raise TypeError("URL input must be unicode, not string")
+        if not isinstance(url, str):
+            raise TypeError("URL input must be a string")
         self.url = url
         self.ttype = ttype
         self.data = data
@@ -58,5 +53,5 @@ class Target(object):
         return self._parse().path
 
     def _parse(self):
-        return urlparse(unicode(self))
+        return urlparse(str(self))
 
