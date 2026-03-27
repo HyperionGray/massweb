@@ -44,7 +44,7 @@ html_sidebars = {'**': ['about.html', 'navigation.html', 'searchbox.html', 'dona
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'alabaster'
 ]
