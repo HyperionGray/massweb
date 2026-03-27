@@ -14,9 +14,9 @@ Recent commits are concentrated on removing workflow files that no longer match 
 
 ### Quick wins
 
-- [ ] Stop tracking generated `docs/_build/` output and ignore it as documentation build output
+- [ ] Add `docs/_build/` to `.gitignore` and remove tracked documentation build output from version control
 - [ ] Align the documented test setup with the actual test requirements so `python -m unittest discover test/` can run with the documented dependencies
-- [ ] Convert the remaining `FIXME` comments in core modules into tracked fixes with clear owners and scope
+- [ ] Convert the remaining `FIXME` comments in core modules into tracked fixes in this `TODO.md` or follow-up issues with clear owners and scope
 - [ ] Add focused test coverage for the least-covered core paths in `massweb/proxy_rotator/` and `massweb/mass_requests/`
 
 ### Incremental improvements
