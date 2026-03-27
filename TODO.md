@@ -14,7 +14,7 @@ Recent commits are concentrated on removing workflow files that no longer match 
 
 ### Quick wins
 
-- [ ] Clean up this directory by deciding whether `docs/_build/` should remain tracked or be treated as generated output
+- [ ] Clean up the documentation build directory by deciding whether `docs/_build/` should remain tracked or be treated as generated output
 - [ ] Align the documented test setup with the actual test requirements so `python -m unittest discover test/` can run with the documented dependencies
 - [ ] Convert the remaining `FIXME` comments in core modules into tracked fixes with clear owners and scope
 - [ ] Add focused test coverage for the least-covered core paths in `massweb/proxy_rotator/` and `massweb/mass_requests/`
