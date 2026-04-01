@@ -16,7 +16,7 @@ MassWeb |version|
    _static/install
    _static/features
    _static/usage
-   daily_progress_2026_03_06
+   daily_progress_2026_03_12
    massweb
 
 
