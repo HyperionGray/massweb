@@ -1,6 +1,6 @@
 
 import unittest
-from util import expand_cases 
+from util import expand_cases
 from massweb.vuln_checks import sqli
 
 class TestSQLICheck(unittest.TestCase):
@@ -56,9 +56,9 @@ class TestSQLICheck(unittest.TestCase):
     def test_sqli_check(self):
         s = sqli.SQLICheck()
         for t in self.true:
-            self.assertTrue(s.check(t))
+            self.assertTrue(s.check(t), msg=f"Expected SQLi match for: {t!r}")
         for f in self.false:
-            self.assertFalse(s.check(f))
+            self.assertFalse(s.check(f), msg=f"Expected no SQLi match for: {f!r}")
 
 
 

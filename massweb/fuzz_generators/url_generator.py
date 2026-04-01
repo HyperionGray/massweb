@@ -74,8 +74,8 @@ def _reassemble_url(query_dic, url_parsed):
     return url_reassembled
 
 
-def geneerate_fuzzy_urls(url, payloads):
-    """ Generate a URL suitable for fuzzing, using the suplied payloads.
+def generate_fuzzy_urls(url, payloads):
+    """ Generate a URL suitable for fuzzing, using the supplied payloads.
 
     url         Base URL.
     payloads    list of Payload objects to apply to url.
