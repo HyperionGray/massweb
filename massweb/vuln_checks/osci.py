@@ -15,7 +15,30 @@ class OSCICheck(Check):
     def __init__(self):
         """ Initialize this object and the list of strings to check for in
             responses. """
-        self.vuln_string = ["root:x:", "[font]"]
+        vuln_strings_raw = [
+            # Unix /etc/passwd content (common OSCI payload: ; cat /etc/passwd)
+            "root:x:",
+            # Unix id command output: uid=0(root) gid=0(root) groups=0(root)
+            "uid=0(root)",
+            "uid=0(",
+            # Common Unix shell paths that appear in command output
+            "/bin/bash",
+            "/bin/sh",
+            "/usr/bin/",
+            # Windows command output patterns
+            "volume in drive",
+            "volume serial number",
+            "directory of c:\\",
+            "windows ip configuration",
+            # Windows ipconfig/systeminfo indicators
+            "ipv4 address",
+            "subnet mask",
+            "default gateway",
+            # net user / whoami output patterns
+            "the command completed successfully",
+            "local group memberships",
+        ]
+        self.vuln_string = [x.lower() for x in vuln_strings_raw]
 
     def check(self, content):
         """ Check the string returned by the fuzzer (content) against the list

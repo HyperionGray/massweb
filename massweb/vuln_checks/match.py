@@ -1,13 +1,14 @@
 """ Helper functions for matching parts of strings """
 
 import logging
+from typing import List
 
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger("vuln_checks")
 
 
-def match_string(str_in, match):
+def match_string(str_in: str, match: str) -> bool:
     """ Check if a string is found in another string.
 
     str_in  Input string.
@@ -21,7 +22,7 @@ def match_string(str_in, match):
         return False
 
 
-def match_strings(str_in, match_list):
+def match_strings(str_in: str, match_list: List[str]) -> bool:
     """ Check if any of a list of strings is found in another string.
 
     str_in      input string.
@@ -35,7 +36,7 @@ def match_strings(str_in, match_list):
     return False
 
 
-def parse_match(str_in, tag, match):
+def parse_match(str_in: str, tag: str, match: str) -> bool:
     """ Parse HTML string for a particular tag and attempt to find a matching
         string in the contents of that tag.
 

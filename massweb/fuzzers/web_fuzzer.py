@@ -16,6 +16,7 @@ from massweb.vuln_checks.mxi import MXICheck
 from massweb.vuln_checks.osci import OSCICheck
 from massweb.vuln_checks.sqli import SQLICheck
 from massweb.vuln_checks.ssrf import SSRFCheck
+from massweb.vuln_checks.ssti import SSTICheck
 from massweb.vuln_checks.trav import TravCheck
 from massweb.vuln_checks.xpathi import XPathICheck
 from massweb.vuln_checks.xss import XSSCheck
@@ -71,6 +72,7 @@ class WebFuzzer(iFuzzer):
         self.osci_check = OSCICheck()
         self.sqli_check = SQLICheck()
         self.ssrf_check = SSRFCheck()
+        self.ssti_check = SSTICheck()
         self.trav_check = TravCheck()
         self.xpathi_check = XPathICheck()
         self.xss_check = XSSCheck()
@@ -79,6 +81,7 @@ class WebFuzzer(iFuzzer):
             "osci": self.osci_check,
             "sqli": self.sqli_check,
             "ssrf": self.ssrf_check,
+            "ssti": self.ssti_check,
             "trav": self.trav_check,
             "xpathi": self.xpathi_check,
             "xss": self.xss_check,
@@ -174,7 +177,7 @@ class WebFuzzer(iFuzzer):
                     result = self._make_failed_result(target, "__PNK_FAILED_RESPONSE")
                 except TypeError as err:
                     logger.debug("Failed to make a failed result for %s.", target)
-                    logger.warn(err.message, exc_info=True)
+                    logger.warning(str(err), exc_info=True)
                     continue
             results.append(result)
         return results
