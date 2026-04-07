@@ -19,46 +19,47 @@ pip install -e .
 
 ```python
 from massweb.fuzzers.web_fuzzer import WebFuzzer
-from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.payloads.payload import Payload
+from massweb.targets.target import Target
 
-# Create a target
-target = FuzzyTarget(
-    url="http://example.com/page?param=FUZZ",
-    method="GET",
-    name="example-param-fuzz",
-)
+# Create a target with URL parameters to fuzz
+target = Target("http://example.com/page?param=1&other=2")
 
-# Define payloads to fuzz with
-payloads = ["FUZZ1", "FUZZ2", "FUZZ3"]
+# Define payloads with the vulnerability types to check
+payloads = [
+    Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list=["xss"]),
+    Payload("')", check_type_list=["sqli", "xpathi"]),
+    Payload("../../etc/passwd", check_type_list=["trav"]),
+]
 
-# Create fuzzer with targets and payloads
-fuzzer = WebFuzzer(targets=[target], payloads=payloads)
-
-# Generate concrete fuzzy targets, then run the fuzzing process
+# Create fuzzer, add payloads, generate fuzzy targets, then run
+fuzzer = WebFuzzer(targets=[target], num_threads=10, time_per_url=10)
+for p in payloads:
+    fuzzer.add_payload(p)
 fuzzer.generate_fuzzy_targets()
 results = fuzzer.fuzz()
 
 # Process results
 for result in results:
-    print(f"Status: {result.status_code}, URL: {result.url}")
+    print(result)
 ```
 
 ### Mass Crawling
 
 ```python
 from massweb.masscrawler.masscrawl import MassCrawl
-from massweb.targets import CrawlTarget
+from massweb.targets.crawl_target import CrawlTarget
 
-# Create crawl target
+# Create a crawl target with a seed URL
 target = CrawlTarget("http://example.com")
 
-# Run crawler
-crawler = MassCrawl(target)
-pages = crawler.crawl()
+# Run crawler with a depth limit and a seed list
+crawler = MassCrawl(seed_list=["http://example.com"], num_threads=10)
+crawler.crawl()
 
-# View discovered pages
-for page in pages:
-    print(page.url)
+# View discovered URLs
+for url in crawler.accumulated_target_urls:
+    print(url)
 ```
 
 ## Using AI-Powered Workflows (Gemini & Others)
@@ -89,31 +90,35 @@ For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 ### Proxy Settings
 
 ```python
-from massweb.fuzzers import WebFuzzer
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.targets.target import Target
 
-# Provide a list of proxies directly to the fuzzer
-proxies = ['proxy1.com:8080', 'proxy2.com:8080']
-fuzzer = WebFuzzer(target, proxy_list=proxies)
+# Provide a list of proxies in the format expected by requests
+proxies = [{"http": "http://proxy1.com:8080"}, {"http": "http://proxy2.com:8080"}]
+target = Target("http://example.com/page?q=1")
+fuzzer = WebFuzzer(targets=[target], proxy_list=proxies)
 ```
 
 ### Payload Customization
 
 ```python
-from massweb.payloads import PayloadGenerator
+from massweb.payloads.payload import Payload
 
-# Load custom payloads
-payloads = PayloadGenerator.from_file('custom_payloads.txt')
-fuzzer = WebFuzzer(target, payloads=payloads)
+# Create a payload with the vulnerability types to detect when that payload fires
+p = Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list=["xss"])
 ```
 
 ## Running Tests
 
 ```bash
-# Run all tests
-python -m pytest test/
+# Run all tests via unittest discovery (preferred)
+python -m unittest discover test/
 
-# Run specific test module
-python -m pytest test/test_fuzzers.py
+# Run a specific test file directly
+python -m unittest test/test_proxy_rotator.py
+
+# Integration tests (require live targets) are skipped by default; enable them with:
+# MASSWEB_RUN_INTEGRATION_TESTS=1 MASSWEB_INTEGRATION_TARGETS=http://target/ python -m unittest discover test/
 ```
 
 ## Documentation
@@ -130,20 +135,23 @@ python -m pytest test/test_fuzzers.py
 
 ## Common Tasks
 
-### Scan for SQL Injection
+### Check a Response for SQL Injection
 ```python
 from massweb.vuln_checks.sqli import SQLICheck
 
-check = SQLICheck(target)
-vulnerabilities = check.scan()
+check = SQLICheck()
+# Pass raw response body text from a fuzzer result
+is_vulnerable = check.check("you have an error in your sql syntax")
+print(is_vulnerable)  # True
 ```
 
-### Directory Traversal Check
+### Check a Response for Directory Traversal
 ```python
 from massweb.vuln_checks.trav import TravCheck
 
-check = TravCheck(target)
-results = check.scan()
+check = TravCheck()
+is_vulnerable = check.check("root:x:0:0:root:/root:/bin/bash")
+print(is_vulnerable)  # True
 ```
 
 ## Next Steps
