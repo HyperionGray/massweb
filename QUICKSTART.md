@@ -8,7 +8,7 @@ git clone https://github.com/HyperionGray/massweb.git
 cd massweb
 ```
 
-2. Install dependencies:
+2. Install in development mode:
 ```bash
 pip install -e .
 ```
@@ -19,139 +19,96 @@ pip install -e .
 
 ```python
 from massweb.fuzzers.web_fuzzer import WebFuzzer
-from massweb.targets.fuzzy_target import FuzzyTarget
+from massweb.targets.target import Target
+from massweb.payloads.payload import Payload
 
-# Create a target
-target = FuzzyTarget(
-    url="http://example.com/page?param=FUZZ",
-    method="GET",
-    name="example-param-fuzz",
-)
+# Create a target with query parameters to fuzz
+target = Target("http://example.com/page?param=1")
 
-# Define payloads to fuzz with
-payloads = ["FUZZ1", "FUZZ2", "FUZZ3"]
+# Define typed payloads (check_type_list controls which vuln checkers run)
+payloads = [
+    Payload("'--", check_type_list=["sqli"]),
+    Payload('"><ScRipT>alert(31337)</ScrIpT>', check_type_list=["xss"]),
+    Payload("../../etc/passwd", check_type_list=["trav"]),
+]
 
-# Create fuzzer with targets and payloads
-fuzzer = WebFuzzer(targets=[target], payloads=payloads)
+# Create fuzzer with targets
+fuzzer = WebFuzzer(targets=[target], num_threads=10, time_per_url=10,
+                   request_timeout=10)
 
-# Generate concrete fuzzy targets, then run the fuzzing process
+# Add payloads, generate concrete fuzzy targets, then run
+for p in payloads:
+    fuzzer.add_payload(p)
 fuzzer.generate_fuzzy_targets()
 results = fuzzer.fuzz()
 
 # Process results
 for result in results:
-    print(f"Status: {result.status_code}, URL: {result.url}")
+    print(result.target, result.result_dic)
 ```
 
 ### Mass Crawling
 
 ```python
 from massweb.masscrawler.masscrawl import MassCrawl
-from massweb.targets import CrawlTarget
 
-# Create crawl target
-target = CrawlTarget("http://example.com")
+# Seed URLs define both the starting points and the crawl scope
+seeds = ["http://example.com/"]
 
-# Run crawler
-crawler = MassCrawl(target)
-pages = crawler.crawl()
+crawler = MassCrawl(seeds=seeds)
+crawler.crawl(depth=3, num_threads=10, time_per_url=10, request_timeout=10)
 
-# View discovered pages
-for page in pages:
-    print(page.url)
+# View discovered targets
+for target in crawler.targets:
+    print(target.url)
 ```
-
-## Using AI-Powered Workflows (Gemini & Others)
-
-### Quick Test
-
-1. **Test Gemini on an Issue**:
-   - Create or open any issue in this repository
-   - Add the label: `gemini:gemini-1.5-pro`
-   - Wait for the automated review comment
-
-2. **Test Gemini on a Pull Request**:
-   - Create a PR with some code changes
-   - Add the label: `gemini:gemini-1.5-flash`
-   - Review the AI-generated feedback
-
-### Available AI Labels
-
-- `gemini:gemini-1.5-pro` - Google Gemini 1.5 Pro (recommended default)
-- `gemini:gemini-1.5-flash` - Google Gemini 1.5 Flash (faster, cheaper)
-- `gpt-4` - OpenAI GPT-4
-- `claude-3.5-sonnet` - Anthropic Claude
-
-For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 
 ## Configuration
 
 ### Proxy Settings
 
 ```python
-from massweb.fuzzers import WebFuzzer
+from massweb.fuzzers.web_fuzzer import WebFuzzer
+from massweb.targets.target import Target
 
-# Provide a list of proxies directly to the fuzzer
-proxies = ['proxy1.com:8080', 'proxy2.com:8080']
-fuzzer = WebFuzzer(target, proxy_list=proxies)
+proxies = [{"http": "http://proxy1.example.com:8080"},
+           {"http": "http://proxy2.example.com:8080"}]
+fuzzer = WebFuzzer(targets=[Target("http://example.com/?q=1")],
+                   proxy_list=proxies)
 ```
 
-### Payload Customization
+### Rate Limiting
 
 ```python
-from massweb.payloads import PayloadGenerator
+from massweb.mass_requests.mass_request import MassRequest
 
-# Load custom payloads
-payloads = PayloadGenerator.from_file('custom_payloads.txt')
-fuzzer = WebFuzzer(target, payloads=payloads)
+# Limit to 5 requests per second
+mr = MassRequest(num_threads=10, requests_per_second=5.0)
 ```
 
 ## Running Tests
 
 ```bash
-# Run all tests
-python -m pytest test/
+# Run all tests via unittest discovery (preferred)
+python -m unittest discover test/
 
-# Run specific test module
-python -m pytest test/test_fuzzers.py
+# Run a specific module
+python -m unittest test.test_webfuzzer_offline
+
+# Run live network integration tests (requires a target URL with query params)
+MASSWEB_RUN_INTEGRATION_TESTS=1 MASSWEB_INTEGRATION_TARGETS=http://example.com/?q=1 \
+    python -m unittest test.test_fuzzers
 ```
 
 ## Documentation
 
-- Full documentation: https://hyperiongray.atlassian.net/wiki/display/PUB/MassWeb
+- Architecture guide: [START_HERE.md](START_HERE.md)
 - API documentation: Run `make html` in `docs/` directory
-- AI Workflows: [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
 
 ## Getting Help
 
 - **Issues**: Open an issue on GitHub
-- **AI Review**: Add `gemini` label to get AI-powered assistance
-- **Documentation**: Check the `docs/` directory
-
-## Common Tasks
-
-### Scan for SQL Injection
-```python
-from massweb.vuln_checks.sqli import SQLICheck
-
-check = SQLICheck(target)
-vulnerabilities = check.scan()
-```
-
-### Directory Traversal Check
-```python
-from massweb.vuln_checks.trav import TravCheck
-
-check = TravCheck(target)
-results = check.scan()
-```
-
-## Next Steps
-
-1. Read the full documentation
-2. Explore example scripts in `examples/` (if available)
-3. Try the AI-powered workflows for code review
-4. Join discussions in GitHub Issues
+- **Documentation**: Check the `docs/` directory and `START_HERE.md`
 
 ## License
 
