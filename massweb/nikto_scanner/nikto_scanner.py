@@ -118,7 +118,7 @@ class NiktoScanner(object):
 
     def _get(self, url):
         """ Send a GET request and return the response, or None on failure. """
-        proxy = self.proxy_list[0] if self.proxy_list else {}
+        proxy = random.choice(self.proxy_list) if self.proxy_list else {}
         try:
             response = _requests.get(
                 url,
