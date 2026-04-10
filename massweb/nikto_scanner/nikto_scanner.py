@@ -179,7 +179,7 @@ class NiktoScanner(object):
             code = response.status_code
             # Report 200, 201, 301, 302, 303, 307, 308, 401, 403 as findings.
             # Exclude 404 (not found) and 5xx (server errors) to reduce noise.
-            if code not in (404, 400, 500, 501, 502, 503, 504):
+            if code in (200, 201, 301, 302, 303, 307, 308, 401, 403):
                 return (path, code)
             return None
 
