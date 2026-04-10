@@ -29,7 +29,7 @@ _VERSION_PATTERN = re.compile(
     r"""
     ( apache  | nginx  | iis | litespeed | tomcat |
       lighttpd | openssl | php | mod_ssl | express )
-    [/\s]+([\d.]+)
+    [/\s]+([^\s,;]+)
     """,
     re.IGNORECASE | re.VERBOSE,
 )
