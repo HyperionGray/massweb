@@ -58,7 +58,7 @@ class PathBuster(object):
                  follow_redirects=False, verify_ssl=True):
         self.base_url = base_url.rstrip("/")
         self.wordlist = list(wordlist) if wordlist is not None else list(DEFAULT_WORDLIST)
-        self.extensions = list(extensions) if extensions else []
+        self.extensions = [ext if ext.startswith(".") else "." + ext for ext in (extensions or [])]
         self.num_threads = num_threads
         self.request_timeout = request_timeout
         self.proxy_list = proxy_list or [{}]
