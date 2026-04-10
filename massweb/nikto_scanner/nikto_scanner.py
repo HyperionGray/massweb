@@ -7,8 +7,10 @@ NiktoScanner combines:
 * Server software version disclosure detection
 * Dangerous / sensitive path probing
 
-It uses the existing :class:`~massweb.mass_requests.mass_request.MassRequest`
-infrastructure for parallelised, rate-limited requests.
+This implementation performs HTTP requests directly with :mod:`requests`
+and uses the scanner's configured worker pool for concurrent probing.  It
+does not currently use
+:class:`~massweb.mass_requests.mass_request.MassRequest`.
 
 Example usage::
 
