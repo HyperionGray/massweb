@@ -1,8 +1,5 @@
 
 import unittest
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from util import expand_cases
 from massweb.vuln_checks import ssi
 
