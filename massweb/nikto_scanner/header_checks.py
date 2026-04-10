@@ -58,8 +58,8 @@ def check_insecure_headers(response):
     """
     findings = []
     for header in _DEPRECATED_HEADERS:
-        value = response.headers.get(header, "")
-        if value:
+        if header in response.headers:
+            value = response.headers[header]
             # Check for version disclosure within the header value.
             match = _VERSION_PATTERN.search(value)
             if match:
