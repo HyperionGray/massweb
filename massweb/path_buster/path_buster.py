@@ -1,8 +1,9 @@
 """ PathBuster — gobuster-style directory/file enumeration.
 
 :class:`PathBuster` takes a base URL and a wordlist and probes each candidate
-path using the existing ``MassRequest`` multiprocessing infrastructure, making
-it fast at scale in keeping with the massweb philosophy.
+path with direct HTTP requests executed concurrently via
+:class:`concurrent.futures.ThreadPoolExecutor`, keeping enumeration fast while
+matching the current implementation in this module.
 
 Example usage::
 
