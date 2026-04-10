@@ -1,6 +1,6 @@
 """ PathBuster — gobuster-style directory and file enumeration.
 
-Provides :class:`PathBuster`, a lean path-enumeration scanner built on top of
-the existing :class:`~massweb.mass_requests.mass_request.MassRequest`
-infrastructure.  It is designed for speed at scale: the same multiprocessing
-pool that drives the core fuzzer handles path probing. """
+Provides :class:`PathBuster`, a lean path-enumeration scanner for probing
+directories and files at scale.  It is designed for fast, concurrent path
+discovery without making assumptions here about the specific request backend
+or concurrency model used by the implementation. """
