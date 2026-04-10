@@ -1,0 +1,83 @@
+""" Built-in wordlists for PathBuster.
+
+Wordlists are tuples of path strings (no leading slash).  Callers that do not
+supply their own wordlist receive :data:`DEFAULT_WORDLIST`, a compact, high-
+value list that covers the most commonly exploitable paths without generating
+excessive noise. """
+
+# A compact, high-value wordlist covering directories and files most likely to
+# yield interesting findings.  Intentionally kept small to stay fast.
+COMMON_WORDLIST = (
+    # Directories
+    "admin",
+    "administrator",
+    "api",
+    "backup",
+    "backups",
+    "bak",
+    "bin",
+    "cache",
+    "cgi-bin",
+    "config",
+    "conf",
+    "console",
+    "data",
+    "database",
+    "db",
+    "debug",
+    "demo",
+    "dev",
+    "docs",
+    "download",
+    "downloads",
+    "files",
+    "images",
+    "img",
+    "include",
+    "includes",
+    "js",
+    "lib",
+    "log",
+    "logs",
+    "manage",
+    "manager",
+    "media",
+    "old",
+    "panel",
+    "private",
+    "public",
+    "root",
+    "scripts",
+    "secret",
+    "static",
+    "temp",
+    "test",
+    "tmp",
+    "upload",
+    "uploads",
+    "user",
+    "users",
+    "vendor",
+    "web",
+    # Files (common sensitive files)
+    ".env",
+    ".git/HEAD",
+    ".htaccess",
+    ".htpasswd",
+    "admin.php",
+    "config.php",
+    "db.php",
+    "index.php",
+    "info.php",
+    "phpinfo.php",
+    "readme.txt",
+    "README.md",
+    "robots.txt",
+    "sitemap.xml",
+    "web.config",
+    "wp-config.php",
+    "wp-login.php",
+    "wp-admin",
+)
+
+DEFAULT_WORDLIST = COMMON_WORDLIST
