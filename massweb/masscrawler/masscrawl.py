@@ -101,7 +101,7 @@ class MassCrawl(object):
             target_hash = hash(target)
             if target_hash in seen_hashes:
                 self.targets.pop(self.targets.index(target))
-                logger.warn("Found duplicate target: %s", target)
+                logger.warning("Found duplicate target: %s", target)
             else:
                 seen_hashes.append(target_hash)
 
@@ -113,7 +113,7 @@ class MassCrawl(object):
         for target in self.targets:
             if not self.in_scope(target.url):
                 self.targets.pop(self.targets.index(target))
-                logger.warn("Target filtered out that was not in scope: %s",
+                logger.warning("Target filtered out that was not in scope: %s",
                                target.url)
 
     def fetch(self, num_threads=10, time_per_url=10, request_timeout=10,
