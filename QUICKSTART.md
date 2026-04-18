@@ -13,6 +13,11 @@ cd massweb
 pip install -e .
 ```
 
+For development (Sphinx docs, build tools):
+```bash
+pip install -r requirements-dev.txt
+```
+
 ## Basic Usage
 
 ### Web Fuzzing
@@ -44,7 +49,7 @@ for result in results:
     print(result)
 ```
 
-### Mass Crawling
+### Mass HTTP Requests
 
 ```python
 from massweb.masscrawler.masscrawl import MassCrawl
@@ -62,32 +67,7 @@ for url in crawler.accumulated_target_urls:
     print(url)
 ```
 
-## Using AI-Powered Workflows (Gemini & Others)
-
-### Quick Test
-
-1. **Test Gemini on an Issue**:
-   - Create or open any issue in this repository
-   - Add the label: `gemini:gemini-1.5-pro`
-   - Wait for the automated review comment
-
-2. **Test Gemini on a Pull Request**:
-   - Create a PR with some code changes
-   - Add the label: `gemini:gemini-1.5-flash`
-   - Review the AI-generated feedback
-
-### Available AI Labels
-
-- `gemini:gemini-1.5-pro` - Google Gemini 1.5 Pro (recommended default)
-- `gemini:gemini-1.5-flash` - Google Gemini 1.5 Flash (faster, cheaper)
-- `gpt-4` - OpenAI GPT-4
-- `claude-3.5-sonnet` - Anthropic Claude
-
-For more details, see [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
-
-## Configuration
-
-### Proxy Settings
+### Proxy Rotation
 
 ```python
 from massweb.fuzzers.web_fuzzer import WebFuzzer
@@ -124,13 +104,11 @@ python -m unittest test/test_proxy_rotator.py
 ## Documentation
 
 - Full documentation: https://hyperiongray.atlassian.net/wiki/display/PUB/MassWeb
-- API documentation: Run `make html` in `docs/` directory
-- AI Workflows: [docs/AI_WORKFLOWS.md](docs/AI_WORKFLOWS.md)
+- API documentation: Run `make html` in the `docs/` directory
 
 ## Getting Help
 
 - **Issues**: Open an issue on GitHub
-- **AI Review**: Add `gemini` label to get AI-powered assistance
 - **Documentation**: Check the `docs/` directory
 
 ## Common Tasks
