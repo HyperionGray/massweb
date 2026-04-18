@@ -2,12 +2,14 @@ build/
 massweb.egg-info/
 dist/
 *.pyc
+__pycache__/
 env
 *.log
 *.log.*
 *.diff
 docs/_build/
 sphinx/_build/doctrees/
+docs/_build/
 **/.bish-index
 **/.bish.sqlite
 **/*.md~
