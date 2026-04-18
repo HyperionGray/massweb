@@ -8,7 +8,7 @@ git clone https://github.com/HyperionGray/massweb.git
 cd massweb
 ```
 
-2. Install dependencies:
+2. Install in development mode:
 ```bash
 pip install -e .
 ```
@@ -79,7 +79,7 @@ target = Target("http://example.com/page?q=1")
 fuzzer = WebFuzzer(targets=[target], proxy_list=proxies)
 ```
 
-### Payload Customization
+### Rate Limiting
 
 ```python
 from massweb.payloads.payload import Payload

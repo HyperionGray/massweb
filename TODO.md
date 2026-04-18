@@ -39,6 +39,8 @@ These FIXME comments exist in the codebase and are tracked here for follow-up:
 
 ### Incremental improvements
 
+- [x] Update `QUICKSTART.md` and related docs so installation, test commands, and AI workflow guidance match the current repository state
+- [x] Add targeted regression tests for crawler scope handling in `massweb/masscrawler/masscrawl.py`
 - [ ] Expand modern vulnerability coverage in `massweb/vuln_checks/` and `massweb/payloads/`, especially around SSRF and newer SQLi/traversal patterns
 - [ ] Add targeted regression tests for crawler scope handling in `massweb/masscrawler/masscrawl.py`
 
