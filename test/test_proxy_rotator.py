@@ -1,5 +1,3 @@
-""" Unit tests for massweb.proxy_rotator.proxy_rotate """
-
 import unittest
 
 from massweb.proxy_rotator.proxy_rotate import get_random_proxy
@@ -7,18 +5,18 @@ from massweb.proxy_rotator.proxy_rotate import get_random_proxy
 
 class TestGetRandomProxy(unittest.TestCase):
 
-    def test_returns_item_from_list(self):
+    def test_returns_element_from_list(self):
         proxy_list = [{"http": "127.0.0.1"}, {"http": "127.0.0.2"}]
         result = get_random_proxy(proxy_list)
         self.assertIn(result, proxy_list)
 
-    def test_single_proxy_always_returned(self):
-        proxy_list = [{"http": "10.0.0.1"}]
-        for _ in range(10):
-            self.assertEqual(get_random_proxy(proxy_list), {"http": "10.0.0.1"})
+    def test_single_entry_list(self):
+        proxy_list = [{"http": "127.0.0.1"}]
+        result = get_random_proxy(proxy_list)
+        self.assertEqual(result, {"http": "127.0.0.1"})
 
     def test_returns_dict(self):
-        proxy_list = [{"http": "192.168.1.1"}, {"https": "192.168.1.2"}]
+        proxy_list = [{"http": "10.0.0.1"}, {"https": "10.0.0.2"}]
         result = get_random_proxy(proxy_list)
         self.assertIsInstance(result, dict)
 
