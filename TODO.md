@@ -37,14 +37,14 @@ These FIXME comments exist in the codebase and are tracked here for follow-up:
 - [ ] `massweb/payloads/bsqli_payload_group.py:2` — PNKTHR-43: Clarify how `add_payload()` interacts with `BSQLIPayloadGroup`
 - [ ] `massweb/payloads/bsqli_payload_group.py:20` — Simplify double-negation logic
 
-### Incremental improvements
+### Incremental improvements (2026-03-09)
 
 - [x] Update `QUICKSTART.md` and related docs so installation, test commands, and AI workflow guidance match the current repository state
 - [x] Add targeted regression tests for crawler scope handling in `massweb/masscrawler/masscrawl.py`
 - [ ] Expand modern vulnerability coverage in `massweb/vuln_checks/` and `massweb/payloads/`, especially around SSRF and newer SQLi/traversal patterns
 - [ ] Add targeted regression tests for crawler scope handling in `massweb/masscrawler/masscrawl.py`
 
-### Larger follow-ups
+### Larger follow-ups (2026-03-09)
 
 - [ ] Evaluate a modern crawler path for JavaScript-rendered applications while preserving the current BeautifulSoup-based crawler
 - [ ] Prototype a request-engine modernization plan only if it can preserve MassWeb's hard timeout behavior
